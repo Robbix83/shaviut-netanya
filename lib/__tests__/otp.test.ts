@@ -79,6 +79,17 @@ describe("lead-submit proof", () => {
   it("rejects a malformed token", () => {
     expect(verifyLeadProof("not-a-real-token", "0501234567").valid).toBe(false);
   });
+
+  it("domain separation: a send-token is NOT accepted as a lead-proof", () => {
+    const sendToken = signToken("0501234567", "123456");
+    expect(verifyLeadProof(sendToken, "0501234567").valid).toBe(false);
+  });
+
+  it("domain separation: a lead-proof is NOT accepted as a send-token", () => {
+    const proof = signLeadProof("0501234567");
+    // A lead-proof presented to the OTP verifier must fail (different signing key).
+    expect(verifyToken(proof, "lead-submit").valid).toBe(false);
+  });
 });
 
 describe("OTP_SECRET fail-closed in production", () => {

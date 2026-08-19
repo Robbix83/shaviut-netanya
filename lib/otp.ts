@@ -34,6 +34,19 @@ function sigEquals(a: string, b: string): boolean {
   return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
+/**
+ * הפרדת דומיין קריפטוגרפית: מפתח חתימה נפרד לכל מטרה, נגזר מהסוד הבסיסי.
+ * כך send-token ו-lead-proof חתומים במפתחות שונים — token ממטרה אחת לעולם
+ * לא יאומת כמטרה אחרת (לא תלוי במבנה ה-payload).
+ */
+function keyFor(purpose: "otp" | "lead-proof"): string {
+  return crypto.createHmac("sha256", secret()).update(`domain:${purpose}`).digest("hex");
+}
+
+function hmac24(key: string, payload: string): string {
+  return crypto.createHmac("sha256", key).update(payload).digest("hex").slice(0, 24);
+}
+
 /** מייצר קוד 6 ספרות */
 export function generateOTP(): string {
   return String(100000 + (crypto.randomInt(900000)));
@@ -43,7 +56,7 @@ export function generateOTP(): string {
 export function signToken(phone: string, otp: string): string {
   const expires = Date.now() + OTP_TTL_MS;
   const payload = `${phone}:${otp}:${expires}`;
-  const sig = crypto.createHmac("sha256", secret()).update(payload).digest("hex").slice(0, 24);
+  const sig = hmac24(keyFor("otp"), payload);
   return Buffer.from(`${payload}|${sig}`).toString("base64url");
 }
 
@@ -60,11 +73,7 @@ export function verifyToken(
     if (pipe < 0) return { valid: false, error: "bad_token" };
     const payload = decoded.slice(0, pipe);
     const sig = decoded.slice(pipe + 1);
-    const expected = crypto
-      .createHmac("sha256", secret())
-      .update(payload)
-      .digest("hex")
-      .slice(0, 24);
+    const expected = hmac24(keyFor("otp"), payload);
     if (!sigEquals(sig, expected)) return { valid: false, error: "bad_sig" };
     const parts = payload.split(":");
     if (parts.length < 3) return { valid: false, error: "bad_payload" };
@@ -98,7 +107,7 @@ export function signLeadProof(phone: string): string {
   const issued = Date.now();
   const expires = issued + LEAD_PROOF_TTL_MS;
   const payload = `${p}:${LEAD_PROOF_PURPOSE}:${issued}:${expires}`;
-  const sig = crypto.createHmac("sha256", secret()).update(payload).digest("hex").slice(0, 24);
+  const sig = hmac24(keyFor("lead-proof"), payload);
   return Buffer.from(`${payload}|${sig}`).toString("base64url");
 }
 
@@ -117,11 +126,7 @@ export function verifyLeadProof(
     if (pipe < 0) return { valid: false, error: "bad_token" };
     const payload = decoded.slice(0, pipe);
     const sig = decoded.slice(pipe + 1);
-    const expected = crypto
-      .createHmac("sha256", secret())
-      .update(payload)
-      .digest("hex")
-      .slice(0, 24);
+    const expected = hmac24(keyFor("lead-proof"), payload);
     if (!sigEquals(sig, expected)) return { valid: false, error: "bad_sig" };
     const parts = payload.split(":");
     if (parts.length < 4) return { valid: false, error: "bad_payload" };
