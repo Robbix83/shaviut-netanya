@@ -32,7 +32,7 @@ export function buildLeadMessage(lead: Lead, v?: Valuation | null): string {
       : null,
     v && v.estimateLow
       ? `💰 אומדן: ${fmtNis(v.estimateLow)}–${fmtNis(v.estimateHigh)}`
-      : null,
+      : "⚠️ שווי לא חושב אוטומטית — נדרשת בדיקה ידנית",
     lead.consentMarketing ? "✅ אישר דיוור שיווקי" : "⚠️ ללא הסכמת דיוור (דוח בלבד)",
     lead.source ? `📊 מקור: ${lead.source}` : null,
   ].filter(Boolean);
@@ -74,19 +74,29 @@ export async function notifyWhatsApp(text: string): Promise<boolean> {
 
 /** הדוח שנשלח ללקוח עצמו ב-WhatsApp */
 export function buildReportMessage(lead: Lead, v?: Valuation | null): string {
+  // Option B (Wave 0A-2/0A-3): if server valuation is unavailable, represent the lead
+  // honestly ("preparing manually") instead of claiming a report that has no numbers.
+  const hasValuation = !!(v && v.estimateLow);
   const lines = [
-    `שלום ${lead.name}, הנה דוח השווי שביקשת 🏠`,
+    hasValuation
+      ? `שלום ${lead.name}, הנה דוח השווי שביקשת 🏠`
+      : `שלום ${lead.name}, קיבלנו את בקשתך לדוח השווי 🏠`,
     lead.neighborhood ? `📍 ${lead.neighborhood}, נתניה` : null,
     lead.rooms || lead.areaSqm ? `🏠 ${lead.rooms ?? "?"} חד' · ${lead.areaSqm ?? "?"} מ"ר` : null,
     "",
-    v && v.estimateLow
-      ? `💰 טווח שווי משוער:\n${fmtNis(v.estimateLow)} – ${fmtNis(v.estimateHigh)}`
+    hasValuation
+      ? `💰 טווח שווי משוער:\n${fmtNis(v!.estimateLow)} – ${fmtNis(v!.estimateHigh)}`
       : null,
-    v ? `📊 ≈ ${fmtNis(v.pricePerSqmMid)} למ"ר · מבוסס על ${v.basedOnDeals} עסקאות אמיתיות באזור` : null,
+    hasValuation
+      ? `📊 ≈ ${fmtNis(v!.pricePerSqmMid)} למ"ר · מבוסס על ${v!.basedOnDeals} עסקאות אמיתיות באזור`
+      : null,
+    !hasValuation
+      ? "אנחנו מכינים עבורך אינדיקציית שווי מותאמת ונחזור אליך בהקדם עם הנתונים."
+      : null,
     "",
-    v && v.comparableDeals.length
+    hasValuation && v!.comparableDeals.length
       ? "עסקאות שנמכרו לאחרונה באזורך:\n" +
-        v.comparableDeals
+        v!.comparableDeals
           .slice(0, 4)
           .map((c) => `• ${c.street ?? ""} ${c.rooms ?? "?"} חד' ${c.areaSqm ?? "?"} מ"ר — ${fmtNis(c.price)}`)
           .join("\n")
