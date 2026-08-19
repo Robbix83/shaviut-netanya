@@ -1,0 +1,46 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env
+.env*.local
+
+# local data store (dev harvest output)
+/data/*.json
+!/data/.gitkeep
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# root-level data dumps & scratch harvest outputs (not source; data.gov/ArcGIS API responses)
+/leadssa.json
+/cbs_search*.json
+/census_sample.json
+/nh_map2.json
+/s5.json
+/.ac.json
+
+# stray artifacts from earlier mis-quoted Windows paths (junk, never source)
+# NB: real filenames use a FULLWIDTH colon (U+FF1A), so a wildcard is used to match all variants
+C*leads.claude/
+C*leads.claudelaunch.json
+C*leadserr.txt

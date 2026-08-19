@@ -1,0 +1,114 @@
+/* ── Google Fonts: Heebo (Hebrew) ─────────────────────────────── */
+@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #0d3efb;
+  --brand-dark: #0a2fc2;
+  --brand-glow: #6b93ff;
+  --hero-dark: #060d24;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Heebo", system-ui, Arial, sans-serif;
+  font-feature-settings: "kern";
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+  overflow-x: clip; /* clip (not hidden) — prevents horizontal scrollbar without creating a scroll container */
+}
+
+/* ── Hide number spinners ─────────────────────────────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ── Design system components ─────────────────────────────────── */
+@layer components {
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-slate-700;
+  }
+
+  .field-input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base
+           outline-none transition
+           focus:border-brand focus:ring-2 focus:ring-brand/20
+           placeholder:text-slate-400;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl
+           bg-brand px-6 py-3.5 text-base font-bold text-white
+           shadow-[0_4px_24px_rgba(13,62,251,0.35)]
+           transition
+           hover:bg-brand-dark hover:shadow-[0_4px_32px_rgba(13,62,251,0.5)]
+           active:scale-[0.98]
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-xl border border-slate-200
+           bg-white px-5 py-3 text-base font-medium text-slate-700
+           transition hover:bg-slate-50 active:scale-[0.98];
+  }
+
+  /* Wizard card inner wrapper (white card on dark hero glass border) */
+  .wizard-card {
+    @apply rounded-2xl bg-white shadow-[0_24px_64px_rgba(0,0,0,0.18)];
+  }
+}
+
+/* ── Keyframes ────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ── Utility: shimmer skeleton ────────────────────────────────── */
+.shimmer-bg {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e7ff 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+/* ── Utility: hero background ─────────────────────────────────── */
+.bg-hero-dark {
+  background: linear-gradient(135deg, #060d24 0%, #0d1a4a 55%, #0a1035 100%);
+}
+
+/* ── Utility: brand glow text ─────────────────────────────────── */
+.text-brand-glow {
+  color: #6b93ff;
+}
+
+/* ── Scrollbar styling (webkit) ───────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }

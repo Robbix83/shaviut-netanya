@@ -1,0 +1,110 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getStore } from "@/lib/store";
+import { notifyNewLead } from "@/lib/notify";
+import { rateCheck, getIP } from "@/lib/rateLimit";
+import type { Lead, Valuation } from "@/lib/types";
+
+export const runtime = "nodejs";
+
+interface Body {
+  name?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  neighborhood?: string;
+  propertyType?: "apartment" | "house" | "land";
+  rooms?: number | null;
+  areaSqm?: number | null;
+  plotSqm?: number | null;
+  floor?: number | null;
+  houseNumber?: string | null;
+  source?: string;
+  consent?: boolean;
+  sellTiming?: string;
+  consentReport?: boolean;
+  consentMarketing?: boolean;
+  alertOptIn?: boolean;
+  consentWordingVersion?: string;
+  valuation?: Valuation | null;
+}
+
+const PHONE_RE = /^0\d{1,2}-?\d{7}$|^(\+?972|972)\d{8,9}$/;
+
+export async function POST(req: NextRequest) {
+  // Rate limit: 3 leads per IP per hour (מגן מפני לידים מזויפים)
+  const ip = getIP(req);
+  if (!rateCheck(`lead:${ip}`, 3, 60 * 60 * 1000)) {
+    return NextResponse.json(
+      { error: "rate_limit", message: "יותר מדי בקשות. נסו שוב בעוד שעה." },
+      { status: 429 },
+    );
+  }
+
+  let body: Body;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
+  }
+
+  const name = (body.name || "").trim();
+  const phone = (body.phone || "").trim().replace(/\s/g, "");
+
+  if (name.length < 2) {
+    return NextResponse.json({ error: "invalid_name", message: "נא להזין שם מלא" }, { status: 422 });
+  }
+  if (!PHONE_RE.test(phone)) {
+    return NextResponse.json(
+      { error: "invalid_phone", message: "מספר טלפון לא תקין" },
+      { status: 422 },
+    );
+  }
+  // הסכמה מפורשת לקבלת הדוח — דרישת חוק הגנת הפרטיות (תיקון 13) + חוק התקשורת
+  const consentReport = body.consentReport ?? body.consent;
+  if (consentReport !== true) {
+    return NextResponse.json(
+      { error: "consent_required", message: "נדרשת הסכמה לקבלת הדוח" },
+      { status: 422 },
+    );
+  }
+
+  const lead: Lead = {
+    name,
+    phone,
+    email: body.email?.trim() || null,
+    address: body.address?.trim() || null,
+    neighborhood: body.neighborhood?.trim() || null,
+    propertyType: body.propertyType ?? "apartment",
+    rooms: body.rooms ?? null,
+    areaSqm: body.areaSqm ?? null,
+    plotSqm: body.plotSqm ?? null,
+    floor: body.floor ?? null,
+    houseNumber: body.houseNumber?.trim() || null,
+    estimateLow: body.valuation?.estimateLow ?? null,
+    estimateHigh: body.valuation?.estimateHigh ?? null,
+    source: body.source?.trim() || null,
+    consent: true,
+    // מטא-דאטה של הסכמה (לתיעוד חוקי)
+    sellTiming: body.sellTiming ?? null,
+    consentReport: true,
+    consentMarketing: body.consentMarketing === true,
+    alertOptIn: body.alertOptIn === true,
+    consentWordingVersion: body.consentWordingVersion ?? null,
+    consentAt: new Date().toISOString(),
+    optOutAt: null,
+    lastAlertAt: null,
+  };
+
+  let saved: Lead;
+  try {
+    saved = await getStore().insertLead(lead);
+  } catch (e) {
+    console.error("lead insert failed", e);
+    return NextResponse.json({ error: "save_failed" }, { status: 500 });
+  }
+
+  // התראות best-effort — לא חוסמות את התגובה למשתמש
+  notifyNewLead(saved, body.valuation).catch((e) => console.error("notify failed", e));
+
+  return NextResponse.json({ ok: true, id: saved.id });
+}

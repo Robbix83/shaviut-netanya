@@ -1,0 +1,209 @@
+
+> shaviut-netanya@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.100.102.76:3000
+- Environments: .env.local
+✓ Ready in 479ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+ GET /dashboard 404 in 520ms (next.js: 277ms, application-code: 243ms)
+ GET /dashboard 404 in 56ms (next.js: 6ms, application-code: 50ms)
+ GET / 200 in 219ms (next.js: 43ms, application-code: 176ms)
+ GET /api/neighborhoods 200 in 105ms (next.js: 81ms, application-code: 23ms)
+ GET /api/autocomplete?q=%D7%90 200 in 71ms (next.js: 52ms, application-code: 18ms)
+ GET /api/autocomplete?q=%D7%90%D7%91%D7%90 200 in 17ms (next.js: 7ms, application-code: 11ms)
+ POST /api/resolve-address 200 in 63ms (next.js: 44ms, application-code: 19ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ POST /api/valuation 422 in 277ms (next.js: 50ms, application-code: 227ms)
+ POST /api/valuation 200 in 19ms (next.js: 7ms, application-code: 12ms)
+ POST /api/valuation 200 in 21ms (next.js: 5ms, application-code: 15ms)
+ POST /api/resolve-address 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%90%D7%91%D7%90+%D7%94%D7%9C%D7%9C 200 in 6ms (next.js: 2ms, application-code: 4ms)
+ POST /api/valuation 200 in 9ms (next.js: 2ms, application-code: 6ms)
+ POST /api/valuation 422 in 14ms (next.js: 6ms, application-code: 7ms)
+ POST /api/valuation 422 in 10ms (next.js: 2ms, application-code: 8ms)
+ GET / 200 in 139ms (next.js: 52ms, application-code: 88ms)
+ GET / 200 in 31ms (next.js: 3ms, application-code: 28ms)
+ GET / 200 in 120ms (next.js: 41ms, application-code: 79ms)
+ GET / 200 in 45ms (next.js: 3ms, application-code: 42ms)
+⨯ ReferenceError: Cannot access 'minPpsqm' before initialization
+    at <unknown> (lib\valuation.ts:205:53)
+    at Array.filter (<anonymous>)
+    at valuate (lib\valuation.ts:205:8)
+    at async POST (app\api\valuation\route.ts:64:21)
+  203 |     const prePpsqm = deals
+  204 |       .map((d) => d.pricePerSqm)
+> 205 |       .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
+      |                                                     ^
+  206 |     if (deals.length < MIN_DEALS_FOR_ESTIMATE || prePpsqm.length < MIN_DEALS_FOR_ESTIMATE) {
+  207 |       const allDeals = await store.getAllDeals();
+  208 |       const cutoff = cutoffDate(GEO_MONTHS);
+ POST /api/valuation 500 in 210ms (next.js: 25ms, application-code: 186ms)
+⨯ ReferenceError: Cannot access 'minPpsqm' before initialization
+    at <unknown> (lib\valuation.ts:205:53)
+    at Array.filter (<anonymous>)
+    at valuate (lib\valuation.ts:205:8)
+    at async POST (app\api\valuation\route.ts:64:21)
+  203 |     const prePpsqm = deals
+  204 |       .map((d) => d.pricePerSqm)
+> 205 |       .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
+      |                                                     ^
+  206 |     if (deals.length < MIN_DEALS_FOR_ESTIMATE || prePpsqm.length < MIN_DEALS_FOR_ESTIMATE) {
+  207 |       const allDeals = await store.getAllDeals();
+  208 |       const cutoff = cutoffDate(GEO_MONTHS);
+ POST /api/valuation 500 in 77ms (next.js: 1492µs, application-code: 76ms)
+ GET / 200 in 158ms (next.js: 60ms, application-code: 98ms)
+ GET / 200 in 54ms (next.js: 4ms, application-code: 51ms)
+ GET / 200 in 114ms (next.js: 46ms, application-code: 67ms)
+ GET / 200 in 31ms (next.js: 3ms, application-code: 28ms)
+ POST /api/valuation 200 in 97ms (next.js: 21ms, application-code: 76ms)
+ POST /api/valuation 422 in 12ms (next.js: 5ms, application-code: 7ms)
+ POST /api/valuation 200 in 24ms (next.js: 14ms, application-code: 10ms)
+ POST /api/valuation 200 in 30ms (next.js: 25ms, application-code: 5ms)
+ POST /api/valuation 422 in 6ms (next.js: 1752µs, application-code: 4ms)
+ GET / 200 in 250ms (next.js: 97ms, application-code: 153ms)
+ GET / 200 in 81ms (next.js: 6ms, application-code: 76ms)
+ GET / 200 in 251ms (next.js: 122ms, application-code: 128ms)
+ GET / 200 in 64ms (next.js: 2ms, application-code: 61ms)
+[val] scope=radius deals=5 prePpsqm=2 min=6000
+[val] cross-neigh: allDeals=9144
+[val] cross R=500: inR=5 inRPps=2
+[val] cross R=750: inR=10 inRPps=7
+ POST /api/valuation 422 in 116ms (next.js: 29ms, application-code: 86ms)
+ GET / 200 in 210ms (next.js: 101ms, application-code: 109ms)
+ GET / 200 in 52ms (next.js: 4ms, application-code: 48ms)
+[val] scope=radius deals=5 prePpsqm=2 min=6000
+[val] cross-neigh: allDeals=9144
+[val] cross R=500: inR=5 inRPps=2
+[val] cross R=750: inR=10 inRPps=7
+[val] scope=street deals=6 prePpsqm=1 min=6000
+[val] cross-neigh: allDeals=9144
+[val] cross R=500: inR=11 inRPps=4
+[val] scope=street deals=51 prePpsqm=47 min=8000
+ POST /api/valuation 200 in 133ms (next.js: 19ms, application-code: 114ms)
+ POST /api/valuation 200 in 135ms (next.js: 22ms, application-code: 112ms)
+ POST /api/valuation 200 in 136ms (next.js: 25ms, application-code: 111ms)
+ GET / 200 in 206ms (next.js: 77ms, application-code: 129ms)
+ GET / 200 in 47ms (next.js: 4ms, application-code: 42ms)
+ GET / 200 in 179ms (next.js: 84ms, application-code: 96ms)
+ GET / 200 in 48ms (next.js: 3ms, application-code: 45ms)
+ POST /api/valuation 200 in 360ms (next.js: 35ms, application-code: 325ms)
+ POST /api/valuation 200 in 361ms (next.js: 42ms, application-code: 319ms)
+ POST /api/valuation 200 in 362ms (next.js: 49ms, application-code: 314ms)
+ POST /api/valuation 200 in 363ms (next.js: 54ms, application-code: 309ms)
+ POST /api/valuation 200 in 364ms (next.js: 60ms, application-code: 304ms)
+ GET / 200 in 196ms (next.js: 5ms, application-code: 190ms)
+ GET /api/neighborhoods 200 in 41ms (next.js: 35ms, application-code: 6ms)
+ GET /api/autocomplete?q=%D7%90 200 in 69ms (next.js: 47ms, application-code: 22ms)
+ GET /api/autocomplete?q=%D7%90%D7%91 200 in 14ms (next.js: 5ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%90%D7%91%D7%90 200 in 16ms (next.js: 4ms, application-code: 11ms)
+ POST /api/resolve-address 200 in 47ms (next.js: 36ms, application-code: 12ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ POST /api/valuation 200 in 218ms (next.js: 2ms, application-code: 216ms)
+ GET /api/teaser?neighborhood=%D7%A0%D7%90%D7%95%D7%AA+%D7%94%D7%A8%D7%A6%D7%9C&x=187730.455&y=693089.975 200 in 406ms (next.js: 51ms, application-code: 355ms)
+ GET / 200 in 84ms (next.js: 4ms, application-code: 81ms)
+ GET /api/neighborhoods 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET /api/autocomplete?q=%D7%95 200 in 15ms (next.js: 7ms, application-code: 8ms)
+ GET /api/autocomplete?q=%D7%95%D7%99 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%99 200 in 14ms (next.js: 3ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%99%D7%A6 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%99%D7%A6%D7%9E 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%99%D7%A6 200 in 14ms (next.js: 5ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%99 200 in 18ms (next.js: 6ms, application-code: 12ms)
+ GET /api/autocomplete?q=%D7%95%D7%99 200 in 15ms (next.js: 5ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%A6 200 in 14ms (next.js: 4ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%A6%D7%9E 200 in 11ms (next.js: 5ms, application-code: 7ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ POST /api/resolve-address 200 in 23ms (next.js: 5ms, application-code: 18ms)
+ POST /api/valuation 200 in 150ms (next.js: 2ms, application-code: 148ms)
+ GET /api/teaser?neighborhood=%D7%9E%D7%A8%D7%9B%D7%96+%D7%94%D7%A2%D7%99%D7%A8+%D7%A6%D7%A4%D7%95%D7%9F&x=187072.538&y=694116.301 200 in 223ms (next.js: 2ms, application-code: 221ms)
+ GET / 200 in 239ms (next.js: 123ms, application-code: 115ms)
+ GET / 200 in 56ms (next.js: 5ms, application-code: 51ms)
+ GET / 200 in 229ms (next.js: 78ms, application-code: 151ms)
+ GET / 200 in 66ms (next.js: 5ms, application-code: 61ms)
+ POST /api/valuation 200 in 320ms (next.js: 58ms, application-code: 262ms)
+ GET / 200 in 218ms (next.js: 84ms, application-code: 134ms)
+ GET / 200 in 64ms (next.js: 5ms, application-code: 59ms)
+✓ Compiled in 254ms
+ GET / 200 in 123ms (next.js: 74ms, application-code: 49ms)
+✓ Compiled in 133ms
+ GET / 200 in 132ms (next.js: 81ms, application-code: 51ms)
+ POST /api/valuation 200 in 307ms (next.js: 49ms, application-code: 257ms)
+ POST /api/valuation 200 in 13ms (next.js: 4ms, application-code: 9ms)
+ POST /api/valuation 200 in 23ms (next.js: 15ms, application-code: 8ms)
+ POST /api/valuation 200 in 32ms (next.js: 25ms, application-code: 7ms)
+ GET / 200 in 998ms (next.js: 188ms, application-code: 810ms)
+ GET /api/neighborhoods 200 in 98ms (next.js: 62ms, application-code: 36ms)
+ GET /api/autocomplete?q=%D7%90%D7%91%D7%90%20%D7%94%D7%9C%D7%9C 200 in 70ms (next.js: 55ms, application-code: 16ms)
+ POST /api/resolve-address 200 in 76ms (next.js: 61ms, application-code: 15ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ POST /api/valuation 200 in 251ms (next.js: 6ms, application-code: 245ms)
+ GET /api/teaser?neighborhood=%D7%A0%D7%90%D7%95%D7%AA+%D7%94%D7%A8%D7%A6%D7%9C&x=187730.455&y=693089.975 200 in 363ms (next.js: 48ms, application-code: 316ms)
+ GET /dashboard 404 in 115ms (next.js: 26ms, application-code: 89ms)
+ GET /dashboard 404 in 69ms (next.js: 6ms, application-code: 63ms)
+ GET / 200 in 70ms (next.js: 7ms, application-code: 64ms)
+ GET /api/neighborhoods 200 in 14ms (next.js: 3ms, application-code: 11ms)
+ GET /api/autocomplete?q=%D7%94%D7%A8 200 in 11ms (next.js: 5ms, application-code: 6ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ GET /api/autocomplete?q=%D7%94%D7%A8%D7%98 200 in 8ms (next.js: 3ms, application-code: 5ms)
+ GET /api/autocomplete?q=%D7%93%D7%92 200 in 13ms (next.js: 4ms, application-code: 10ms)
+ GET /api/autocomplete?q=%D7%93%D7%A8%D7%9A 200 in 16ms (next.js: 5ms, application-code: 11ms)
+ GET /api/autocomplete?q=%D7%93%D7%A8%D7%9A%20 200 in 8ms (next.js: 2ms, application-code: 6ms)
+ GET /api/autocomplete?q=%D7%93%D7%A8%D7%9A%20%D7%93%D7%92 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ POST /api/valuation 200 in 137ms (next.js: 6ms, application-code: 132ms)
+ GET /api/teaser?neighborhood=%D7%A7%D7%A8%D7%99%D7%99%D7%AA+%D7%94%D7%A9%D7%A8%D7%95%D7%9F&x=188332&y=689991 200 in 323ms (next.js: 3ms, application-code: 321ms)
+ POST /api/lead 200 in 333ms (next.js: 294ms, application-code: 39ms)
+ GET /api/cbs?neighborhood=%D7%A7%D7%A8%D7%99%D7%99%D7%AA+%D7%94%D7%A9%D7%A8%D7%95%D7%9F 200 in 70ms (next.js: 65ms, application-code: 5ms)
+ GET /api/mavat?x=188332&y=689991 200 in 162ms (next.js: 151ms, application-code: 11ms)
+ GET /api/cbs?neighborhood=%D7%A7%D7%A8%D7%99%D7%99%D7%AA+%D7%94%D7%A9%D7%A8%D7%95%D7%9F 200 in 8ms (next.js: 4ms, application-code: 4ms)
+ GET /api/accessibility?x=188332&y=689991 200 in 251ms (next.js: 227ms, application-code: 23ms)
+ GET /api/mavat?x=188332&y=689991 200 in 22ms (next.js: 12ms, application-code: 10ms)
+ GET /api/accessibility?x=188332&y=689991 200 in 11ms (next.js: 3ms, application-code: 8ms)
+ GET / 200 in 84ms (next.js: 6ms, application-code: 78ms)
+ GET /api/neighborhoods 200 in 11ms (next.js: 6ms, application-code: 5ms)
+ GET /api/autocomplete?q=%D7%90 200 in 12ms (next.js: 4ms, application-code: 9ms)
+ GET /api/autocomplete?q=%D7%90%D7%91 200 in 14ms (next.js: 6ms, application-code: 8ms)
+ GET /api/autocomplete?q=%D7%90%D7%91%D7%90 200 in 16ms (next.js: 7ms, application-code: 10ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ POST /api/resolve-address 200 in 21ms (next.js: 7ms, application-code: 14ms)
+ POST /api/valuation 200 in 160ms (next.js: 2ms, application-code: 157ms)
+ GET /api/teaser?neighborhood=%D7%A0%D7%90%D7%95%D7%AA+%D7%94%D7%A8%D7%A6%D7%9C&x=187730.455&y=693089.975 200 in 6ms (next.js: 2ms, application-code: 4ms)
+ POST /api/lead 200 in 29ms (next.js: 6ms, application-code: 24ms)
+ GET /api/cbs?neighborhood=%D7%A0%D7%90%D7%95%D7%AA+%D7%94%D7%A8%D7%A6%D7%9C 200 in 10ms (next.js: 3ms, application-code: 7ms)
+ GET /api/mavat?x=187730&y=693090 200 in 9ms (next.js: 4ms, application-code: 5ms)
+ GET /api/accessibility?x=187730&y=693090 200 in 24ms (next.js: 12ms, application-code: 11ms)
+ GET /api/cbs?neighborhood=%D7%A0%D7%90%D7%95%D7%AA+%D7%94%D7%A8%D7%A6%D7%9C 200 in 25ms (next.js: 19ms, application-code: 6ms)
+ GET /api/mavat?x=187730&y=693090 200 in 8ms (next.js: 3ms, application-code: 4ms)
+ GET /api/accessibility?x=187730&y=693090 200 in 23ms (next.js: 16ms, application-code: 7ms)
+ GET / 200 in 191ms (next.js: 16ms, application-code: 175ms)
+ GET /api/neighborhoods 200 in 15ms (next.js: 3ms, application-code: 12ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%A6 200 in 12ms (next.js: 3ms, application-code: 9ms)
+ GET /api/autocomplete?q=%D7%95%D7%99%D7%A6%D7%9E%D7%9F 200 in 14ms (next.js: 8ms, application-code: 6ms)
+[browser] Error restoring session i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161) (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:4:10741)
+[browser] ⨯ unhandledRejection: i: Failed to connect to MetaMask
+    at Object.connect (chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/scripts/inpage.js:7:81161)
+ POST /api/resolve-address 200 in 21ms (next.js: 5ms, application-code: 16ms)
+ POST /api/valuation 200 in 145ms (next.js: 4ms, application-code: 140ms)
+ GET /api/teaser?neighborhood=%D7%9E%D7%A8%D7%9B%D7%96+%D7%94%D7%A2%D7%99%D7%A8+%D7%A6%D7%A4%D7%95%D7%9F&x=187072.538&y=694116.301 200 in 196ms (next.js: 4ms, application-code: 192ms)
