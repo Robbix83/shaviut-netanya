@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
 import { notifyNewLead } from "@/lib/notify";
 import { rateCheck, getIP } from "@/lib/rateLimit";
+import { verifyLeadProof } from "@/lib/otp";
 import type { Lead, Valuation } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -59,6 +60,16 @@ export async function POST(req: NextRequest) {
       { status: 422 },
     );
   }
+
+  // אכיפת proof של אימות OTP בצד-שרת — הליד נחסם לפני DB/WhatsApp/Sheets אם אין הוכחה
+  // תקפה שהטלפon הזה עבר אימות. הוכחה נשמרת ב-Cookie מסוג HttpOnly (הלקוח לא שולט בה).
+  const proof = req.cookies.get("lead_proof")?.value;
+  const proofResult = verifyLeadProof(proof, phone);
+  if (!proofResult.valid) {
+    // לא חושפים פרטי אבטחה ללקוח — קוד שגיאה יציב בלבד.
+    return NextResponse.json({ error: "otp_verification_required" }, { status: 401 });
+  }
+
   // הסכמה מפורשת לקבלת הדוח — דרישת חוק הגנת הפרטיות (תיקון 13) + חוק התקשורת
   const consentReport = body.consentReport ?? body.consent;
   if (consentReport !== true) {
@@ -106,5 +117,8 @@ export async function POST(req: NextRequest) {
   // התראות best-effort — לא חוסמות את התגובה למשתמש
   notifyNewLead(saved, body.valuation).catch((e) => console.error("notify failed", e));
 
-  return NextResponse.json({ ok: true, id: saved.id });
+  // מנקים את ה-proof לאחר שימוש מוצלח — מצמצם את חלון ה-replay בדפדפן זה.
+  const res = NextResponse.json({ ok: true, id: saved.id });
+  res.cookies.set("lead_proof", "", { path: "/", maxAge: 0 });
+  return res;
 }

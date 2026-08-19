@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/otp";
+import { verifyToken, signLeadProof } from "@/lib/otp";
 
 export const runtime = "nodejs";
+
+const LEAD_PROOF_MAX_AGE = 15 * 60; // שניות — תואם ל-LEAD_PROOF_TTL_MS
+
+/** מנפיק Cookie proof מסוג HttpOnly לאחר אימות מוצלח (הדפדפן לא קורא את הערך) */
+function attachLeadProof(res: NextResponse, phone: string): NextResponse {
+  res.cookies.set("lead_proof", signLeadProof(phone), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: LEAD_PROOF_MAX_AGE,
+  });
+  return res;
+}
 
 export async function POST(req: NextRequest) {
   let body: { token?: string; code?: string };
@@ -29,7 +43,11 @@ export async function POST(req: NextRequest) {
     if (!ok) return NextResponse.json({ valid: false, message: "קוד שגוי — נסו שנית." }, { status: 422 });
   }
 
-  return NextResponse.json({ valid: true, phone: result.phone });
+  // אימות הצליח בכל מסלול ספק → מנפיקים proof בצד-שרת לשלב שליחת הליד
+  return attachLeadProof(
+    NextResponse.json({ valid: true, phone: result.phone }),
+    result.phone!,
+  );
 }
 
 async function checkTwilioVerify(phone: string, code: string): Promise<boolean> {
