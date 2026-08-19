@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
 import { phoneToChatId } from "@/lib/notify";
+import { isWebhookAuthorized } from "@/lib/config";
 
 export const runtime = "nodejs";
 
@@ -32,9 +33,13 @@ function extractSender(body: any): string | null {
 }
 
 export async function POST(req: NextRequest) {
-  // אימות אסימון (אם הוגדר)
-  const expected = process.env.GREEN_WEBHOOK_TOKEN;
-  if (expected && req.nextUrl.searchParams.get("token") !== expected) {
+  // אימות אסימון — כשל-סגור בפרודקשן: אם GREEN_WEBHOOK_TOKEN לא מוגדר בפרודקשן, נדחה.
+  const authorized = isWebhookAuthorized({
+    expected: process.env.GREEN_WEBHOOK_TOKEN,
+    provided: req.nextUrl.searchParams.get("token"),
+    isProduction: process.env.NODE_ENV === "production",
+  });
+  if (!authorized) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

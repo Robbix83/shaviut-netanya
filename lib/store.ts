@@ -1,15 +1,16 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Deal, Neighborhood, Lead, LeadStatus, TabuStatus } from "./types";
+import { resolveDataSource } from "./config";
 
 /**
  * שכבת גישה לנתונים עם שני מימושים:
  *  - "local": קבצי JSON תחת /data (לפיתוח ואימות מקומי)
  *  - "supabase": Postgres מנוהל (פרודקשן)
- * נבחר לפי משתנה הסביבה DATA_SOURCE.
+ * נבחר לפי משתנה הסביבה DATA_SOURCE, עם כשל-סגור בפרודקשן (ראה lib/config.ts).
+ * ההכרעה מתבצעת ב-getStore() בזמן ריצה — לא ב-import — כדי לא לשבור `next build`.
  */
 
-const DATA_SOURCE = process.env.DATA_SOURCE || "local";
 const DATA_DIR = path.join(process.cwd(), "data");
 
 export interface DealsQuery {
@@ -305,6 +306,8 @@ function monthsAgoISO(months: number): string {
 let _store: Store | null = null;
 export function getStore(): Store {
   if (_store) return _store;
-  _store = DATA_SOURCE === "supabase" ? new SupabaseStore() : new LocalStore();
+  // Fail-closed in production: throws if DATA_SOURCE is not "supabase" (see lib/config.ts).
+  const mode = resolveDataSource(process.env);
+  _store = mode === "supabase" ? new SupabaseStore() : new LocalStore();
   return _store;
 }
