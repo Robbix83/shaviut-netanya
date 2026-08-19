@@ -15,6 +15,15 @@ vi.mock("@/lib/store", async (importOriginal) => {
   return { ...actual, getStore: () => ({ insertLead }) };
 });
 vi.mock("@/lib/notify", () => ({ notifyNewLead }));
+// Isolate the OTP-gate tests from the valuation seam (its own tests cover recompute).
+vi.mock("@/lib/valuationService", () => ({
+  resolveAndValuate: vi.fn(async () => ({
+    ok: true,
+    valuation: { estimateLow: 1_000_000, estimateHigh: 1_500_000, neighborhood: "אגמים" },
+    neighborhoodId: "66239255",
+    neighborhoodName: "אגמים",
+  })),
+}));
 
 import { POST } from "@/app/api/lead/route";
 import { signLeadProof } from "@/lib/otp";
@@ -40,6 +49,7 @@ const validBody = {
   phone: "0501234567",
   consentReport: true,
   propertyType: "apartment",
+  valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100 },
 };
 
 describe("POST /api/lead — server-enforced OTP proof", () => {

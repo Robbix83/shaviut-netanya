@@ -3,6 +3,7 @@ import { getStore } from "@/lib/store";
 import { notifyNewLead } from "@/lib/notify";
 import { rateCheck, getIP } from "@/lib/rateLimit";
 import { verifyLeadProof } from "@/lib/otp";
+import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
 import type { Lead, Valuation } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -26,10 +27,36 @@ interface Body {
   consentMarketing?: boolean;
   alertOptIn?: boolean;
   consentWordingVersion?: string;
-  valuation?: Valuation | null;
+  /** קלט חישוב השווי — השרת מחשב מחדש. פלטי-שווי מהלקוח אינם נאמנים ומתעלמים מהם. */
+  valuationInput?: unknown;
 }
 
 const PHONE_RE = /^0\d{1,2}-?\d{7}$|^(\+?972|972)\d{8,9}$/;
+
+/** ולידציה מינימלית של קלט השווי. neighborhoodId חובה כדי לשחזר את החישוב בצד-שרת. */
+function validateValuationInput(vi: unknown): ValuationInput | null {
+  if (!vi || typeof vi !== "object") return null;
+  const o = vi as Record<string, unknown>;
+  if (typeof o.neighborhoodId !== "string" || !o.neighborhoodId.trim()) return null;
+  const num = (x: unknown): number | null =>
+    typeof x === "number" && Number.isFinite(x) ? x : null;
+  const pt = o.propertyType;
+  const propertyType: "apartment" | "house" | "land" =
+    pt === "house" || pt === "land" ? pt : "apartment";
+  return {
+    neighborhoodId: o.neighborhoodId.trim(),
+    propertyType,
+    rooms: num(o.rooms),
+    areaSqm: num(o.areaSqm),
+    plotSqm: num(o.plotSqm),
+    floor: num(o.floor),
+    yearBuilt: num(o.yearBuilt),
+    houseNumber: typeof o.houseNumber === "string" ? o.houseNumber : null,
+    streetName: typeof o.streetName === "string" ? o.streetName : null,
+    streetX: num(o.streetX),
+    streetY: num(o.streetY),
+  };
+}
 
 export async function POST(req: NextRequest) {
   // Rate limit: 3 leads per IP per hour (מגן מפני לידים מזויפים)
@@ -79,20 +106,47 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ולידציית קלט השווי — נדחה קלט לא-תקין לפני כל שמירה/התראה.
+  const valuationInput = validateValuationInput(body.valuationInput);
+  if (!valuationInput) {
+    return NextResponse.json(
+      { error: "invalid_valuation_input", message: "נתוני הנכס חסרים או שגויים" },
+      { status: 422 },
+    );
+  }
+
+  // חישוב שווי סמכותי בצד-שרת — פלטים מהלקוח אינם נאמנים ומתעלמים מהם לחלוטין.
+  // אם החישוב נכשל (נתונים לא מספיקים/שגיאה): שומרים את הליד ללא אומדן (מצב בטוח
+  // הקיים בסכימה) במקום לאבד ליד מוכר לאחר שכבר עבר OTP. השרת לעולם לא שומר ערך מהלקוח.
+  let serverValuation: Valuation | null = null;
+  try {
+    const outcome = await resolveAndValuate(valuationInput);
+    if (outcome.ok) {
+      serverValuation = outcome.valuation;
+    } else {
+      console.warn(`[lead] valuation unavailable: ${outcome.error}`); // ללא PII
+    }
+  } catch (e) {
+    console.error("[lead] valuation recompute error:", e instanceof Error ? e.message : "unknown");
+    serverValuation = null;
+  }
+
   const lead: Lead = {
     name,
     phone,
     email: body.email?.trim() || null,
     address: body.address?.trim() || null,
-    neighborhood: body.neighborhood?.trim() || null,
+    // השכונה הסמכותית מגיעה מחישוב השרת; טקסט התצוגה מהלקוח משמש רק כגיבוי אם אין חישוב.
+    neighborhood: serverValuation?.neighborhood ?? (body.neighborhood?.trim() || null),
     propertyType: body.propertyType ?? "apartment",
     rooms: body.rooms ?? null,
     areaSqm: body.areaSqm ?? null,
     plotSqm: body.plotSqm ?? null,
     floor: body.floor ?? null,
     houseNumber: body.houseNumber?.trim() || null,
-    estimateLow: body.valuation?.estimateLow ?? null,
-    estimateHigh: body.valuation?.estimateHigh ?? null,
+    // אומדנים מחישוב השרת בלבד (null אם החישוב לא זמין).
+    estimateLow: serverValuation?.estimateLow ?? null,
+    estimateHigh: serverValuation?.estimateHigh ?? null,
     source: body.source?.trim() || null,
     consent: true,
     // מטא-דאטה של הסכמה (לתיעוד חוקי)
@@ -114,8 +168,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "save_failed" }, { status: 500 });
   }
 
-  // התראות best-effort — לא חוסמות את התגובה למשתמש
-  notifyNewLead(saved, body.valuation).catch((e) => console.error("notify failed", e));
+  // התראות best-effort — עם חישוב השרת בלבד (לא ערכי הלקוח) — לא חוסמות את התגובה.
+  notifyNewLead(saved, serverValuation).catch((e) => console.error("notify failed", e));
 
   // מנקים את ה-proof לאחר שימוש מוצלח — מצמצם את חלון ה-replay בדפדפן זה.
   const res = NextResponse.json({ ok: true, id: saved.id });

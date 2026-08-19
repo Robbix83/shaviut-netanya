@@ -753,7 +753,20 @@ export default function ValuationWizard() {
           consentMarketing,
           alertOptIn,
           consentWordingVersion: "2026-06-v1",
-          valuation,
+          // קלט חישוב השווי — השרת מחשב מחדש ומתעלם מכל פלט שמגיע מהלקוח.
+          valuationInput: {
+            neighborhoodId,
+            propertyType,
+            rooms: isLand ? null : rooms,
+            areaSqm: needsArea && area ? Number(area) : null,
+            plotSqm: needsPlot && plot ? Number(plot) : null,
+            floor: !isLand && floor ? Number(floor) : null,
+            yearBuilt: yearBuilt ? Number(yearBuilt) : null,
+            houseNumber: houseNumber.trim() || null,
+            streetName: selectedStreet?.label ?? null,
+            streetX: selectedStreet?.x ?? null,
+            streetY: selectedStreet?.y ?? null,
+          },
         }),
       });
       const j = await r.json();
@@ -1276,17 +1289,8 @@ export default function ValuationWizard() {
               </div>
             )}
 
-            {/* מצב פיתוח — מעקף OTP (רק כשמשתנה הסביבה מוגדר) */}
-            {(otpState === "idle" || otpState === "sending") &&
-              process.env.NEXT_PUBLIC_DEV_BYPASS_OTP === "true" && (
-              <button
-                type="button"
-                className="w-full rounded-xl border border-dashed border-slate-300 py-2 text-xs text-slate-400 hover:border-slate-400 hover:text-slate-500 transition"
-                onClick={submitLead}
-              >
-                ⚙️ דלג על OTP (מצב בדיקה בלבד)
-              </button>
-            )}
+            {/* מעקף ה-OTP בצד-לקוח הוסר (Wave 0A-2): השרת אוכף הוכחת OTP,
+                ולכן הכפתור לא יכול היה ליצור ליד ורק היה מבלבל. */}
 
             {/* שלב 3ב — הזנת קוד */}
             {(otpState === "sent" || otpState === "verifying") && (
