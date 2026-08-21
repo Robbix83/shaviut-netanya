@@ -33,10 +33,14 @@ interface Body {
 
 const PHONE_RE = /^0\d{1,2}-?\d{7}$|^(\+?972|972)\d{8,9}$/;
 
-/** מקדם ערך לשלם או null. floor הוא עמודת int ב-DB — ערך שברי (למשל 2.5) היה
- *  מכשיל את ה-INSERT ומאבד את הליד. מעגלים לשלם הקרוב במקום לדחות את הליד. */
-export function intOrNull(x: unknown): number | null {
-  return typeof x === "number" && Number.isFinite(x) ? Math.round(x) : null;
+/** ולידציית floor (עמודת int ב-DB). לא מעגלים קלט משתמש:
+ *  - חסר/null → null (שדה רשות)
+ *  - מספר שלם סופי → אותו ערך (כולל 0 ושליליים כמו מרתף)
+ *  - ערך שסופק אך אינו שלם (שברי / NaN / Infinity / מחרוזת) → נדחה (invalid). */
+export function validateFloor(v: unknown): { ok: true; value: number | null } | { ok: false } {
+  if (v === undefined || v === null) return { ok: true, value: null };
+  if (typeof v === "number" && Number.isInteger(v)) return { ok: true, value: v };
+  return { ok: false };
 }
 
 /** ולידציה מינימלית של קלט השווי. neighborhoodId חובה כדי לשחזר את החישוב בצד-שרת. */
@@ -112,6 +116,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // ולידציית קומה — אין לעגל קלט משתמש. ערך שברי/לא-תקין נדחה (לא נשמר, לא null שקט).
+  const floorCheck = validateFloor(body.floor);
+  if (!floorCheck.ok) {
+    return NextResponse.json(
+      { error: "invalid_floor", message: "מספר קומה חייב להיות מספר שלם" },
+      { status: 422 },
+    );
+  }
+
   // ולידציית קלט השווי — נדחה קלט לא-תקין לפני כל שמירה/התראה.
   const valuationInput = validateValuationInput(body.valuationInput);
   if (!valuationInput) {
@@ -148,7 +161,7 @@ export async function POST(req: NextRequest) {
     rooms: body.rooms ?? null,
     areaSqm: body.areaSqm ?? null,
     plotSqm: body.plotSqm ?? null,
-    floor: intOrNull(body.floor), // int column — coerce fractional to avoid a failed insert
+    floor: floorCheck.value, // validated integer (or null); fractional input already rejected above
     houseNumber: body.houseNumber?.trim() || null,
     // אומדנים מחישוב השרת בלבד (null אם החישוב לא זמין).
     estimateLow: serverValuation?.estimateLow ?? null,

@@ -54,8 +54,8 @@
 
 ## Floor Validation
 - **Finding (proven defect):** `app/api/lead/route.ts` persisted `floor: body.floor ?? null` uncoerced; `leads.floor` / `deals.floor` are `int`. A fractional client value (e.g. `Number("2.5")`) would fail the Supabase INSERT → `500 save_failed` → **lead lost** in Preview/Supabase mode. (Harmless in local JSON mode, which is why it was latent.)
-- **Fix:** `intOrNull(body.floor)` — `Math.round` for finite numbers (negatives/basements preserved), `null` otherwise. Smallest server-side change; preserves the lead rather than rejecting a typo. No form/valuation redesign.
-- **Tests:** `intOrNull` unit (2.7→3, 2.3→2, −1→−1, string/NaN/Infinity→null) + integration (POST floor 2.7 → persisted 3).
+- **Fix (0C-1A correction):** fractional floor input is **rejected server-side**, not rounded — user-entered property data is never silently mutated. `validateFloor(body.floor)` enforces: absent/`null` → `null` (optional); valid finite **integer** → preserved exactly (including `0` and negative/basement floors); provided-but-invalid (fractional, `NaN`, `Infinity`, string) → **HTTP 422 `invalid_floor`** (route's normal validation convention), never persisted. The API does not coerce numeric strings (consistent with the existing `num()` helper), so `"3"` is rejected too. No form/valuation redesign; no arbitrary min/max limits.
+- **Tests:** `validateFloor` unit (2/0/−1 accepted; absent→null; 2.7/1.5/"3.2"/"3"/NaN/Infinity rejected) + integration (POST floor 2 → persisted 2; floor 2.7 → 422, not persisted; "3.2" → 422; omitted → null).
 
 ## PII Logging
 - **Finding (proven leak):** full phone number logged at `app/api/otp/send/route.ts:56` (`[OTP] phone=…`) and `app/api/webhook/green/route.ts:59` (`[opt-out] …`).
