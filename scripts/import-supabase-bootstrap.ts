@@ -20,7 +20,7 @@ import {
   EXPECTED_PROJECT_REF, assertTargetProject, projectNeighborhood, projectDeal,
   validateSource, batchRows, digestNeighborhoods, digestDeals, parseArgs,
   checkPreflight, validateResume, DEAL_COLUMNS, NEIGHBORHOOD_COLUMNS,
-  formatSupabaseError, redactSecrets, type ResumeManifest,
+  formatSupabaseError, redactSecrets, interpretCountResult, type ResumeManifest,
 } from "../lib/importBootstrap";
 
 const ROOT = process.cwd();
@@ -98,20 +98,20 @@ async function main() {
   const sb = createClient(url!, key!, { auth: { persistSession: false, autoRefreshToken: false } });
 
   // --- remote preflight (read-only) ---
-  // allSettled so all three requests finish before we act — never abandon an in-flight
-  // handle (abandoning + process.exit is what triggered the libuv UV_HANDLE_CLOSING assert).
-  const settled = await Promise.allSettled([
-    countRows(sb, "neighborhoods"), countRows(sb, "deals"), countRows(sb, "leads"),
-  ]);
-  const failures = settled.filter((r): r is PromiseRejectedResult => r.status === "rejected");
-  if (failures.length) {
+  // Run the counts SEQUENTIALLY (one in-flight request at a time), matching the
+  // verified-good standalone single-call test — avoids any shared-client concurrent-HEAD
+  // quirk and never abandons an in-flight handle. 0 rows is a valid, expected result.
+  let nCount: number, dCount: number, lCount: number;
+  try {
+    nCount = await countRows(sb, "neighborhoods");
+    dCount = await countRows(sb, "deals");
+    lCount = await countRows(sb, "leads");
+  } catch (e: any) {
     log("STOP: remote preflight failed (no writes performed):");
-    for (const f of failures) log(`  - ${redactSecrets(String(f.reason?.message ?? f.reason))}`);
-    log("  Check: NEXT_PUBLIC_SUPABASE_URL host, service-role key validity, and that the bootstrap");
-    log("  SQL was run in this project (tables + service_role SELECT grant present).");
+    log(`  - ${redactSecrets(String(e?.message ?? e))}`);
+    log("  (0 rows is expected and valid; a failure here means a real Supabase error or a missing count.)");
     process.exitCode = 1; return;
   }
-  const [nCount, dCount, lCount] = settled.map((r) => (r as PromiseFulfilledResult<number>).value);
   log(`remote before: neighborhoods=${nCount}, deals=${dCount}, leads=${lCount}`);
   const pf = checkPreflight({ neighborhoods: nCount, deals: dCount, leads: lCount }, { resume: args.resume });
   if (!pf.ok) { log(`STOP: ${pf.stop}`); process.exitCode = 2; return; }
@@ -162,9 +162,9 @@ async function main() {
 
   // --- read-back verification ---
   log("\nverifying remote…");
-  const [nAfter, dAfter, lAfter] = await Promise.all([
-    countRows(sb, "neighborhoods"), countRows(sb, "deals"), countRows(sb, "leads"),
-  ]);
+  const nAfter = await countRows(sb, "neighborhoods");
+  const dAfter = await countRows(sb, "deals");
+  const lAfter = await countRows(sb, "leads");
   const remoteNeigh = await selectAll(sb, "neighborhoods", NEIGHBORHOOD_COLUMNS);
   const remoteDeals = await selectAll(sb, "deals", DEAL_COLUMNS);
   const remoteNDigest = digestNeighborhoods(remoteNeigh);
@@ -211,9 +211,10 @@ async function main() {
 
 async function countRows(sb: any, table: string): Promise<number> {
   // Exactly the verified-good call shape: select("*", { count: "exact", head: true }).
-  const { count, error } = await sb.from(table).select("*", { count: "exact", head: true });
-  if (error) throw Object.assign(new Error(formatSupabaseError(`count(${table})`, error)), { code: error.code });
-  return count ?? 0;
+  // interpretCountResult treats count===0 as a valid success; fails only on a real
+  // error or a genuinely missing count.
+  const result = await sb.from(table).select("*", { count: "exact", head: true });
+  return interpretCountResult(table, result);
 }
 async function upsert(sb: any, table: string, rows: Record<string, unknown>[]): Promise<void> {
   const { error } = await sb.from(table).upsert(rows, { onConflict: "id" });

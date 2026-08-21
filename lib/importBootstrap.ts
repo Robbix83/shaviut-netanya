@@ -170,6 +170,23 @@ export function formatSupabaseError(operation: string, error: SupabaseErrorLike 
   return redactSecrets(parts.join(" | "));
 }
 
+/**
+ * Interpret a Supabase count result. A count of **0 is a VALID success** (expected
+ * initial state). Fail ONLY on a real error, or when no count was returned at all.
+ * Never treats 0/falsy as failure.
+ */
+export function interpretCountResult(
+  table: string,
+  result: { count?: number | null; error?: SupabaseErrorLike | null } | null | undefined,
+): number {
+  if (!result) throw new Error(`count(${table}) failed: no result object returned`);
+  if (result.error) throw new Error(formatSupabaseError(`count(${table})`, result.error));
+  if (result.count === null || result.count === undefined) {
+    throw new Error(`count(${table}) failed: no count returned though error was null (check Prefer: count=exact / Content-Range)`);
+  }
+  return result.count; // 0 is a valid count
+}
+
 /** 64-bit FNV-1a hash as hex (dependency-free, deterministic; not for security). */
 export function fnv1a(str: string): string {
   let h = 0xcbf29ce484222325n;

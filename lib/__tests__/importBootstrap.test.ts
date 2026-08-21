@@ -5,7 +5,7 @@ import {
   EXPECTED_PROJECT_REF, deriveProjectRef, assertTargetProject, projectNeighborhood,
   projectDeal, validateSource, batchRows, digestDeals, digestNeighborhoods,
   parseArgs, checkPreflight, validateResume, NEIGHBORHOOD_COLUMNS, DEAL_COLUMNS,
-  formatSupabaseError, redactSecrets,
+  formatSupabaseError, redactSecrets, interpretCountResult,
 } from "@/lib/importBootstrap";
 
 const N = (o: any = {}) => ({ id: "n1", name: "א", settlement: "נתניה", x: 1, y: 2, ...o });
@@ -151,6 +151,32 @@ describe("CLI mode + preflight + resume safety", () => {
     expect(validateResume(manifest, { ref: EXPECTED_PROJECT_REF, neighborhoodsSha: "CHANGED", dealsSha: "bbb", leads: 0 }).ok).toBe(false);
     expect(validateResume(manifest, { ref: "otherproj", neighborhoodsSha: "aaa", dealsSha: "bbb", leads: 0 }).ok).toBe(false);
     expect(validateResume(null, { ref: EXPECTED_PROJECT_REF, neighborhoodsSha: "aaa", dealsSha: "bbb", leads: 0 }).ok).toBe(false);
+  });
+});
+
+describe("interpretCountResult — 0 is a valid count, never a failure", () => {
+  it("count=0 + error=null → returns 0 (empty table is the required initial state)", () => {
+    expect(interpretCountResult("neighborhoods", { count: 0, error: null })).toBe(0);
+  });
+  it("count=1 + error=null → returns 1", () => {
+    expect(interpretCountResult("deals", { count: 1, error: null })).toBe(1);
+  });
+  it("count=12642 → returns 12642", () => {
+    expect(interpretCountResult("deals", { count: 12642, error: null })).toBe(12642);
+  });
+  it("count=null + no error → explicit failure (count was not returned)", () => {
+    expect(() => interpretCountResult("neighborhoods", { count: null, error: null })).toThrow(/no count returned/);
+  });
+  it("count=undefined + no error → explicit failure", () => {
+    expect(() => interpretCountResult("neighborhoods", {})).toThrow(/no count returned/);
+  });
+  it("real Supabase error → sanitized failure with code/message", () => {
+    expect(() =>
+      interpretCountResult("leads", { count: null, error: { code: "42501", message: "permission denied" } }),
+    ).toThrow(/count\(leads\) failed.*code=42501.*permission denied/s);
+  });
+  it("does NOT throw for count=0 even if a caller passes error as an empty/falsy value", () => {
+    expect(interpretCountResult("deals", { count: 0, error: undefined })).toBe(0);
   });
 });
 
