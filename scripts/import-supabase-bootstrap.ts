@@ -20,7 +20,7 @@ import {
   EXPECTED_PROJECT_REF, assertTargetProject, projectNeighborhood, projectDeal,
   validateSource, batchRows, digestNeighborhoods, digestDeals, parseArgs,
   checkPreflight, validateResume, DEAL_COLUMNS, NEIGHBORHOOD_COLUMNS,
-  type ResumeManifest,
+  formatSupabaseError, redactSecrets, type ResumeManifest,
 } from "../lib/importBootstrap";
 
 const ROOT = process.cwd();
@@ -63,18 +63,18 @@ async function main() {
   const missing = [!url && "NEXT_PUBLIC_SUPABASE_URL", !key && "SUPABASE_SERVICE_ROLE_KEY"].filter(Boolean);
   if (missing.length) {
     log(`STOP: missing required env var(s): ${missing.join(", ")}. Set them for this session (never commit them).`);
-    process.exit(2);
+    process.exitCode = 2; return;
   }
   const target = assertTargetProject(url);
   log(`target project ref: ${target.ref ?? "?"} (expected ${EXPECTED_PROJECT_REF})`);
-  if (!target.ok) { log(`STOP: ${target.error}`); process.exit(2); }
+  if (!target.ok) { log(`STOP: ${target.error}`); process.exitCode = 2; return; }
 
   // --- load + validate source (never touch leads.json) ---
   const neighborhoods = JSON.parse(await fs.readFile(path.join(DATA_DIR, "neighborhoods.json"), "utf8"));
   const deals = JSON.parse(await fs.readFile(path.join(DATA_DIR, "deals.json"), "utf8"));
   const sv = validateSource(neighborhoods, deals);
   log(`source: ${sv.neighborhoodCount} neighborhoods, ${sv.dealCount} deals`);
-  if (!sv.ok) { log(`STOP: source validation failed:\n - ${sv.errors.join("\n - ")}`); process.exit(2); }
+  if (!sv.ok) { log(`STOP: source validation failed:\n - ${sv.errors.join("\n - ")}`); process.exitCode = 2; return; }
 
   const nSha = await sha256File(path.join(DATA_DIR, "neighborhoods.json"));
   const dSha = await sha256File(path.join(DATA_DIR, "deals.json"));
@@ -93,17 +93,28 @@ async function main() {
   const sb = createClient(url!, key!, { auth: { persistSession: false } });
 
   // --- remote preflight (read-only) ---
-  const [nCount, dCount, lCount] = await Promise.all([
+  // allSettled so all three requests finish before we act — never abandon an in-flight
+  // handle (abandoning + process.exit is what triggered the libuv UV_HANDLE_CLOSING assert).
+  const settled = await Promise.allSettled([
     countRows(sb, "neighborhoods"), countRows(sb, "deals"), countRows(sb, "leads"),
   ]);
+  const failures = settled.filter((r): r is PromiseRejectedResult => r.status === "rejected");
+  if (failures.length) {
+    log("STOP: remote preflight failed (no writes performed):");
+    for (const f of failures) log(`  - ${redactSecrets(String(f.reason?.message ?? f.reason))}`);
+    log("  Check: NEXT_PUBLIC_SUPABASE_URL host, service-role key validity, and that the bootstrap");
+    log("  SQL was run in this project (tables + service_role SELECT grant present).");
+    process.exitCode = 1; return;
+  }
+  const [nCount, dCount, lCount] = settled.map((r) => (r as PromiseFulfilledResult<number>).value);
   log(`remote before: neighborhoods=${nCount}, deals=${dCount}, leads=${lCount}`);
   const pf = checkPreflight({ neighborhoods: nCount, deals: dCount, leads: lCount }, { resume: args.resume });
-  if (!pf.ok) { log(`STOP: ${pf.stop}`); process.exit(2); }
+  if (!pf.ok) { log(`STOP: ${pf.stop}`); process.exitCode = 2; return; }
 
   if (args.resume) {
     const prior = (await exists(MANIFEST_PATH)) ? (JSON.parse(await fs.readFile(MANIFEST_PATH, "utf8")) as ResumeManifest) : null;
     const rv = validateResume(prior, { ref: target.ref!, neighborhoodsSha: nSha, dealsSha: dSha, leads: lCount });
-    if (!rv.ok) { log(`STOP: ${rv.error}`); process.exit(2); }
+    if (!rv.ok) { log(`STOP: ${rv.error}`); process.exitCode = 2; return; }
     log("resume validated against prior manifest (same project + identical source hashes).");
   }
 
@@ -190,24 +201,24 @@ async function main() {
   const allGood = parity.counts.neighborhoods && parity.counts.deals && parity.counts.leadsZero &&
     parity.digests.neighborhoods && parity.digests.deals && sourceUnchanged;
   log(allGood ? "✅ IMPORT VERIFIED — full parity, leads=0, source unchanged." : "❌ PARITY/SAFETY CHECK FAILED — see manifest.");
-  if (!allGood) process.exit(1);
+  if (!allGood) process.exitCode = 1;
 }
 
 async function countRows(sb: any, table: string): Promise<number> {
   const { count, error } = await sb.from(table).select("id", { count: "exact", head: true });
-  if (error) throw new Error(`count(${table}) failed: ${error.code ?? ""} ${error.message ?? error}`);
+  if (error) throw Object.assign(new Error(formatSupabaseError(`count(${table})`, error)), { code: error.code });
   return count ?? 0;
 }
 async function upsert(sb: any, table: string, rows: Record<string, unknown>[]): Promise<void> {
   const { error } = await sb.from(table).upsert(rows, { onConflict: "id" });
-  if (error) throw Object.assign(new Error(`upsert(${table}) failed: ${error.code ?? ""} ${error.message ?? error}`), { code: error.code });
+  if (error) throw Object.assign(new Error(formatSupabaseError(`upsert(${table})`, error)), { code: error.code });
 }
 async function selectAll(sb: any, table: string, columns: readonly string[]): Promise<Record<string, unknown>[]> {
   const pageSize = 1000;
   const rows: Record<string, unknown>[] = [];
   for (let from = 0; ; from += pageSize) {
     const { data, error } = await sb.from(table).select(columns.join(",")).order("id", { ascending: true }).range(from, from + pageSize - 1);
-    if (error) throw new Error(`select(${table}) failed: ${error.message ?? error}`);
+    if (error) throw Object.assign(new Error(formatSupabaseError(`select(${table})`, error)), { code: error.code });
     rows.push(...(data ?? []));
     if (!data || data.length < pageSize) break;
   }
@@ -237,4 +248,9 @@ async function withRetry(fn: () => Promise<void>, label: string, max = 3): Promi
   throw lastErr;
 }
 
-main().catch((e) => { console.error("FATAL:", e?.message ?? e); process.exit(1); });
+// No process.exit() from async paths: set exitCode and let the event loop drain so
+// in-flight fetch/undici handles close normally (avoids the libuv UV_HANDLE_CLOSING assert).
+main().catch((e) => {
+  console.error("FATAL:", redactSecrets(String(e?.message ?? e)));
+  process.exitCode = 1;
+});

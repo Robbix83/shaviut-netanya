@@ -5,6 +5,7 @@ import {
   EXPECTED_PROJECT_REF, deriveProjectRef, assertTargetProject, projectNeighborhood,
   projectDeal, validateSource, batchRows, digestDeals, digestNeighborhoods,
   parseArgs, checkPreflight, validateResume, NEIGHBORHOOD_COLUMNS, DEAL_COLUMNS,
+  formatSupabaseError, redactSecrets,
 } from "@/lib/importBootstrap";
 
 const N = (o: any = {}) => ({ id: "n1", name: "א", settlement: "נתניה", x: 1, y: 2, ...o });
@@ -153,12 +154,44 @@ describe("CLI mode + preflight + resume safety", () => {
   });
 });
 
+describe("safe Supabase error reporting", () => {
+  it("formats a PostgREST error with operation/status/code/message/details/hint", () => {
+    const s = formatSupabaseError("count(neighborhoods)", {
+      status: 401, code: "PGRST301", message: "permission denied for table neighborhoods",
+      details: "some detail", hint: "grant SELECT",
+    });
+    expect(s).toContain("count(neighborhoods) failed");
+    expect(s).toContain("status=401");
+    expect(s).toContain("code=PGRST301");
+    expect(s).toContain("permission denied");
+    expect(s).toContain("details=some detail");
+    expect(s).toContain("hint=grant SELECT");
+  });
+  it("handles a null/empty error object without throwing", () => {
+    expect(formatSupabaseError("count(deals)", null)).toContain("no error object");
+    expect(formatSupabaseError("count(deals)", {})).toContain("message=(none)");
+  });
+  it("redacts secrets that might appear in an error message", () => {
+    const s = formatSupabaseError("op", { message: "bad key sb_secret_ABC123def and Authorization: Bearer eyJhbGciOiJ.payloadpayload.sigsig" });
+    expect(s).not.toContain("sb_secret_ABC123def");
+    expect(s).toContain("sb_secret_[REDACTED]");
+    expect(s).not.toContain("eyJhbGciOiJ.payloadpayload.sigsig");
+  });
+  it("redactSecrets strips publishable/secret keys and bearer tokens", () => {
+    expect(redactSecrets("sb_publishable_XYZ")).toContain("[REDACTED]");
+    expect(redactSecrets("apikey=supersecretvalue")).toMatch(/apikey \[REDACTED\]/i);
+  });
+});
+
 describe("NO lead import path exists", () => {
   const script = readFileSync(path.resolve(__dirname, "../../scripts/import-supabase-bootstrap.ts"), "utf8");
   // Strip block + line comments so we test actual CODE (comments legitimately warn "never import leads.json").
   const code = script.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   it("the importer code never reads or references leads.json (comments aside)", () => {
     expect(code).not.toMatch(/leads\.json/);
+  });
+  it("never calls process.exit() (async paths use process.exitCode so handles close cleanly)", () => {
+    expect(code).not.toMatch(/process\.exit\s*\(/);
   });
   it("the importer never inserts/upserts into a leads table", () => {
     expect(script).not.toMatch(/from\(["']leads["']\)\.(insert|upsert)/);

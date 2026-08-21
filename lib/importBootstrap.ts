@@ -141,6 +141,35 @@ export const digestNeighborhoods = (rows: Record<string, unknown>[]) =>
 export const digestDeals = (rows: Record<string, unknown>[]) =>
   digestRows(rows, DEAL_COLUMNS, DEAL_NUMERIC, DEAL_DATE);
 
+/** Strip anything that looks like a secret from a string before logging (defense-in-depth). */
+export function redactSecrets(s: string): string {
+  return String(s)
+    .replace(/sb_secret_[A-Za-z0-9_-]+/g, "sb_secret_[REDACTED]")
+    .replace(/sb_publishable_[A-Za-z0-9_-]+/g, "sb_publishable_[REDACTED]")
+    .replace(/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{4,}/g, "[REDACTED_JWT]")
+    .replace(/\b(apikey|authorization|bearer)\b\s*[:=]?\s*\S+/gi, "$1 [REDACTED]");
+}
+
+export interface SupabaseErrorLike {
+  message?: unknown; code?: unknown; details?: unknown; hint?: unknown; status?: unknown; statusCode?: unknown;
+}
+
+/**
+ * Build a safe, informative one-line error for a Supabase/PostgREST failure.
+ * Reads ONLY whitelisted fields (never request headers/keys) and redacts secrets.
+ */
+export function formatSupabaseError(operation: string, error: SupabaseErrorLike | null | undefined): string {
+  if (error == null) return `${operation} failed: no error object returned`;
+  const parts = [`${operation} failed`];
+  const status = error.status ?? error.statusCode;
+  if (status !== undefined && status !== null && status !== "") parts.push(`status=${String(status)}`);
+  if (error.code !== undefined && error.code !== null && error.code !== "") parts.push(`code=${String(error.code)}`);
+  parts.push(`message=${error.message != null ? String(error.message) : "(none)"}`);
+  if (error.details) parts.push(`details=${String(error.details)}`);
+  if (error.hint) parts.push(`hint=${String(error.hint)}`);
+  return redactSecrets(parts.join(" | "));
+}
+
 /** 64-bit FNV-1a hash as hex (dependency-free, deterministic; not for security). */
 export function fnv1a(str: string): string {
   let h = 0xcbf29ce484222325n;
