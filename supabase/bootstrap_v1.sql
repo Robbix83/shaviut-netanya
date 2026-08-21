@@ -126,10 +126,13 @@ revoke all on public.neighborhoods from anon, authenticated;
 revoke all on public.deals         from anon, authenticated;
 revoke all on public.leads         from anon, authenticated;
 
--- 3) service_role receives EXPLICIT table privileges (SELECT/INSERT/UPDATE only —
---    the Store never deletes: no DELETE granted). USAGE on schema public so the
+-- 3) service_role: REVOKE-FIRST, then grant, so it ends with EXACTLY the intended
+--    table privileges regardless of any Supabase default/implicit grants — reproducing
+--    the state manually enforced on the live project. SELECT/INSERT/UPDATE only
+--    (the Store never deletes: no DELETE, no TRUNCATE). USAGE on schema public so the
 --    role can reach the tables when auto-expose is off.
 grant usage on schema public to service_role;
+revoke all privileges on table public.neighborhoods, public.deals, public.leads from service_role;
 grant select, insert, update on public.neighborhoods to service_role;
 grant select, insert, update on public.deals         to service_role;
 grant select, insert, update on public.leads         to service_role;

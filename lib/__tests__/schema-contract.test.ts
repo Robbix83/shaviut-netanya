@@ -98,4 +98,18 @@ describe("bootstrap_v1.sql covers the application data contract", () => {
     expect(sqlNoComments.toLowerCase()).not.toMatch(/grant[^;]*delete/);
     expect(sqlNoComments.toLowerCase()).not.toMatch(/grant[^;]*to\s+(anon|authenticated)/);
   });
+
+  it("uses a REVOKE-FIRST contract for service_role so grants are reproducible", () => {
+    // revoke all table privileges from service_role on the three app tables BEFORE granting
+    const revokeIdx = sqlNoComments.search(/revoke\s+all\s+privileges\s+on\s+table[^;]*from\s+service_role/i);
+    const grantIdx = sqlNoComments.search(/grant\s+select,\s*insert,\s*update\s+on\s+public\.\w+\s+to\s+service_role/i);
+    expect(revokeIdx).toBeGreaterThanOrEqual(0);
+    expect(grantIdx).toBeGreaterThanOrEqual(0);
+    expect(revokeIdx).toBeLessThan(grantIdx); // revoke precedes grant
+    // the revoke targets all three application tables
+    const revokeStmt = sqlNoComments.match(/revoke\s+all\s+privileges\s+on\s+table([^;]*)from\s+service_role/i)?.[1] ?? "";
+    for (const t of ["neighborhoods", "deals", "leads"]) expect(revokeStmt).toContain(`public.${t}`);
+    // never grant destructive privileges to service_role
+    expect(sqlNoComments.toLowerCase()).not.toMatch(/grant[^;]*(delete|truncate)[^;]*to\s+service_role/);
+  });
 });
