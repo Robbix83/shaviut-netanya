@@ -136,6 +136,12 @@ describe("CLI mode + preflight + resume safety", () => {
     expect(parseArgs(["--write"]).dryRun).toBe(false);
     expect(parseArgs(["--execute"]).dryRun).toBe(false);
   });
+  it("bounds deal batch size at <=500 (default 500; larger requests are clamped)", () => {
+    expect(parseArgs([]).batchSize).toBe(500);
+    expect(parseArgs(["--batch-size=250"]).batchSize).toBe(250);
+    expect(parseArgs(["--batch-size=1000"]).batchSize).toBe(500);
+    expect(parseArgs(["--batch-size=0"]).batchSize).toBe(500);
+  });
   it("stops when leads table is non-empty", () => {
     expect(checkPreflight({ neighborhoods: 0, deals: 0, leads: 1 }, { resume: false }).ok).toBe(false);
   });

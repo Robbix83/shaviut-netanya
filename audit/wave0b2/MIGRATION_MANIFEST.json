@@ -1,0 +1,203 @@
+{
+  "status": "complete",
+  "targetProjectRef": "sddtjsojbdxtakpwpqlz",
+  "sourceNeighborhoodsSha256": "366255233b70cd9da9b5b092fd8441b52a018fa3ddac57c36a1003f7ea493939",
+  "sourceDealsSha256": "18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f",
+  "sourceCounts": {
+    "neighborhoods": 21,
+    "deals": 12642
+  },
+  "startTime": "2026-08-21T18:46:17.208Z",
+  "endTime": "2026-08-21T18:46:21.769Z",
+  "batchSize": 500,
+  "dealBatches": 26,
+  "rowsWritten": 12663,
+  "remoteBefore": {
+    "neighborhoods": 0,
+    "deals": 0,
+    "leads": 0
+  },
+  "remoteFinal": {
+    "neighborhoods": 21,
+    "deals": 12642,
+    "leads": 0
+  },
+  "localDigests": {
+    "neighborhoods": "2a07966f3765c80d",
+    "deals": "d8e688b4faf3a3d3"
+  },
+  "remoteDigests": {
+    "neighborhoods": "2a07966f3765c80d",
+    "deals": "d8e688b4faf3a3d3"
+  },
+  "parity": {
+    "counts": {
+      "neighborhoods": true,
+      "deals": true,
+      "leadsZero": true
+    },
+    "digests": {
+      "neighborhoods": true,
+      "deals": true
+    }
+  },
+  "sourceUnchanged": true,
+  "batchLog": [
+    {
+      "batch": 1,
+      "rows": 500,
+      "ok": true,
+      "ms": 333
+    },
+    {
+      "batch": 2,
+      "rows": 500,
+      "ok": true,
+      "ms": 312
+    },
+    {
+      "batch": 3,
+      "rows": 500,
+      "ok": true,
+      "ms": 219
+    },
+    {
+      "batch": 4,
+      "rows": 500,
+      "ok": true,
+      "ms": 208
+    },
+    {
+      "batch": 5,
+      "rows": 500,
+      "ok": true,
+      "ms": 168
+    },
+    {
+      "batch": 6,
+      "rows": 500,
+      "ok": true,
+      "ms": 156
+    },
+    {
+      "batch": 7,
+      "rows": 500,
+      "ok": true,
+      "ms": 152
+    },
+    {
+      "batch": 8,
+      "rows": 500,
+      "ok": true,
+      "ms": 155
+    },
+    {
+      "batch": 9,
+      "rows": 500,
+      "ok": true,
+      "ms": 157
+    },
+    {
+      "batch": 10,
+      "rows": 500,
+      "ok": true,
+      "ms": 158
+    },
+    {
+      "batch": 11,
+      "rows": 500,
+      "ok": true,
+      "ms": 146
+    },
+    {
+      "batch": 12,
+      "rows": 500,
+      "ok": true,
+      "ms": 147
+    },
+    {
+      "batch": 13,
+      "rows": 500,
+      "ok": true,
+      "ms": 157
+    },
+    {
+      "batch": 14,
+      "rows": 500,
+      "ok": true,
+      "ms": 152
+    },
+    {
+      "batch": 15,
+      "rows": 500,
+      "ok": true,
+      "ms": 148
+    },
+    {
+      "batch": 16,
+      "rows": 500,
+      "ok": true,
+      "ms": 155
+    },
+    {
+      "batch": 17,
+      "rows": 500,
+      "ok": true,
+      "ms": 150
+    },
+    {
+      "batch": 18,
+      "rows": 500,
+      "ok": true,
+      "ms": 143
+    },
+    {
+      "batch": 19,
+      "rows": 500,
+      "ok": true,
+      "ms": 148
+    },
+    {
+      "batch": 20,
+      "rows": 500,
+      "ok": true,
+      "ms": 151
+    },
+    {
+      "batch": 21,
+      "rows": 500,
+      "ok": true,
+      "ms": 150
+    },
+    {
+      "batch": 22,
+      "rows": 500,
+      "ok": true,
+      "ms": 162
+    },
+    {
+      "batch": 23,
+      "rows": 500,
+      "ok": true,
+      "ms": 153
+    },
+    {
+      "batch": 24,
+      "rows": 500,
+      "ok": true,
+      "ms": 153
+    },
+    {
+      "batch": 25,
+      "rows": 500,
+      "ok": true,
+      "ms": 161
+    },
+    {
+      "batch": 26,
+      "rows": 142,
+      "ok": true,
+      "ms": 107
+    }
+  ]
+}

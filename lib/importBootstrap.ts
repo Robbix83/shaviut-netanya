@@ -212,7 +212,7 @@ export function parseArgs(argv: string[]): CliArgs {
   const bs = argv.find((a) => a.startsWith("--batch-size="));
   let batchSize = bs ? parseInt(bs.split("=")[1], 10) : 500;
   if (!Number.isFinite(batchSize) || batchSize < 1) batchSize = 500;
-  if (batchSize > 1000) batchSize = 1000; // conservative ceiling
+  if (batchSize > 500) batchSize = 500; // conservative ceiling — deals import stays bounded at <=500
   return { dryRun: !write, resume: has("--resume"), batchSize };
 }
 
