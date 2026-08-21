@@ -85,8 +85,9 @@ Indexes: `idx_leads_createdAt` (ordering), `idx_leads_phone` (opt-out lookup). *
 
 ## RLS / grants (least privilege)
 - RLS **enabled** on all three tables; **no policies** → anon/authenticated get zero rows. The server uses the **service role** (bypasses RLS) for all I/O (`SupabaseStore.client()` → `SUPABASE_SERVICE_ROLE_KEY`).
-- `revoke all on public.leads from anon, authenticated` — defense-in-depth so lead **PII** cannot leak even via a future accidental policy.
-- deals/neighborhoods: no anon policies — served only through server `/api` routes, never a direct browser→Supabase read. Least privilege.
+- **Explicit `service_role` grants (required — this project has "Automatically expose new tables" = OFF):** with auto-expose off, new public tables get **no implicit Data API grants**, and `service_role`'s `BYPASSRLS` does **not** confer PostgreSQL *table privileges* — so server-side `supabase-js` calls would fail with `42501`. The bootstrap therefore grants `service_role`: `USAGE on schema public` + `SELECT, INSERT, UPDATE` on all three tables. **No `DELETE`** (the `Store` never deletes).
+- **`revoke all … from anon, authenticated` on all three tables** — anon/authenticated receive no direct table privileges (least privilege; PII defense-in-depth so a future accidental policy still cannot expose rows without a grant).
+- deals/neighborhoods: no anon policies — served only through server `/api` routes, never a direct browser→Supabase read.
 
 ## Constraints
 - PKs: `leads.id` (uuid), `deals.id` (text), `neighborhoods.id` (text).

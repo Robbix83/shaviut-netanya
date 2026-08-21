@@ -83,7 +83,19 @@ describe("bootstrap_v1.sql covers the application data contract", () => {
     expect(sqlNoComments.toLowerCase()).not.toMatch(/unique\s*\(\s*phone/);
   });
 
-  it("revokes leads privileges from anon/authenticated (PII defense-in-depth)", () => {
-    expect(sql).toMatch(/revoke all on public\.leads from anon, authenticated/i);
+  it("revokes table privileges from anon/authenticated on ALL three tables", () => {
+    expect(sql).toMatch(/revoke all on public\.neighborhoods\s+from anon, authenticated/i);
+    expect(sql).toMatch(/revoke all on public\.deals\s+from anon, authenticated/i);
+    expect(sql).toMatch(/revoke all on public\.leads\s+from anon, authenticated/i);
+  });
+
+  it("grants explicit service_role privileges (auto-expose OFF): USAGE + SELECT/INSERT/UPDATE, no DELETE", () => {
+    expect(sql).toMatch(/grant usage on schema public to service_role/i);
+    for (const t of ["neighborhoods", "deals", "leads"]) {
+      expect(sql).toMatch(new RegExp(`grant select, insert, update on public\\.${t}\\s+to service_role`, "i"));
+    }
+    // never grant DELETE (the Store never deletes) and never grant to anon/authenticated
+    expect(sqlNoComments.toLowerCase()).not.toMatch(/grant[^;]*delete/);
+    expect(sqlNoComments.toLowerCase()).not.toMatch(/grant[^;]*to\s+(anon|authenticated)/);
   });
 });

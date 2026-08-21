@@ -10,10 +10,14 @@
 -- snake_case mapper is introduced (would require an app refactor).
 --
 -- Access model: the app connects ONLY with the service role from server-side
--- code (lib/store.ts client() uses SUPABASE_SERVICE_ROLE_KEY). The service role
--- BYPASSES RLS. Browsers/anon never talk to Supabase directly. Therefore RLS is
--- enabled with NO policies (deny-all to anon/authenticated), and leads (PII) also
--- has table privileges revoked from anon/authenticated as defense-in-depth.
+-- code (lib/store.ts client() uses SUPABASE_SERVICE_ROLE_KEY). Browsers/anon
+-- never talk to Supabase directly. RLS is enabled with NO policies (deny-all to
+-- anon/authenticated). NOTE: this project has "Automatically expose new tables"
+-- = OFF, so new public tables receive NO implicit Data API grants — and
+-- service_role's BYPASSRLS does NOT confer PostgreSQL *table privileges*.
+-- Therefore this bootstrap grants table privileges to service_role EXPLICITLY
+-- (SELECT/INSERT/UPDATE, no DELETE) and revokes all table privileges from
+-- anon/authenticated on every table (least privilege + PII defense-in-depth).
 --
 -- Run order note: create neighborhoods before deals (deals.neighborhoodId FK).
 -- gen_random_uuid() is built into PostgreSQL 13+ (Supabase) — no extension needed.
@@ -104,19 +108,29 @@ create index idx_leads_phone     on public.leads (phone);       -- optOutByPhone
 -- (No UNIQUE(phone): one person may legitimately submit multiple valuations over time.)
 
 -- ---------------------------------------------------------------------------
--- Row Level Security — deny-all to anon/authenticated; service role bypasses RLS.
+-- Access control — RLS deny-all to anon/authenticated; explicit service_role grants.
+-- (Required because "Automatically expose new tables" is OFF: no implicit grants,
+--  and service_role BYPASSRLS does not confer table privileges.)
 -- ---------------------------------------------------------------------------
+
+-- 1) RLS enabled on all three tables. No policies are created → anon/authenticated
+--    get ZERO rows. The server (service_role) bypasses RLS for all I/O.
 alter table public.neighborhoods enable row level security;
 alter table public.deals         enable row level security;
 alter table public.leads         enable row level security;
--- No policies are created: with RLS enabled and no policy, anon/authenticated
--- get ZERO rows. The server (service role) bypasses RLS and performs all I/O.
 
--- Defense-in-depth for PII: strip table privileges from the Data API roles on
--- leads, so even an accidental future policy cannot expose lead PII.
-revoke all on public.leads from anon, authenticated;
+-- 2) anon/authenticated receive NO direct table privileges on any table
+--    (least privilege; PII defense-in-depth so a future accidental policy still
+--     cannot expose rows without a grant). No anon/authenticated policies exist.
+revoke all on public.neighborhoods from anon, authenticated;
+revoke all on public.deals         from anon, authenticated;
+revoke all on public.leads         from anon, authenticated;
 
--- deals/neighborhoods are public-record data but are still only served through
--- the app's server-side /api routes (never a direct browser->Supabase read), so
--- no anon SELECT policy is granted. Least privilege.
+-- 3) service_role receives EXPLICIT table privileges (SELECT/INSERT/UPDATE only —
+--    the Store never deletes: no DELETE granted). USAGE on schema public so the
+--    role can reach the tables when auto-expose is off.
+grant usage on schema public to service_role;
+grant select, insert, update on public.neighborhoods to service_role;
+grant select, insert, update on public.deals         to service_role;
+grant select, insert, update on public.leads         to service_role;
 -- ============================================================================
