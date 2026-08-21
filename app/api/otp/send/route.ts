@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateOTP, signToken } from "@/lib/otp";
 import { rateCheck, getIP } from "@/lib/rateLimit";
+import { maskPhone } from "@/lib/pii";
 
 export const runtime = "nodejs";
 
@@ -53,7 +54,7 @@ export async function POST(req: NextRequest) {
   }
 
   const isDev = process.env.NODE_ENV !== "production";
-  console.log(`[OTP] phone=${phone} provider=${useTwilioVerify ? "twilio-verify" : "sms"} sent=${sent}`);
+  console.log(`[OTP] phone=${maskPhone(phone)} provider=${useTwilioVerify ? "twilio-verify" : "sms"} sent=${sent}`);
 
   return NextResponse.json({
     token,

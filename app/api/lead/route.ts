@@ -33,6 +33,12 @@ interface Body {
 
 const PHONE_RE = /^0\d{1,2}-?\d{7}$|^(\+?972|972)\d{8,9}$/;
 
+/** מקדם ערך לשלם או null. floor הוא עמודת int ב-DB — ערך שברי (למשל 2.5) היה
+ *  מכשיל את ה-INSERT ומאבד את הליד. מעגלים לשלם הקרוב במקום לדחות את הליד. */
+export function intOrNull(x: unknown): number | null {
+  return typeof x === "number" && Number.isFinite(x) ? Math.round(x) : null;
+}
+
 /** ולידציה מינימלית של קלט השווי. neighborhoodId חובה כדי לשחזר את החישוב בצד-שרת. */
 function validateValuationInput(vi: unknown): ValuationInput | null {
   if (!vi || typeof vi !== "object") return null;
@@ -142,7 +148,7 @@ export async function POST(req: NextRequest) {
     rooms: body.rooms ?? null,
     areaSqm: body.areaSqm ?? null,
     plotSqm: body.plotSqm ?? null,
-    floor: body.floor ?? null,
+    floor: intOrNull(body.floor), // int column — coerce fractional to avoid a failed insert
     houseNumber: body.houseNumber?.trim() || null,
     // אומדנים מחישוב השרת בלבד (null אם החישוב לא זמין).
     estimateLow: serverValuation?.estimateLow ?? null,

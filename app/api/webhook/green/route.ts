@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
 import { phoneToChatId } from "@/lib/notify";
 import { isWebhookAuthorized } from "@/lib/config";
+import { maskPhone } from "@/lib/pii";
 
 export const runtime = "nodejs";
 
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
   if (text && phone && STOP_RE.test(text)) {
     try {
       const removed = await getStore().optOutByPhone(phone);
-      console.log(`[opt-out] ${phone} removed=${removed}`);
+      console.log(`[opt-out] ${maskPhone(phone)} removed=${removed}`);
       // אישור הסרה ללקוח (best-effort) — מותר/מומלץ לשלוח אישור הסרה
       void confirmOptOut(phone);
     } catch (e) {

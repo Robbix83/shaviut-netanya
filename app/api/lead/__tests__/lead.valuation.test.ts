@@ -15,7 +15,7 @@ vi.mock("@/lib/store", async (importOriginal) => {
 vi.mock("@/lib/notify", () => ({ notifyNewLead }));
 vi.mock("@/lib/valuationService", () => ({ resolveAndValuate }));
 
-import { POST } from "@/app/api/lead/route";
+import { POST, intOrNull } from "@/app/api/lead/route";
 import { signLeadProof } from "@/lib/otp";
 
 // The authoritative server result the recompute returns.
@@ -147,5 +147,27 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
     expect(res.status).toBe(401);
     expect(resolveAndValuate).not.toHaveBeenCalled();
     expect(insertLead).not.toHaveBeenCalled();
+  });
+
+  it("9. fractional floor is coerced to an integer before persistence (int column safety)", async () => {
+    const res = await POST(makeReq({ ...tamperedBody, floor: 2.7 }, proof()));
+    expect(res.status).toBe(200);
+    expect(insertLead.mock.calls[0][0].floor).toBe(3); // 2.7 → 3, not a fractional int-column insert
+  });
+});
+
+describe("intOrNull — floor coercion (int column safety)", () => {
+  it("rounds finite numbers to the nearest integer", () => {
+    expect(intOrNull(2.7)).toBe(3);
+    expect(intOrNull(2.3)).toBe(2);
+    expect(intOrNull(3)).toBe(3);
+    expect(intOrNull(-1)).toBe(-1); // basement floors are valid
+  });
+  it("returns null for non-numbers / non-finite / nullish", () => {
+    expect(intOrNull(null)).toBeNull();
+    expect(intOrNull(undefined)).toBeNull();
+    expect(intOrNull("3")).toBeNull(); // string, not a number
+    expect(intOrNull(NaN)).toBeNull();
+    expect(intOrNull(Infinity)).toBeNull();
   });
 });
