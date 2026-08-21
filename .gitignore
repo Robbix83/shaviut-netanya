@@ -44,3 +44,5 @@ next-env.d.ts
 C*leads.claude/
 C*leads.claudelaunch.json
 C*leadserr.txt
+
+.claude/scheduled_tasks.lock
