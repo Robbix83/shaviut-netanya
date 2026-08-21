@@ -89,8 +89,13 @@ async function main() {
   log(`projection: neighborhoods→${NEIGHBORHOOD_COLUMNS.length} cols, deals→${DEAL_COLUMNS.length} cols; deal batches=${dealBatches.length}`);
 
   // --- Supabase client (service role) ---
+  // Match the verified-good server-side config exactly. autoRefreshToken:false is
+  // required in Node: with the default (true), GoTrueClient starts a background
+  // setInterval auto-refresh ticker that lingers as an open handle — which, together
+  // with the old process.exit() teardown, produced the libuv UV_HANDLE_CLOSING crash
+  // that masked the preflight result. A server service-role client needs no refresh.
   const { createClient } = await import("@supabase/supabase-js");
-  const sb = createClient(url!, key!, { auth: { persistSession: false } });
+  const sb = createClient(url!, key!, { auth: { persistSession: false, autoRefreshToken: false } });
 
   // --- remote preflight (read-only) ---
   // allSettled so all three requests finish before we act — never abandon an in-flight
@@ -205,7 +210,8 @@ async function main() {
 }
 
 async function countRows(sb: any, table: string): Promise<number> {
-  const { count, error } = await sb.from(table).select("id", { count: "exact", head: true });
+  // Exactly the verified-good call shape: select("*", { count: "exact", head: true }).
+  const { count, error } = await sb.from(table).select("*", { count: "exact", head: true });
   if (error) throw Object.assign(new Error(formatSupabaseError(`count(${table})`, error)), { code: error.code });
   return count ?? 0;
 }

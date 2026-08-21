@@ -193,6 +193,19 @@ describe("NO lead import path exists", () => {
   it("never calls process.exit() (async paths use process.exitCode so handles close cleanly)", () => {
     expect(code).not.toMatch(/process\.exit\s*\(/);
   });
+});
+
+describe("Supabase client matches the verified-good config (regression: preflight crash)", () => {
+  const script = readFileSync(path.resolve(__dirname, "../../scripts/import-supabase-bootstrap.ts"), "utf8");
+  const code = script.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+  it("createClient sets persistSession:false AND autoRefreshToken:false (no lingering Node auth timer)", () => {
+    expect(code).toMatch(/createClient\([^)]*persistSession:\s*false[^)]*autoRefreshToken:\s*false/s);
+  });
+  it("countRows uses the proven select('*', { count: 'exact', head: true }) shape", () => {
+    expect(code).toMatch(/\.select\(\s*["']\*["']\s*,\s*\{\s*count:\s*["']exact["']\s*,\s*head:\s*true\s*\}\s*\)/);
+    // and NOT the old select("id", ...) count shape
+    expect(code).not.toMatch(/\.select\(\s*["']id["']\s*,\s*\{\s*count:/);
+  });
   it("the importer never inserts/upserts into a leads table", () => {
     expect(script).not.toMatch(/from\(["']leads["']\)\.(insert|upsert)/);
     expect(script).not.toMatch(/upsert\(\s*sb\s*,\s*["']leads["']/);
