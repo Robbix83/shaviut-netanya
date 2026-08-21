@@ -27,6 +27,14 @@ describe("target project pinning", () => {
     expect(r.ok).toBe(false);
     expect(r.error).toMatch(/refusing/);
   });
+  it("hard-stops on the RIGHT ref but WRONG TLD (host pinned to .supabase.co)", () => {
+    expect(assertTargetProject("https://sddtjsojbdxtakpwpqlz.supabase.net").ok).toBe(false);
+    expect(assertTargetProject("https://sddtjsojbdxtakpwpqlz.supabase.in").ok).toBe(false);
+  });
+  it("hard-stops on host-spoofing tricks", () => {
+    expect(assertTargetProject("https://sddtjsojbdxtakpwpqlz.supabase.co.evil.com").ok).toBe(false);
+    expect(assertTargetProject("https://sddtjsojbdxtakpwpqlz.supabase.co@evil.com").ok).toBe(false);
+  });
   it("hard-stops on unparseable URL", () => {
     expect(assertTargetProject(undefined).ok).toBe(false);
     expect(assertTargetProject("not-a-url").ok).toBe(false);

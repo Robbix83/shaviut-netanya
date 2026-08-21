@@ -119,6 +119,13 @@ async function main() {
 
   // --- REAL IMPORT ---
   const startTime = new Date().toISOString();
+  // Write an in-progress manifest BEFORE any write so a mid-import crash has a
+  // clean --resume path (resume validates project ref + source hashes against it).
+  await fs.mkdir(AUDIT_DIR, { recursive: true });
+  await fs.writeFile(MANIFEST_PATH, JSON.stringify({
+    status: "in_progress", targetProjectRef: target.ref,
+    sourceNeighborhoodsSha256: nSha, sourceDealsSha256: dSha, startTime,
+  }, null, 2), "utf8");
   log("\nimporting neighborhoods (1 upsert)…");
   await withRetry(() => upsert(sb, "neighborhoods", projectedNeigh), "neighborhoods");
   let written = projectedNeigh.length;
@@ -162,9 +169,9 @@ async function main() {
   const dShaAfter = await sha256File(path.join(DATA_DIR, "deals.json"));
   const sourceUnchanged = nShaAfter === nSha && dShaAfter === dSha;
 
-  // --- manifest (no secrets) ---
-  await fs.mkdir(AUDIT_DIR, { recursive: true });
+  // --- manifest (no secrets) — overwrites the in-progress manifest ---
   const manifest = {
+    status: "complete",
     targetProjectRef: target.ref,
     sourceNeighborhoodsSha256: nSha,
     sourceDealsSha256: dSha,
@@ -215,9 +222,11 @@ async function withRetry(fn: () => Promise<void>, label: string, max = 3): Promi
     catch (e: any) {
       lastErr = e;
       const code = String(e?.code ?? "");
-      const transient = /^(5\d\d|429)$/.test(code) || /fetch failed|ECONN|ETIMEDOUT|network/i.test(String(e?.message ?? ""));
-      const deterministic4xx = /^(4\d\d|22|23|42)/.test(code); // PG/PostgREST class 22/23/42 = data/integrity/privilege
-      if (!transient || deterministic4xx || attempt === max) {
+      const msg = String(e?.message ?? "");
+      // Retry ONLY clearly transient failures: HTTP 429/5xx or transport errors.
+      // Everything else (4xx, PostgREST PGRST*, PG classes 22/23/42) is deterministic → abort now.
+      const retryable = code === "429" || /^5\d\d$/.test(code) || /fetch failed|ECONN|ETIMEDOUT|network|socket hang/i.test(msg);
+      if (!retryable || attempt === max) {
         throw new Error(`${label}: aborting after attempt ${attempt} (${e?.message ?? e})`);
       }
       const delay = 500 * 2 ** (attempt - 1);

@@ -7,6 +7,8 @@
 
 /** The ONLY Supabase project this tool is permitted to write to. */
 export const EXPECTED_PROJECT_REF = "sddtjsojbdxtakpwpqlz";
+/** Full expected host — pinned (not just the ref) so a wrong TLD (.net/.in) cannot pass. */
+export const EXPECTED_PROJECT_HOST = `${EXPECTED_PROJECT_REF}.supabase.co`;
 
 /** Exact persisted columns (camelCase), matching supabase/bootstrap_v1.sql + SupabaseStore. */
 export const NEIGHBORHOOD_COLUMNS = ["id", "name", "settlement", "x", "y"] as const;
@@ -33,12 +35,19 @@ export function deriveProjectRef(url: string | undefined | null): string | null 
   }
 }
 
-/** Hard gate: only the expected project ref may be written to. */
+/** Parse the host of the configured URL (lowercased). */
+export function deriveProjectHost(url: string | undefined | null): string | null {
+  if (!url) return null;
+  try { return new URL(url).host.toLowerCase(); } catch { return null; }
+}
+
+/** Hard gate: only the EXACT expected host (ref + `.supabase.co`) may be written to. */
 export function assertTargetProject(url: string | undefined | null): { ok: boolean; ref: string | null; error?: string } {
+  const host = deriveProjectHost(url);
   const ref = deriveProjectRef(url);
-  if (!ref) return { ok: false, ref: null, error: "could not derive project ref from NEXT_PUBLIC_SUPABASE_URL" };
-  if (ref !== EXPECTED_PROJECT_REF) {
-    return { ok: false, ref, error: `refusing to write: connected project ref "${ref}" != expected "${EXPECTED_PROJECT_REF}"` };
+  if (!host) return { ok: false, ref: null, error: "could not parse NEXT_PUBLIC_SUPABASE_URL host" };
+  if (host !== EXPECTED_PROJECT_HOST) {
+    return { ok: false, ref, error: `refusing to write: connected host "${host}" != expected "${EXPECTED_PROJECT_HOST}"` };
   }
   return { ok: true, ref };
 }
@@ -69,6 +78,8 @@ export function validateSource(
   const nIds = neighborhoods.map((n) => n.id);
   if (new Set(nIds).size !== nIds.length) errors.push("duplicate neighborhood ids in source");
   if (nIds.some((id) => typeof id !== "string" || !id)) errors.push("neighborhood with missing/invalid id");
+  const badNeigh = neighborhoods.filter((n) => !n.name || !n.settlement).length;
+  if (badNeigh > 0) errors.push(`${badNeigh} neighborhood(s) missing NOT-NULL name/settlement`);
 
   const dIds = deals.map((d) => d.id);
   if (new Set(dIds).size !== dIds.length) errors.push("duplicate Deal ids in source");
