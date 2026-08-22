@@ -208,3 +208,52 @@ Restructured to clearly separate four distinct numbers: `RAW_DEALS_COUNT` (deals
 
 ## Outstanding
 The fix has not yet been re-verified against real Supabase data. The exact operator rerun command (`verify-supabase-readonly.ts`, same session, real credentials already set) is provided in the final response; expected (not assumed) output: `NEIGHBORHOODS=21`, `DEALS=12642`, `LEADS=0`, `ORPHANS=0`, `ERROR=null`.
+
+---
+
+# Wave 0C-2B — FORMAL CLOSURE
+
+## Final real-Supabase proof (operator-run, post-fix)
+`verify-supabase-readonly.ts`, real credentials, `DATA_SOURCE=supabase`:
+```
+STORE_MODE=supabase
+NEIGHBORHOODS=21
+DEALS=12642
+LEADS=0
+ORPHANS=0
+ERROR=null
+```
+`verify-supabase-deals-diagnostic.ts`, same session:
+```
+RAW_DEALS_COUNT=12642
+RAW_NEIGHBORHOODS_COUNT=21
+neighborhoodId_unbounded_PROVEN_DEFECTIVE: ROWS=1000, ERROR_CODE=null
+getstats_direct: GETSTATS_DEALS=12642, GETSTATS_NEIGHBORHOODS=21, ERROR_CODE=null
+```
+All four numbers now agree with the last independently-verified Wave 0B-2 remote state (21 neighborhoods, 12,642 deals, 0 leads). This is genuine operator-run evidence, not assumed — the prior three rounds of this wave (`e0a3195`, `f26a983`, `2039580`) each fixed a real, source-proven defect that stood between the original `DEALS=0` symptom and this confirmed-correct result.
+
+## Proven root cause (final statement)
+`SupabaseStore.getStats()` derived `neighborhoodCount` from a single, unbounded PostgREST `select("neighborhoodId")` query with no pagination. PostgREST silently caps a response at its default 1000-row limit — the request succeeded (`error=null`), it was simply truncated. The real `deals` table's rows are ordered/clustered such that the first 1000 rows spanned only 3 distinct neighborhoods, so `getStats()` reported `neighborhoodCount=3` instead of the true 21, with no error anywhere to signal the truncation. The corrected implementation pages through the full `neighborhoodId` column with `.range()` until every one of the 12,642 rows has been seen, preserving `LocalStore`'s exact semantic (distinct neighborhoodIds represented by the complete deals dataset) — proven, not assumed, via a parity test against `LocalStore`'s literal algorithm and confirmed against real data by the operator's final run.
+
+## Diagnostic retention note
+`neighborhoodId_unbounded_PROVEN_DEFECTIVE` in `scripts/verify-supabase-deals-diagnostic.ts` is intentionally retained, under that name, solely as evidence of the fixed failure mechanism (1000-row silent truncation). `getStats()` no longer uses this query pattern; it is not a recommended or valid production counting method.
+
+## Quality gate — final
+No tracked application/script files changed since the last full gate run at `2039580` (confirmed via `git status --short`: only pre-existing, out-of-scope `graphify-out/` artifacts are dirty). Last-verified results stand: `npm test` → 124 passed (13 files); `npx tsc --noEmit` → clean; `next build` → exit 0.
+
+## Remote safety — final
+`npx vercel@59.4.0 ls` → 0 deployments for `shaviut-netanya`. Production URL `--` (via `vercel project ls`). No domain attached to `shaviut-netanya` (the one account domain, `sikuma.co.il`, belongs to the unrelated `sikuma` project). No deploy/prod/prebuilt/mutating command was run at any point across this entire wave.
+
+## Wave 0C-2B closed items
+- Supabase migration/import (Wave 0B-2, re-confirmed this wave)
+- Supabase application read path (`getStore()` → `SupabaseStore`, real-credential proof this wave)
+- `getStats()` deal count (fixed, tested, operator-confirmed: 12,642)
+- `getStats()` neighborhood count (fixed, tested, operator-confirmed: 21)
+- Local/Supabase stats parity (proven via dedicated test)
+- Server-side floor validation (Wave 0C-1A, unaffected/unchanged this wave)
+- Primary application-controlled PII masking (`maskPhone`, reconfirmed Wave 0C-2A, unchanged)
+- Bootstrap privilege reproducibility (`supabase/bootstrap_v1.sql` contract, unchanged, schema-contract tests passing)
+
+## Still open (outside this wave's scope)
+- First remote Vercel deployment safety (Wave 0C-2's BLOCKED verdict stands; not re-litigated this wave)
+- Local Windows `vercel build` symlink `EPERM` (classified as local-tooling limitation, not an app blocker)
