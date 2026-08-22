@@ -89,3 +89,15 @@ Only this document was added. No application source, Supabase state, or Vercel r
 
 ## Final remote safety check
 `npx vercel@59.4.0 ls` → 0 deployments (reconfirmed). Production deployment: NONE. Custom domain: NONE. No deploy/prod/skip-domain/mutating command was run at any point this wave.
+
+## Operator-authenticated verification (final)
+The operator independently ran `npx vercel@59.4.0 ls` in their own authenticated session and confirmed:
+```
+Vercel CLI 59.4.0
+Logged in as robbublil
+Active team: robbublils-projects
+No deployments found under robbublils-projects.
+```
+This is authenticated, operator-run confirmation (not just Claude's own CLI session) that the project remains at exactly 0 deployments. No remote deployment was executed by either party. First-deployment Preview-only behavior remains **unresolved** — this wave closes with `WAITING_FOR_PROVIDER`, pending the Vercel Support response to the prepared message above.
+
+Application and Supabase readiness (Wave 0C-2B, `PASS`) are unaffected and were not reopened or re-investigated this wave.
