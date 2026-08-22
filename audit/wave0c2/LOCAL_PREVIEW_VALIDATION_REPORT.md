@@ -127,3 +127,36 @@ Local `vercel build --target=preview` cannot fully complete on this Windows mach
 
 ## Recommended Next Step
 Enable Windows Developer Mode (or run `vercel build` from an elevated terminal) to obtain a fully complete local build artifact confirming zero remaining build defects beyond the symlink step; this does not require any further code change and does not touch Vercel/Supabase state.
+
+---
+
+# Wave 0C-2B (continued) — Deal Read Reconciliation
+
+## Operator evidence received
+The operator ran `scripts/verify-supabase-readonly.ts` with real credentials: `STORE_MODE=supabase`, `NEIGHBORHOODS=21`, `DEALS=0`, `LEADS=0`, `ORPHANS=0`, `ERROR=null` — real credentials work, real backend selected, but `DEALS=0` conflicted with the previously-verified 12,642-deal remote state (Wave 0B-2).
+
+## Task 1 — verifier trace (no bug found)
+Traced `verify-supabase-readonly.ts`: `getStore()` → `store.getStats()` → `stats.dealCount` → `console.log(DEALS=${stats.dealCount})`. `getStats()`'s real return shape is `{ dealCount, neighborhoodCount }` (`lib/store.ts:99`/`223`) — the script reads `stats.dealCount`, an exact match. **No property-name mismatch, no verifier bug.**
+
+## Task 1 — root cause (proven by source read)
+`SupabaseStore.getStats()` (`lib/store.ts:223`, pre-fix) ran `sb.from("deals").select("id", {count:"exact", head:true})` — fully unfiltered — then `const dealCount = countRes.count ?? 0;` **with no check of `countRes.error`.** Unlike every other `SupabaseStore` method (`listNeighborhoods`, `getNeighborhood`, `getDealsByNeighborhood`, `getAllDeals`), a failed count query was silently collapsed into `0`, indistinguishable from a genuinely empty table.
+
+## Task 2 — direct evidence (operator-run, this reconciliation)
+A second operator run using `scripts/verify-supabase-deals-diagnostic.ts` (extended to also call the real `getStore().getStats()`) returned: raw duplicate query `DEALS_COUNT_RAW=12642`, `DEALS_COUNT_ERROR=null`; probe `DEALS_PROBE_ROWS=1`, `DEALS_PROBE_ERROR=null`. This proves the `deals` table genuinely holds rows and the identical query type succeeds live — the earlier `DEALS=0` was **not** a real empty table. Combined with the proven unchecked-`error` gap in Task 1, the most defensible read is: **classification B** (application Supabase read bug) — `getStats()`'s silent error-swallowing is a real, provable defect that can turn a transient Supabase-side query failure into a false "0 deals" with no error surfaced anywhere. The exact trigger of the original transient failure (timeout, transient network blip, etc.) cannot be pinned down further without Supabase-side server logs, which are outside this wave's read-only scope.
+
+## Task 3 — fix applied (smallest safe change)
+`lib/store.ts` `getStats()`: added `if (countRes.error) throw countRes.error; if (neighRes.error) throw neighRes.error;` immediately after the parallel queries, before reading `.count`/`.data` — matching the `if (error) throw error;` style already used by every other `SupabaseStore` method. No redesign; 4 lines changed.
+- **Callers checked (grep-verified):** the only real caller is `app/page.tsx:9`, which already does `store.getStats().catch(() => ({ dealCount: 0, neighborhoodCount: 0 }))` — a throw here is already handled gracefully; landing-page behavior on error is unchanged (still shows 0), but the underlying error is no longer invisible to anything that does check it (e.g. this wave's verifier scripts).
+- **Regression tests added:** `lib/__tests__/store.getStats.test.ts` (3 tests, mocks `@supabase/supabase-js`): (1) `count=12642,error=null` → `dealCount=12642`; (2) `count=null,error=<Error>` → rejects, does **not** silently return 0; (3) `count=0,error=null` (genuinely empty table) → still returns real `dealCount=0`, proving no behavior change for the legitimate-empty-table case.
+
+## Task 4 — verifier correction
+Not applicable — Task 1 found no bug in `verify-supabase-readonly.ts` itself, so no change was made to it. `scripts/verify-supabase-deals-diagnostic.ts` was extended (not `verify-supabase-readonly.ts`) to add a direct `getStore().getStats()` call for Task 2's comparison.
+
+## Task 5 — quality gate (this reconciliation)
+`npm test` → **121 passed** (13 files; 118 + 3 new `getStats` regression tests). `npx tsc --noEmit` → clean. `npm run build` (`next build`) → exit 0, same route classification as prior waves (`/admin/login` still `ƒ`, dynamic).
+
+## Task 6 — remote safety
+`npx vercel@59.4.0 ls` → 0 deployments for `shaviut-netanya`, before and after. No deploy/prod/prebuilt command run.
+
+## Outstanding
+The fix changes error-path behavior only; on the success path already observed by the operator (`DEALS_COUNT_RAW=12642`, `error=null`), a rerun of `verify-supabase-readonly.ts` would be expected to now print `DEALS=12642` — but per this wave's evidence discipline, **that has not yet been operator-confirmed post-fix** and is not assumed. The exact rerun command is provided in the final response.

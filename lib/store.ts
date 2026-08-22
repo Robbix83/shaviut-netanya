@@ -226,6 +226,10 @@ class SupabaseStore implements Store {
       sb.from("deals").select("id", { count: "exact", head: true }),
       sb.from("deals").select("neighborhoodId").not("neighborhoodId", "is", null),
     ]);
+    // A failed count query must not be reported as "0 deals" — that's indistinguishable
+    // from a genuinely empty table. Fail loud, matching every other SupabaseStore method.
+    if (countRes.error) throw countRes.error;
+    if (neighRes.error) throw neighRes.error;
     const dealCount = countRes.count ?? 0;
     const neighborhoodCount = new Set((neighRes.data ?? []).map((d: any) => d.neighborhoodId)).size;
     return { dealCount, neighborhoodCount };
