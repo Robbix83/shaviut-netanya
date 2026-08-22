@@ -17,6 +17,20 @@
  */
 import { resolveDataSource } from "../lib/config";
 
+/** Extracts safe structural fields from a thrown error — never credentials/headers/row data.
+ * Supabase/PostgREST errors are plain objects, not `Error` instances, so `String(e)` on
+ * them prints "[object Object]"; this reads their actual code/message/details/hint. */
+function safeError(e: unknown): { code: string | null; message: string | null; details: string | null; hint: string | null } {
+  const obj = e && typeof e === "object" ? (e as Record<string, unknown>) : {};
+  const pick = (k: string) => (typeof obj[k] === "string" ? (obj[k] as string) : null);
+  return {
+    code: pick("code"),
+    message: pick("message") ?? (e == null ? null : e instanceof Error ? e.message : null),
+    details: pick("details"),
+    hint: pick("hint"),
+  };
+}
+
 async function main() {
   // 1) Prove the resolver itself picks Supabase for this explicit, correct value —
   //    using the REAL resolveDataSource() function, not a re-implementation.
@@ -53,7 +67,11 @@ async function main() {
     console.log("DEALS=unknown");
     console.log("LEADS=unknown");
     console.log("ORPHANS=unknown");
-    console.log(`ERROR=${e instanceof Error ? e.message : String(e)}`);
+    const s = safeError(e);
+    console.log(`ERROR=${s.message ?? "unknown error (no message field)"}`);
+    console.log(`ERROR_CODE=${s.code ?? "null"}`);
+    console.log(`ERROR_DETAILS=${s.details ?? "null"}`);
+    console.log(`ERROR_HINT=${s.hint ?? "null"}`);
     process.exitCode = 1;
   }
 }
