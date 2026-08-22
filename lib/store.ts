@@ -222,17 +222,31 @@ class SupabaseStore implements Store {
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
     const sb = await this.client();
-    const [countRes, neighRes] = await Promise.all([
-      sb.from("deals").select("id", { count: "exact", head: true }),
-      sb.from("deals").select("neighborhoodId").not("neighborhoodId", "is", null),
-    ]);
+    const countRes = await sb.from("deals").select("id", { count: "exact", head: true });
     // A failed count query must not be reported as "0 deals" — that's indistinguishable
     // from a genuinely empty table. Fail loud, matching every other SupabaseStore method.
     if (countRes.error) throw countRes.error;
-    if (neighRes.error) throw neighRes.error;
     const dealCount = countRes.count ?? 0;
-    const neighborhoodCount = new Set((neighRes.data ?? []).map((d: any) => d.neighborhoodId)).size;
-    return { dealCount, neighborhoodCount };
+
+    // neighborhoodCount = distinct neighborhoodIds represented in deals (matches
+    // LocalStore's Set-based computation — see LocalStore.getStats() above). A single
+    // unbounded select was silently capped at PostgREST's default 1000-row response
+    // limit, undercounting on any table with more rows than that. Page through the
+    // (narrow, single-column) neighborhoodId projection instead so every row is seen.
+    const PAGE_SIZE = 1000;
+    const neighborhoodIds = new Set<string>();
+    for (let offset = 0; offset < dealCount; offset += PAGE_SIZE) {
+      const page = await sb
+        .from("deals")
+        .select("neighborhoodId")
+        .not("neighborhoodId", "is", null)
+        .range(offset, offset + PAGE_SIZE - 1);
+      if (page.error) throw page.error;
+      for (const row of (page.data ?? []) as Array<{ neighborhoodId: string }>) {
+        if (row.neighborhoodId) neighborhoodIds.add(row.neighborhoodId);
+      }
+    }
+    return { dealCount, neighborhoodCount: neighborhoodIds.size };
   }
 
   async insertLead(lead: Lead): Promise<Lead> {

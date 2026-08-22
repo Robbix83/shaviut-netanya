@@ -1,17 +1,25 @@
 /**
- * scripts/verify-supabase-deals-diagnostic.ts  (Wave 0C-2B deal-count diagnosis)
+ * scripts/verify-supabase-deals-diagnostic.ts  (Wave 0C-2B deal/neighborhood-count diagnosis)
  *
  * READ-ONLY. Tests each Supabase operation SupabaseStore.getStats() performs,
  * SEPARATELY, with safe structural error reporting (code/message/details/hint —
  * never credentials/headers/row data). No writes. No OTP/notification calls.
  *
- * IMPORTANT: getStats()'s real neighborhoodId query is UNBOUNDED (no .limit()) —
- * it fetches one column across every row where neighborhoodId is not null. An
- * earlier version of this script tested that query with `.limit(1)`, which is NOT
- * the same query and can silently pass while the real unbounded query fails (e.g.
- * a statement timeout or row-egress cap that only triggers at full result size).
- * This version runs the exact unbounded query getStats() runs, plus keeps the
- * limit(1) probe separately labeled for comparison.
+ * Distinguishes four different numbers that are easy to conflate:
+ *   RAW_DEALS_COUNT          — deals table row count (head:true, exact)
+ *   RAW_NEIGHBORHOODS_COUNT  — neighborhoods table row count (head:true, exact)
+ *   GETSTATS_DEALS           — getStore().getStats().dealCount (should equal RAW_DEALS_COUNT)
+ *   GETSTATS_NEIGHBORHOODS   — getStore().getStats().neighborhoodCount: distinct
+ *                               neighborhoodIds represented in deals (LocalStore's semantic,
+ *                               NOT the same concept as RAW_NEIGHBORHOODS_COUNT, though in a
+ *                               fully-covered dataset they should numerically agree)
+ *
+ * Also keeps `neighborhoodId_unbounded_PROVEN_DEFECTIVE` — the query getStats() used to run
+ * before this wave's fix. It is silently capped at PostgREST's default 1000-row response
+ * limit and WILL undercount on any table with more than 1000 matching rows (proven on real
+ * data: 12,642 deals -> only 1000 rows read -> 3 of 21 real neighborhoods counted). It is
+ * kept here ONLY as evidence of the fixed bug — it is NOT a valid counting strategy and
+ * getStats() no longer uses it (see lib/store.ts, which now paginates with .range()).
  */
 import { resolveDataSource } from "../lib/config";
 
@@ -64,26 +72,31 @@ async function main() {
     return;
   }
 
-  // 1) Exact query getStats() issues for dealCount.
+  // 1) RAW_DEALS_COUNT — deals table row count.
   const countRes = await sb.from("deals").select("id", { count: "exact", head: true });
-  printResult("deal_count_headtrue", { COUNT: countRes.count ?? null }, countRes.error);
+  printResult("raw_deals_count", { RAW_DEALS_COUNT: countRes.count ?? null }, countRes.error);
 
-  // 2) The exact UNBOUNDED query getStats() issues for neighborhoodCount — no .limit().
-  //    This is the real suspect: an earlier limit(1) version of this probe passed,
-  //    which does not prove the real (full-table) query also succeeds.
-  const neighFull = await sb.from("deals").select("neighborhoodId").not("neighborhoodId", "is", null);
-  printResult("neighborhoodId_full_unbounded", { ROWS: neighFull.data ? neighFull.data.length : null }, neighFull.error);
+  // 2) RAW_NEIGHBORHOODS_COUNT — neighborhoods table row count (a different table/concept
+  //    than "distinct neighborhoodIds in deals" — see header comment).
+  const neighTableRes = await sb.from("neighborhoods").select("id", { count: "exact", head: true });
+  printResult("raw_neighborhoods_table_count", { RAW_NEIGHBORHOODS_COUNT: neighTableRes.count ?? null }, neighTableRes.error);
 
-  // 3) Same query, but limited to 1 row — kept for comparison only (NOT equivalent to getStats()).
-  const neighLimit1 = await sb.from("deals").select("neighborhoodId").not("neighborhoodId", "is", null).limit(1);
-  printResult("neighborhoodId_limit1_reference_only", { ROWS: neighLimit1.data ? neighLimit1.data.length : null }, neighLimit1.error);
+  // 3) PROVEN DEFECTIVE — kept only as evidence of the bug this wave fixed. Do NOT use
+  //    this pattern: a single unbounded select is silently capped at ~1000 rows by
+  //    PostgREST, which undercounts distinct neighborhoodIds on any larger deals table.
+  const neighUnbounded = await sb.from("deals").select("neighborhoodId").not("neighborhoodId", "is", null);
+  printResult(
+    "neighborhoodId_unbounded_PROVEN_DEFECTIVE",
+    { ROWS: neighUnbounded.data ? neighUnbounded.data.length : null },
+    neighUnbounded.error,
+  );
 
-  // 4) Trivial single-row probe confirming the table itself is reachable.
+  // 4) Trivial single-row probe confirming the deals table itself is reachable.
   const probe = await sb.from("deals").select("*").limit(1);
   printResult("deals_probe_limit1", { ROWS: probe.data ? probe.data.length : null }, probe.error);
 
-  // 5) The actual application-level call: getStore().getStats() — the exact method
-  //    the real app and verify-supabase-readonly.ts use.
+  // 5) The actual application-level call: getStore().getStats() — the exact (now paginated,
+  //    fixed) method the real app and verify-supabase-readonly.ts use.
   try {
     const { getStore } = await import("../lib/store");
     const stats = await getStore().getStats();

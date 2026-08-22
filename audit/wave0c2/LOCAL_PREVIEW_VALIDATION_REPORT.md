@@ -160,3 +160,51 @@ Not applicable — Task 1 found no bug in `verify-supabase-readonly.ts` itself, 
 
 ## Outstanding
 The fix changes error-path behavior only; on the success path already observed by the operator (`DEALS_COUNT_RAW=12642`, `error=null`), a rerun of `verify-supabase-readonly.ts` would be expected to now print `DEALS=12642` — but per this wave's evidence discipline, **that has not yet been operator-confirmed post-fix** and is not assumed. The exact rerun command is provided in the final response.
+
+---
+
+# Wave 0C-2B (continued) — Error Serialization Fix, then Neighborhood Count Correction
+
+## Round 1: `[object Object]` serialization bug (diagnostic-only)
+The operator's rerun of `verify-supabase-readonly.ts` returned `ERROR=[object Object]` — both verification scripts caught thrown Supabase/PostgREST errors with `e instanceof Error ? e.message : String(e)`, but Supabase-js errors are plain objects, not `Error` instances, so `String(e)` produced `"[object Object]"` and hid the real failure. Fixed in both scripts with a `safeError()` helper that reads `code`/`message`/`details`/`hint` directly — never credentials/headers/row data. Self-tested (no real credentials): now prints `ERROR=supabaseUrl is required.` instead of `[object Object]`. Diagnostic scripts only; no application source changed in this round. Committed as `f26a983`.
+
+## Round 2: real root cause — PostgREST's default 1000-row cap silently undercounted neighborhoods
+Operator's next real-data run of the corrected diagnostic script:
+```
+raw_deals_count: RAW_DEALS_COUNT=12642, error=null
+neighborhoodId_unbounded (pre-fix query): ROWS=1000, error=null
+neighborhoodId_limit1 (reference only): ROWS=1, error=null
+deals_probe_limit1: ROWS=1, error=null
+getstats_direct (pre-fix code): GETSTATS_DEALS=12642, GETSTATS_NEIGHBORHOODS=3, error=null
+```
+**Proven root cause:** `SupabaseStore.getStats()`'s neighborhoodId query (`sb.from("deals").select("neighborhoodId").not(...)`, no `.range()`) is silently capped by PostgREST at its default 1000-row response limit — no `error` is set, the response is simply truncated. With only the first 1000 of 12,642 rows visible, and the real table's rows evidently clustered/ordered by neighborhood (not interleaved), only 3 of 21 real neighborhoods appeared in that first page. `countRes`/`neighRes.error` being `null` throughout is expected: this is a **silent truncation**, not a query error, so the Round-1 error-check fix could not and did not catch it — it required checking row-count-vs-expected behavior instead. Classification: **B — getStats Supabase subquery bug** (confirmed, not merely hypothesized, since a controlled read comparing `neighborhoodId_unbounded` (1000 rows) against `RAW_DEALS_COUNT` (12,642) directly proves the truncation).
+
+## Intended semantics (proven from source, not assumed)
+`LocalStore.getStats()` (`lib/store.ts:101`): `new Set(all.map(d => d.neighborhoodId).filter(Boolean)).size` — **distinct neighborhoodIds represented in deals**, computed over the full local array (no truncation risk locally, since it's an in-memory JS array, not a paginated remote query). `SupabaseStore.getStats()` was written to compute the identical statistic remotely (same field name, same `Set`-based dedup logic) — this is the proven, source-verified intended semantic (Option B: distinct neighborhoodIds in deals), not a literal `neighborhoods`-table row count (Option A). The two happen to numerically agree (both = 21) only because the current dataset has full neighborhood coverage (every neighborhood in the table has at least one deal) — they are not the same computation, and diverging in the future (e.g. an uncovered neighborhood) would make them disagree. `lib/importBootstrap.ts`'s unrelated `SourceValidation.neighborhoodCount` (`= neighborhoods.length`) is a different interface entirely (import-time source-file validation, not `Store.getStats()`) and was not conflated with this fix.
+
+## Fix applied (`lib/store.ts`, `e0a3195`'s `getStats()` further corrected)
+- `dealCount`: unchanged — single `head:true` count query, already proven correct and error-checked.
+- `neighborhoodCount`: now pages through the `neighborhoodId` column with `.range(offset, offset+999)` in a loop bounded by `dealCount`, accumulating a `Set<string>` — the same dedup algorithm as `LocalStore`, now applied across every row instead of only the first 1000. Each page's `error` is checked and thrown (preserves the fail-explicit invariant from the prior fix: a query error must never silently become a count, whether 0 or partial).
+- **Trade-off, disclosed:** this adds up to ~13 sequential paginated requests (single narrow column only, never full deal rows) to every `getStats()` call, which `app/page.tsx` runs on every landing-page SSR request. This was accepted because (a) it is the smallest fix that doesn't require a Supabase schema/RPC change — explicitly forbidden this wave (no DB mutation permitted) — and (b) it preserves the exact proven-intended semantic rather than silently substituting a different one (counting the `neighborhoods` table) for convenience. A future wave could add a Postgres RPC (`COUNT(DISTINCT "neighborhoodId")`) for a single-query, non-paginated version — out of scope here since it requires a DDL change.
+
+## Regression tests (`lib/__tests__/store.getStats.test.ts`, 6 tests total)
+1. Real count passes through (`count=12642,error=null` → `dealCount=12642`).
+2. Count-query error rejects, never silently returns 0.
+3. Genuinely empty table still returns real `dealCount=0`/`neighborhoodCount=0`.
+4. **2,500 deals across exactly 21 neighborhoods (spanning 3 pages) → `neighborhoodCount=21`** — proves correctness does not depend on receiving more than the first 1000 rows.
+5. **Bug-reproduction test:** first-page-only (1000 rows) of a *clustered* (neighborhood-grouped, matching the real table's observed row order) 2,499-row fixture undercounts distinct neighborhoods — proving the old bug's mechanism — while the real (fixed) store, given the same full fixture, correctly returns all distinct ids.
+6. **LocalStore/SupabaseStore parity:** given the identical synthetic deal array, `SupabaseStore.getStats().neighborhoodCount` equals `new Set(rows.map(d => d.neighborhoodId).filter(Boolean)).size` — LocalStore's literal algorithm — proving the two stores compute the same statistic.
+
+## Diagnostic script cleanup (`scripts/verify-supabase-deals-diagnostic.ts`)
+Restructured to clearly separate four distinct numbers: `RAW_DEALS_COUNT` (deals table row count), `RAW_NEIGHBORHOODS_COUNT` (neighborhoods table row count, a different concept), `GETSTATS_DEALS`, `GETSTATS_NEIGHBORHOODS` (both via the real, now-fixed `getStore().getStats()`). The old unbounded-query probe is kept, but renamed `neighborhoodId_unbounded_PROVEN_DEFECTIVE` with an explicit comment that it is evidence of the fixed bug, not a valid counting strategy — `getStats()` no longer uses this pattern.
+
+## Quality gate (this round)
+`npm test` → **124 passed** (13 files; 121 + 3 net new `getStats` tests — one test was added and one earlier assertion was corrected mid-round after a self-caught test-data bug, see below). `npx tsc --noEmit` → clean. `next build` → exit 0, same route classification as prior waves.
+
+**Self-caught test bug (disclosed):** the first version of test #5 above generated round-robin neighborhood IDs (`n${i % 21}`), which already contains all 21 distinct IDs within the first 1000 rows — failing to reproduce the real bug's clustered-ordering condition. Caught by the test itself failing (`expected 21 to be less than 21`) before being reported as passing; corrected to a clustered distribution (`n${Math.floor(i / 119)}`) that matches the real table's observed behavior (3 distinct in the real first 1000 rows), then re-verified.
+
+## Remote safety (this round)
+`npx vercel@59.4.0 ls` → 0 deployments for `shaviut-netanya`, before and after. Production URL still `--` (via `vercel project ls`, previous round). Domain: the only domain visible in account-wide `vercel domains ls` (`sikuma.co.il`) belongs to an unrelated project (`sikuma`), confirmed via `vercel project ls` — NOT attached to `shaviut-netanya`. No deploy/prod/prebuilt command run.
+
+## Outstanding
+The fix has not yet been re-verified against real Supabase data. The exact operator rerun command (`verify-supabase-readonly.ts`, same session, real credentials already set) is provided in the final response; expected (not assumed) output: `NEIGHBORHOODS=21`, `DEALS=12642`, `LEADS=0`, `ORPHANS=0`, `ERROR=null`.
