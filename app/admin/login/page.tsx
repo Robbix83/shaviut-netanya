@@ -1,5 +1,7 @@
 import { signIn } from "@/auth";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50">
