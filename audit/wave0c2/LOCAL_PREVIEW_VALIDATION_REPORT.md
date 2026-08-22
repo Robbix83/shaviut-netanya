@@ -3,6 +3,51 @@
 ## Verdict
 **PARTIAL PASS.** A real, reproducible Vercel build blocker was found and fixed with evidence (`vercel build --target=preview` now clears the application-level classification stage that previously failed). However, genuine Supabase-Preview connectivity was **not** validated this wave — the pulled Preview credentials turned out to be non-functional Vercel-masked placeholders — and an inadvertent (non-delivering) live Twilio API call occurred due to a pre-existing local file, not the Preview config. Both are disclosed in full below. No remote deployment was created at any point.
 
+---
+
+# Wave 0C-2B — Real Supabase Read Proof + Preview Fix Reconciliation
+
+## `force-dynamic` classification: PROVEN APPLICATION FIX (retained)
+Re-reviewed `app/admin/login/page.tsx`, `middleware.ts`, the Wave 0C-2A `NEXT_MISSING_LAMBDA` evidence, and the regression test in commit `17b3bf2`, against four explicit questions:
+1. **What failed before the fix:** `@vercel/next`'s builder raised `NEXT_MISSING_LAMBDA: "Unable to find lambda for route: /admin/login"` — traced last wave into `@vercel/next/dist/index.js:12956`, platform-independent JS build-classification logic (not OS-specific).
+2. **Why a lambda was expected:** the page renders fully static (`○`, `searchParams` is destructured but never actually read in the JSX) yet contains an **inline Server Action** (`"use server"` in the sign-in form's `action`). Per Next.js's own bundled docs: Server Functions "are handled as POST requests to the route where they are used" — so this nominally-static route still needs a server function to handle the action's POST, and Vercel's adapter failed to associate one for a route it classified as pure static output.
+3. **Product/runtime necessity:** the page's *render* has no per-request need (no dynamic data read) — but the *route* genuinely needs a server function to exist, because of the embedded Server Action. `force-dynamic` is the smallest way to remove the static/action classification ambiguity: it makes the whole route unambiguously function-backed, so Vercel always builds the lambda both GET and the action's POST need.
+4. **Real contract vs. Windows-tooling workaround:** `vercel build` is designed to replicate the exact logic Vercel's remote (Linux) build infrastructure runs. The failure occurred inside that shared JS logic, not in any OS-specific packaging step (unlike the separately-diagnosed symlink `EPERM`, which is proven Windows-privilege-only and unrelated to this fix). This is therefore very likely to reproduce on a real remote build too, absent the fix — **not** a workaround for a local artifact.
+
+**Conclusion: kept.** Middleware/proxy was independently ruled out last wave (build failed identically with `middleware.ts` fully removed). No revert performed.
+
+## Supabase application path — read-only proof design
+Built `scripts/verify-supabase-readonly.ts`, using **only existing application code**:
+- Calls the real `resolveDataSource()` (`lib/config.ts`) to confirm backend selection.
+- Calls the real `getStore()` singleton (`lib/store.ts`) — the exact factory every API route uses.
+- Reads via `store.getStats()` (deal + neighborhood counts), `store.listNeighborhoods("נתניה")` (the literal every real route uses), `store.countLeads()`.
+- **No** `insertLead`/`updateLeadStatus`/`updateTabuStatus`/`optOutByPhone` call exists anywhere in the script — grep-verifiable.
+- No `next dev`, no OTP routes, no notification providers invoked.
+- A raw-REST/direct-`createClient` corroboration path was considered but judged unnecessary this wave (Wave 0B-2 already independently corroborated the app-path digest against a raw read); the app-path-only check is the smaller, sufficient verification.
+
+**Self-tested (no real credentials) to confirm correct behavior:**
+| Scenario | Result |
+|---|---|
+| `DATA_SOURCE` unset | `STORE_MODE=local`, stops with a clear message — does **not** silently probe Supabase |
+| `DATA_SOURCE=supabase`, no/bad real credentials | `STORE_MODE=supabase`, then a **generic, non-secret** error (`supabaseUrl is required.`) — confirms fail-loud, not silent-fallback |
+
+## Backend selection / silent-fallback analysis (source-verified, Phase 5)
+`lib/config.ts:38` — `return raw === "supabase" ? "supabase" : "local";` (the non-production branch). This means an **explicit, correctly-set** `DATA_SOURCE=supabase` is honored regardless of `NODE_ENV` — it is never silently overridden. The Wave 0C-2A false-positive was **not** caused by this resolver silently discarding a valid `"supabase"` value; it was caused by `DATA_SOURCE` never actually **being** the string `"supabase"` in that run (Vercel returned the literal placeholder `"[SENSITIVE]"` instead, which correctly fails the `raw === "supabase"` check and falls to the documented dev-mode local default).
+Separately, `SupabaseStore.client()` (`lib/store.ts:181-186`) calls `createClient(url!, key!, …)` with **no surrounding try/catch and no fallback path to LocalStore anywhere in `getStore()` or `SupabaseStore`** — confirmed by source inspection and empirically (my self-test above threw `supabaseUrl is required.` rather than silently returning data). **Conclusion: NOT a defect.** Once `DATA_SOURCE` genuinely resolves to `"supabase"`, a credential/connectivity failure fails loud (throws → the calling API route's existing try/catch returns a 500), never silently falls back to local JSON.
+
+## Twilio / local-env safety lesson (reconfirmed)
+`.env.local` key names (values never read/printed) still include `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SID` (and `TWILIO_FROM`), unchanged and untouched this wave, per instruction.
+**`LOCAL .env.local IS NOT SAFE FOR SIDE-EFFECT-FREE PREVIEW TESTING`** — remains true. `next dev` was **not** started this wave; no OTP/Twilio/Inforu/Green/Sheets route was invoked.
+
+## Real Supabase proof status: WAITING FOR OPERATOR
+Claude does not hold and did not request the real `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` values. The exact read-only command for the operator to run (their own PowerShell session, where these are already set) is provided in the final response below. Its expected safe output shape: `STORE_MODE=supabase`, `NEIGHBORHOODS=21`, `DEALS=12642`, `LEADS=0`, `ORPHANS=0`, `ERROR=null` — matching Wave 0B-2's last independently-verified state — but this wave does **not** assert those numbers as proven; only the operator's actual command output would prove them.
+
+## Remote deployment state (unchanged)
+`npx vercel@59.4.0 ls` → 0 deployments. `npx vercel@59.4.0 project ls` → Production URL `--` for `shaviut-netanya`. No domain attached. No deploy/prod/prebuilt command run this wave.
+
+## Quality gate (Wave 0C-2B)
+`npm test` → 118 passed (12 files, unchanged — no new tests needed for an operator-invoked read-only script, consistent with the project's existing `scripts/` convention). `tsc --noEmit` → clean. `next build` → exit 0. `vercel build` on Windows not required for this wave's PASS (per instruction; the symlink `EPERM` remains a known, non-blocking local-tooling limitation).
+
 ## Baseline
 - HEAD: `7aba4ff88606c3c0ab51ee838bd4480c6dd5fb14` (two commits ahead of `ada60d8` — `f150409`/`7aba4ff`, the operator's own `.gitignore`/`.vercelignore` setup; not my changes).
 - Working tree at start: only Graphify residue dirty (as expected, untouched throughout).
