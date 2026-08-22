@@ -101,3 +101,31 @@ No deployments found under robbublils-projects.
 This is authenticated, operator-run confirmation (not just Claude's own CLI session) that the project remains at exactly 0 deployments. No remote deployment was executed by either party. First-deployment Preview-only behavior remains **unresolved** — this wave closes with `WAITING_FOR_PROVIDER`, pending the Vercel Support response to the prepared message above.
 
 Application and Supabase readiness (Wave 0C-2B, `PASS`) are unaffected and were not reopened or re-investigated this wave.
+
+## Support message — operator's final submitted wording
+The operator used their own refined wording (below) rather than the draft above. Contains the same facts, no secrets, and asks the same direct question; recorded here for an accurate audit trail of what was actually sent to Vercel Support.
+
+> **Subject: Guaranteed Preview-only first deployment for a fresh Vercel project**
+>
+> Project: `shaviut-netanya`
+> Team: `robbublils-projects`
+> Vercel CLI: `59.4.0`
+> Current project state:
+> - Deployment count: 0
+> - No Production deployment exists
+> - No custom domain is attached
+> - No Git integration is connected
+> - Preview environment variables are configured only for the Preview environment
+>
+> Our release policy requires the first remote deployment to be Preview only. We cannot create a temporary, staged, or placeholder Production deployment or Production alias before a verified Preview deployment exists.
+> We have seen recent reports that the first deployment of a fresh Vercel project may be classified as Production even when using `vercel deploy --target=preview`. We are also aware of the suggested `--prod --skip-domain` workaround, but that still creates a Production-target deployment and therefore does not satisfy our policy.
+> Could you please confirm the currently supported procedure, if any, that guarantees all of the following?
+> - The first deployment is classified strictly as Preview
+> - No Production-target deployment is created
+> - No Production alias is created
+> - No prior/placeholder Production deployment is required
+>
+> If there is currently no supported way to guarantee this for a fresh project, please confirm that explicitly as well.
+> We do not want to test speculative deployment commands against the real project because it currently has zero deployments.
+
+Status remains **`WAITING_FOR_PROVIDER`** pending Vercel's reply to this message. No remote or application state changed as a result of recording it.
