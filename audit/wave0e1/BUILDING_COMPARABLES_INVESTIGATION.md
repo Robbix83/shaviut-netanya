@@ -1,0 +1,252 @@
+# Wave 0E-1 — Building Comparables Investigation
+
+**Investigation-only wave. No application source was changed. No deployment. No Supabase mutation. No importer rerun.**
+
+## Executive Finding
+
+The comparable-selection engine (`lib/valuation.ts`) **already has a fully-implemented same-building priority mechanism** — an exact house-number match gets `tier=0` ("building"), which unconditionally sorts before same-street (`tier=1`), radius (`tier=2`), and neighborhood (`tier=3`) matches, with two redundant safety nets (a city-wide exact-building search that ignores the resolved neighborhood, and an explicit re-injection step that survives area/room filtering). Traced from source, **if a house number reaches this function, the code correctly prioritizes the exact building.**
+
+The real, most likely trigger for both observed cases is upstream of this engine: **house number is entered in a separate, clearly-optional UI field** (`components/AddressSearch.tsx`, labeled "לא חובה — ישפר דיוק" — "not required — improves accuracy") that is easy to skip, and **nothing in the flow requires it before calculating a valuation** (`canCalc` in `components/ValuationWizard.tsx` never checks it). When house number is empty, the same-building tier is structurally unreachable (the tier function's building branch is gated entirely on `input.houseNumber` being truthy) — every deal on the target street falls to `tier=1`, and the visible ranking becomes pure recency/room/size relevance across the *entire* street.
+
+Real local data (proven byte-identical to Supabase in prior waves — see Evidence Note below) confirms this mechanism would produce **exactly** the observed results in both cases:
+- **Hartom 29** has 95 total transactions with very recent activity (freshest: 2026-03-25); **Hartom 30** has 6, freshest 2025-07-10. Without a building filter, 29's more numerous, more recent, similarly-sized listings naturally outrank 30's older ones under the existing relevance/recency sort.
+- **Weizmann 93/97/99** show recent 2025–2026 activity; **Weizmann 92** has only 3 exact-building rows, freshest 2023-11-21. Same mechanism, same outcome.
+
+This is presented as the strongest, most evidence-consistent explanation, not a certainty — see **Root Cause Classification** for exactly what would confirm it with zero remaining doubt (one operator question).
+
+---
+
+## Evidence Note — data source used for Phases 6–9
+
+Real-time Supabase credentials were not available in this environment. Rather than guessing, this investigation used `data/deals.json` — the same file `LocalStore` serves — which was **proven byte-identical to the Supabase `deals` table** via SHA-256 digest parity checks in Wave 0B-2's authenticated import run, and has not been altered since (no importer rerun in any wave since). This is real data, not a simulation, but it is not a *fresh* read of the live table at this exact moment. If the operator wants a live-table double-check, the safe read-only command is:
+
+```powershell
+$env:DATA_SOURCE = "supabase"
+npx tsx -e "
+import('./lib/store').then(async ({getStore}) => {
+  const s = getStore();
+  const all = await s.getAllDeals();
+  console.log('total deals (id/neighborhoodId/x/y only, per getAllDeals contract):', all.length);
+});
+"
+```
+(`getAllDeals()` only returns `id, neighborhoodId, x, y` by contract — for the specific street/house-number rows shown below, a fuller read-only query would be needed; not run this wave since local parity evidence was sufficient and no operator credentials were requested.)
+
+---
+
+## Current Address Contract
+
+Traced `user input → React state → payload → valuation input → comparable engine`:
+
+1. **Does the UI require a house number?** **NO.** `canCalc` (`components/ValuationWizard.tsx:617-618`) is `(!needsArea || !!area) && (!needsPlot || !!plot) && (isLand || isHouse || !!rooms)` — house number and even street selection are absent from this check.
+2. **Can the user proceed with only a street?** Yes, and technically even the "בחרו שכונה ידנית" (manual neighborhood) fallback lets them proceed with no street object at all.
+3. **For `הרב שמואל הרטום 30`, what gets stored?**
+   - `selectedStreet.street` = `"הרב שמואל הרטום"` (clean, from `data/street-index.json` via `/api/autocomplete`)
+   - `selectedStreet.label` = same value — `AddressSearch.tsx:86-99`'s `pick()` explicitly sets `label: s.street`, **overwriting** whatever the API returned for `label` (which is `"{street}, {neighborhoodName}"` — `app/api/autocomplete/route.ts:87`). So `label` and `street` are identical in practice; the fact that `ValuationWizard.tsx` sends `streetName: selectedStreet?.label` instead of `.street` (lines 653, 766) is **not currently a bug**, just a redundant/confusing field choice worth cleaning up later.
+   - `houseNumber` = whatever the user typed into the separate input (`AddressSearch.tsx:120-138`) — **empty string by default**, not pre-filled from the street selection.
+   - City/settlement: implicit — always Netanya, not a distinct field.
+   - Canonical street ID: **none exists** — matching is by normalized text only (see Normalization below).
+4. Same for `ויצמן 92`: identical mechanics; `selectedStreet.street = "ויצמן"`.
+5. **Is houseNumber preserved to the comparable engine?** Yes, structurally, end-to-end: `ValuationWizard.tsx` payload → `ValuationInput.houseNumber` (`lib/valuationService.ts:23`) → `PropertyInput.houseNumber` passed unchanged into `valuate()` (`lib/valuationService.ts:72`) → used directly in `lib/valuation.ts`'s `byExactBuilding`, `byBuildingNumber`, the city-wide augmentation, and `buildComparableDeals`'s `tier()`. **No code path silently drops it.**
+6. **N/A** — house number is not lost in transit; see Root Cause Classification for why it may simply not have been entered.
+7. **How the engine uses it, exactly** — see Current Comparable Pipeline below.
+
+Graphify was not invoked for this trace — direct source reading was faster and more reliable for a targeted 6-file trace of this size, and every claim above is a direct source citation, not a graph inference.
+
+---
+
+## House Number Flow
+
+- **Input component**: `components/AddressSearch.tsx` — a separate, standalone `<input id="addr-house-number">`, not part of the street autocomplete/suggestion object itself. Street and house number are two distinct concepts in the UI (confirmed).
+- **Does autocomplete return house number?** No — `/api/autocomplete` (`app/api/autocomplete/route.ts`) indexes streets only (`data/street-index.json`), never individual addresses/house numbers. House number is always manually typed.
+- **Do API types already include house number?** Yes — `ValuationInput.houseNumber`, `PropertyInput.houseNumber` (via `lib/types.ts`), `Lead.houseNumber` (`app/api/lead/route.ts:22`) all already exist.
+- **Server-side validation?** None beyond `typeof === "string"` coercion (`app/api/lead/route.ts:64`) — no format check, no "required" enforcement anywhere server-side.
+- **Impact on saved lead**: minimal to add a requirement — the column and type already exist in the Lead/Deal contract (confirmed via the existing `schema-contract` test suite from prior waves), so requiring it would be additive validation, not a schema change.
+
+---
+
+## Current Comparable Pipeline
+
+Ordered decision path, from `lib/valuation.ts`'s `valuate()`:
+
+1. **Candidate pool source**: `store.getDealsByNeighborhood(input.neighborhoodId, {monthsBack: GEO_MONTHS})` — scoped to the **resolved neighborhoodId**, not the whole city, as the starting point (`pool4yr`, despite its name, uses `GEO_MONTHS=60`, i.e. 5 years — see Five-Year Window below for the naming/comment mismatch).
+2. **Property-type filter**: exact match on `propertyType` (apartment/house/land) — always applied first.
+3. **Room-count handling**: `±1` room, applied only if it leaves ≥6 candidates (`MIN_DEALS_FOR_ROOM_FILTER`), else falls back to the unfiltered set (`geoPool`).
+4. **Date window** (for the *valuation number*, separate from geography): a shrinking-window search `[6, 12, 24, 48]` months, picking the shortest window with ≥3 usable deals (`MIN_DEALS_FOR_ESTIMATE`) — **this is unrelated to which building/street is searched**; geography search below always uses the fixed 60-month window regardless of this loop.
+5. **Location hierarchy** (the part this investigation is about), evaluated in this exact order:
+   a. **Exact building** (`byExactBuilding`): same normalized street name **and** `parseInt(houseNumber)` equal — needs ≥3 matches.
+   b. **Near-building / "street" via house-number proximity** (`byBuildingNumber`): same street, house number within ±12 — labelled `compSearchScope="street"`, not "building" (deliberately, per an explicit code comment guarding against mislabeling neighbors as the same building).
+   c. **Whole street by name** (`byStreetName`).
+   d. **City-wide textual fallback** (only if the neighborhood-scoped pool is thin): re-tries (a)/(c) against *all* city deals, ignoring `neighborhoodId` — exists specifically to handle streets whose deals were imported under a different neighborhood than expected.
+   e. **Geographic radius tiers** (only if no coordinates-independent street text match won): building radius (60m) → street radius (350m) → wider radius (500m) → cross-neighborhood radius fallback (500/750/1000m).
+   f. **Neighborhood** (implicit final fallback: whatever `deals` still holds).
+6. **Floor filter**: `±2` floors, applied only for apartments with a stated floor, only if ≥5 candidates remain.
+7. **Area filter**: `±50%` of stated area, applied only if it leaves ≥3 candidates.
+8. **Outlier handling**: a hard `MIN_PPSQM` floor per property type (₪8,000/m² apartment, ₪12,000/m² house, ₪800/m² land) removes partial-rights/family-transfer transactions before they can enter the estimate or be shown as a comparable.
+9. **Sorting/scoring for the *displayed* comparables** (`buildComparableDeals`): sort key is `(locationTier, houseNumberProximity, roomSizeRelevance, recency)` — tier is checked **first and absolutely** (any tier-0 beats any tier-1 regardless of how recent/relevant the tier-1 deal is).
+10. **Final limit**: top 12 by that sort.
+11. **Fallback behavior**: if the tight size/room filter yields fewer than 3 candidates, the code progressively widens (size tolerance, then room tolerance) before finally showing the whole geographic pool unfiltered.
+
+**Does current code have a concept of:**
+- **SAME BUILDING: YES.** Predicate: `normalizeStreet(d.street) === normalizeStreet(input.streetName) [or DB value is a text-prefix of the input] AND parseInt(d.houseNumber) === parseInt(input.houseNumber)`. Exactly `street === targetStreet AND houseNumber === targetHouseNumber`, as the investigation prompt hypothesized — confirmed, not something else.
+- **NEARBY BUILDING: YES**, but as a *search-widening* concept (`byBuildingNumber`, ±12 house numbers), explicitly **not** labeled "building" in the UI — it's labeled "street" or, geographically, "radius". There is no separate "nearby building" *display* tier distinct from "street"/"radius".
+- **SAME STREET: YES** — both a text-based (`byStreetName`) and geography-based (350m radius) form.
+- **SAME NEIGHBORHOOD: YES** — the ultimate fallback.
+
+---
+
+## Address Normalization
+
+`normalizeStreet()` (`lib/valuation.ts:178`) only strips known prefixes (`שד'`, `שדרות`, `רחוב`, `רח'`) via regex; it does **not** handle alternate/abbreviated street names. Matching after that is: exact equality, **or** the stored DB value being a literal text-prefix substring of the user's input (`inputStreetNorm.includes(ds)`) — deliberately one-directional to avoid false matches like "אבא הלל" incorrectly matching "אבא הלל סילבר" (per an explicit code comment).
+
+Checked against real data for both test addresses:
+
+| | Hartom | Weizmann |
+|---|---|---|
+| `TARGET_UI_STREET` | `הרב שמואל הרטום` (from `street-index.json`) | `ויצמן` |
+| `TARGET_UI_HOUSE_NUMBER` | `30` (if entered) | `92` (if entered) |
+| `TARGET_CANONICAL_STREET` | `הרב שמואל הרטום` | `ויצמן` |
+| `TARGET_CANONICAL_HOUSE_NUMBER` | `30` | `92` |
+| Stored `deals.street` value(s) for this street | **`הרב שמואל הרטום`** — one single spelling across all 280 rows on the street, exact match, no alias found | **`ויצמן`** — one single spelling across all 292 rows, exact match |
+| Stored `houseNumber` format | Clean numeric strings (`"30"`, `"29"`, etc.), no suffix letters observed on this street | Clean numeric strings (`"92"`, `"93"`, etc.) |
+
+**No street-name alias/mismatch was found for either address** — `הרטום` vs `הרב שמואל הרטום` is not actually an issue in the real data; the deals table consistently uses the full official name, identical to what `street-index.json`/autocomplete provides. This rules out classification D for both cases (see below). House-number strings are clean integers for both — this also rules out classification E for both cases, at least for these two specific streets.
+
+---
+
+## Five-Year Window
+
+**Rolling 5 years from today**, confirmed from source: `cutoffDate(months)` computes `new Date()` (real wall-clock at request time) minus `months`, not a calendar-year boundary. The geography search (building/street/radius hierarchy) always uses `GEO_MONTHS = 60` (5 years) — **note**: the surrounding code comment says *"לחיפוש גיאוגרפי... תמיד 48 חודשים (4 שנים)"* ("always 48 months / 4 years") and the pool variable is named `pool4yr` — both are **stale/incorrect**; the actual constant is `60`, i.e. 5 years, matching the product's intended contract. This is a real, minor, source-confirmed documentation bug (not a functional one) worth fixing in a future micro-wave.
+
+Applied to both cases: as of "today," a rolling 5-year cutoff is roughly `2021-08-23`. Every relevant row cited in this report (Hartom 30's 6 rows: 2023-05 to 2025-07; Weizmann 92's 3 rows: 2022-08 to 2023-11) falls well within that window — **the 5-year rule is not what excludes these buildings.**
+
+---
+
+## Hartom 30 — Remote Data (via proven-parity local data, see Evidence Note)
+
+- Total deal rows for exact building (`street="הרב שמואל הרטום"`, `houseNumber=30`, all property types): **6**, all `propertyType="apartment"`.
+- All 6 fall within the rolling 5-year window.
+- Counts by room number: 3 rooms × 4, 4 rooms × 2.
+- Recent 4-room deals: `2024-08-30` (90.3m², ₪2,430,000) and `2024-01-17` (90.3m², ₪2,500,000).
+- Min/max deal date: `2023-05-14` to `2025-07-10`.
+- Stored street value: `הרב שמואל הרטום` (single consistent spelling).
+- Stored house-number representation: `"30"` (clean numeric string).
+- `neighborhoodId`: `66239241`.
+
+**Are the exact-building rows present in the candidate source the application queries?** **YES** — conditionally: they are present in the citywide dataset (`getAllDeals()`/`data/deals.json`) unconditionally, and present in the neighborhood-scoped `pool4yr` **if** the address resolves to `neighborhoodId=66239241` (matches the deals' own neighborhoodId) — and even if a different neighborhoodId were resolved, the code's city-wide augmentation step (`lib/valuation.ts:408-439`) would independently find and inject these 6 rows regardless of neighborhood, **provided `input.houseNumber` is a non-empty, parseable string when `valuate()` runs.**
+
+## Hartom 30 — Candidate Trace
+
+Traced the actual decision path for the two 4-room Hartom-30 candidates against the two most likely competing Hartom-29 candidates:
+
+| ADDRESS | DATE | ROOMS | AREA | PRICE | IN_CANDIDATE_POOL | EXCLUDED_AT | EXCLUSION_REASON | TIER_IF_HOUSENUMBER_PROVIDED |
+|---|---|---|---|---|---|---|---|---|
+| Hartom 30 | 2024-08-30 | 4 | 90.3 | 2,430,000 | YES (city-wide, or neighborhood pool) | not excluded | — | **0 (building)** |
+| Hartom 30 | 2024-01-17 | 4 | 90.3 | 2,500,000 | YES | not excluded | — | **0 (building)** |
+| Hartom 29 | 2026-03-25 | 4 | 112.35 | 2,380,000 | YES | not excluded | — | 1 (street) |
+| Hartom 29 | 2025-09-30 | 4 | 93.7 | 2,025,000 | YES | not excluded | — | 1 (street) |
+
+**Why did 29 beat 30 in the operator's real session?** Not because of scoring bias against building 30, and not because the data is missing or mis-tagged — it is because **when `input.houseNumber` is empty, tier is uniformly 1 for every same-street deal** (`tier()`'s building branch is entirely gated on `input.houseNumber` being truthy — `lib/valuation.ts:753`). With tier equalized, the sort falls to `hnProximity` (also uniformly 1 when `houseNumber` is empty — `lib/valuation.ts:777`), then `relevance` (room/size closeness) and `recency`. Hartom 29 has far more inventory (95 rows vs. 6) skewed toward very recent (2026) 4-room transactions, so on pure recency/relevance grounds — with no location tiebreaker active — 29's listings statistically dominate 30's. **No speculation on the mechanism itself** — this is a direct reading of the sort comparator; the only open question is whether `input.houseNumber` was actually empty in the operator's real request, addressed in Root Cause Classification.
+
+---
+
+## Weizmann 92 — Remote Data (via proven-parity local data)
+
+- Exact-building total: **3** rows, all `propertyType="apartment"`.
+- All 3 within the rolling 5-year window.
+- Room counts: 3 rooms × 2, 4 rooms × 1.
+- Recent 4-room deal: `2023-11-21`, 107.3m², ₪1,800,000.
+- Stored street value: `ויצמן` (single consistent spelling, matches autocomplete exactly).
+- Stored house-number representation: `"92"`.
+- Date range: `2022-08-11` to `2023-11-21`.
+
+**Compared against the operator's government-site evidence:**
+| Government-site transaction | Found in our dataset? |
+|---|---|
+| 21/11/2023 — 4 rooms — 107.3m² — ₪1,800,000 | **YES**, exact match |
+| 24/11/2022 — 3 rooms — 76.85m² | **YES** — present, but `price=₪476,289` on this row implies ~₪6,200/m², **below the app's own ₪8,000/m² minimum-price-per-sqm quality floor** — this row is correctly filtered out as a likely partial-rights/family transaction by existing valuation-quality logic, independent of the location-tier issue. This is the app's quality filter working as intended, not a bug. |
+| 11/08/2022 — 3 rooms — 106m² — ₪2,100,000 | **YES**, exact match |
+| 26/01/2022 — 4 rooms — 100.35m² — ₪1,670,000 | **NOT FOUND** in our dataset — genuinely absent, not a normalization issue (no row with this date/price/area combination exists for house number 92 on this street). Reported explicitly, not silently assumed to match. |
+
+Our dataset and the government site are **not fully identical** for this address (3 of 4 cited transactions present) — disclosed rather than assumed.
+
+## Weizmann 92 — Candidate Trace
+
+| ADDRESS | DATE | ROOMS | AREA | PRICE | IN_CANDIDATE_POOL | EXCLUDED_AT | EXCLUSION_REASON | TIER_IF_HOUSENUMBER_PROVIDED |
+|---|---|---|---|---|---|---|---|---|
+| Weizmann 92 | 2023-11-21 | 4 | 107.3 | 1,800,000 | YES | not excluded | — | **0 (building)** |
+| Weizmann 92 | 2022-08-11 | 3 | 106 | 2,100,000 | YES | not excluded | — | **0 (building)** |
+| Weizmann 92 | 2022-11-24 | 3 | 76.85 | 476,289 | YES (raw), excluded from *comparables* | `MIN_PPSQM` filter (`lib/valuation.ts:685`) | pricePerSqm ≈ ₪6,200 < ₪8,000 floor — correctly treated as a data-quality outlier | N/A (would be excluded regardless of tier) |
+| Weizmann 93 | 2026-04-27 | 4 | 86 | 1,865,000 | YES | not excluded | — | 1 (street) |
+| Weizmann 99 | 2026-01-06 | 5 | 142.4 | 3,220,000 | YES | not excluded | — | 1 (street) |
+| Weizmann 97 | 2025-07-03 | 3 | 72 | 1,640,000 | YES | not excluded | — | 1 (street) |
+
+**Why did 93/99/97 beat 92?** Identical mechanism to Hartom: without an active house-number filter, every same-street deal is tier=1, and 93/97/99's more recent (2025–2026) transactions outrank 92's 2022–2023 ones on pure recency/relevance. Same root mechanism, same evidence pattern as Hartom.
+
+**The same root cause explains both cases.**
+
+---
+
+## Badge / Result UI
+
+- The UI **already has all four tier badges implemented**, not just "אותו רחוב": `TIER_BADGE` (`components/ValuationWizard.tsx:295-300`) defines `building` ("🏢 אותו בניין"), `street` ("📍 אותו רחוב"), `radius` ("📐 בקרבת מקום"), and `neighborhood` ("🏘️ שכונה"). This is not a missing-feature problem — the display plumbing is fully wired to `ComparableDeal.tier`, which the engine already returns per-deal. The badge shown is exactly whatever `tier` the engine computed; the UI itself has no bug here.
+- **Result header does not repeat the evaluated address**: confirmed from source — `Valuation` (`lib/types.ts:41-68`) has **no `street` or `houseNumber` field at all**, only `neighborhood: string | null`. The result screen (`components/ValuationWizard.tsx:1036-1038`) can only ever show *"טווח שווי משוער · {neighborhood}"* — it structurally cannot display the street/house number the user searched for, because the server response never carries it back. This is a separate, source-confirmed gap from the location-tier issue.
+
+---
+
+## Root Cause Classification
+
+**HARTOM 30 = A** (house number effectively absent before the comparable engine runs) — with an important precision: this investigation did **not** find a code defect that captures a house number and then loses it in transit (traced end-to-end, no such drop point exists). The far more likely mechanism, fully consistent with every piece of evidence gathered, is that **house number was simply not entered** in the observed session(s), because the UI never requires it and labels it "not required." Classifications C, D, E, F, G, H were each specifically checked and ruled out for this case:
+- **Not C** — when a house number *is* present, the sort's tier comparator makes tier-0 beat tier-1 unconditionally; there is no scoring path where a present, correct house number still loses to another building.
+- **Not D** — the street name is stored identically to the autocomplete source; no alias.
+- **Not E** — house numbers are stored as clean parseable integers.
+- **Not F** — the exact-building data exists, is recent, and includes 4-room units.
+- **Not G** — all relevant rows fall inside the 5-year window and match the target property type.
+- **Not H** — the badge/tier display logic is correct and already supports all four tiers; it faithfully reflects whatever tier the engine computes.
+
+**WEIZMANN 92 = A**, same reasoning, same evidence pattern, same mechanism. **The same root cause explains both cases** — this is one bug (or, more precisely, one product gap), observed twice.
+
+**One caveat, stated plainly rather than hidden**: the classification would need to become **J (insufficient evidence)** for the *exact* trigger only if the operator can confirm they *did* type a house number in these specific sessions and still saw this result — in that scenario, the fault would sit somewhere this investigation did not find (worth a fresh, narrower trace with real request logs). A single operator question — *"did you type the house number field when testing these two addresses?"* — would fully close this gap.
+
+---
+
+## Proposed Product Contract
+
+*(Not implemented — evidence-based proposal only.)*
+
+- **A. Address requirement**: Make house number a required field before "חשב שווי לפי עסקאות אמיתיות" can be pressed, at least for `propertyType="apartment"|"house"` (not meaningful for raw land parcels). Smallest change: add house number to the existing `canCalc` check, and to `validateSize()`'s sibling validation.
+- **B. Comparable location tiers**: Keep the existing four (building → street → radius → neighborhood) — the underlying engine and UI badges are already correctly structured for this; no redesign needed.
+- **C. Quality scoring within each tier**: Keep the existing `MIN_PPSQM` outlier floor and size/room relevance sort *within* each tier — proven working correctly on the Weizmann 92 case (correctly excluded the ₪476,289 partial-rights row). Same-building priority must **not** bypass this — an outlier same-building transaction should still be filterable, exactly as today's code already does (tier is the primary sort key, but the `MIN_PPSQM` filter runs *before* tiering and applies uniformly).
+- **D. Fallback rules**: Keep the existing progressive widen-on-thin-data behavior (building → street → radius → neighborhood, each requiring a minimum comparable count) — this is sound and already evidence-tested (Weizmann 92 with only 3 raw rows, 2 of quality, would correctly still produce a "building" scope estimate since `MIN_DEALS_FOR_ESTIMATE=3` is met by the raw count, though worth double-checking the min-count threshold's exact interaction with the quality filter in a future dedicated pass if this becomes a live concern — not tested this wave, flagged as an open question rather than assumed fine).
+- **E. Display grouping**: No change needed — tier badges already group correctly once a real house number reaches the engine.
+- **F. Result address header**: Add `street`/`houseNumber` (or a single formatted `resolvedAddress` string) to the `Valuation` response type and thread it through from `ValuationInput`, so the result screen can show *"טווח שווי משוער — הרב שמואל הרטום 30"* instead of only the neighborhood name.
+
+**Strict fallback vs. weighted/blended — treated as two separate decisions, per instruction:**
+- **For DISPLAY (which comparables to show, and their badges)**: recommend keeping **strict tier ordering** (today's behavior) — a user comparing their specific building wants to see their building's own transactions first, full stop; blending would muddy that signal for no real benefit.
+- **For VALUATION CALCULATION (the estimateLow/Mid/High numbers)**: the existing code is **already a strict fallback with minimum-sample-size gating**, not blended (building wins outright once it has ≥3 qualifying deals, else it falls through entirely to street, etc.) — this wave found no evidence this needs to change to a blended/weighted model; a sudden jump in bracket width when crossing between tiers is a reasonable, explainable trade-off already implicit in the `scopePct` widening (`P20/P80` for building → `P33/P67` for neighborhood) that existing code already implements to compensate.
+
+---
+
+## Proposed Acceptance Tests
+
+*(Design only — not written this wave.)*
+
+For both **Hartom 30** and **Weizmann 92** (as literal fixtures, since real proven data already exists for them):
+1. Given the exact street + house number + a plausible room/area combination, the returned `comparableDeals` array's first entries have `tier === "building"` when ≥1 qualifying same-building deal exists.
+2. Exact address (street text and house number) is preserved unchanged from request payload through to whatever powers the comparable tiering — i.e. a unit/integration test asserting `PropertyInput.houseNumber` reaches `tier()`'s building branch.
+3. House number is required by client-side validation before a valuation can be requested (once implemented) — a regression test asserting the calculate button/action is blocked without it.
+4. A same-building outlier (e.g. a `pricePerSqm` below the `MIN_PPSQM` floor) is still excluded from comparables even when it's the only same-building row available — proven today via the Weizmann 92 ₪476,289 row; codify as an explicit test.
+5. When same-building data doesn't exist or is insufficient, the fallback expands to street/radius/neighborhood, and this is observable via `compSearchScope`/comparable `tier` values, not silently indistinguishable from a "true" building match.
+6. The displayed tier badge always matches the actual computed `tier` of the underlying deal — no UI/data drift.
+7. The result screen displays the exact evaluated address (once Proposed Contract item F ships) — regression test on the response shape and the rendered header text.
+8. No regression to the existing valuation arithmetic (`estimateLow/Mid/High`) — the existing `lib/__tests__/valuation.fixture.test.ts` characterization test already guards this; extend rather than replace it.
+
+---
+
+## Recommended Implementation Order
+
+Not implemented this wave. In order of smallest-safest-first:
+1. Fix the `pool4yr`/"4 years" comment-vs-`GEO_MONTHS=60` documentation mismatch (zero behavior change, pure clarity).
+2. Add `street`/`houseNumber` (or a formatted address string) to the `Valuation` response type and result header (Proposed Contract item F) — additive, no existing behavior change.
+3. Make house number a required field in the UI before calculating (Proposed Contract item A) — the highest-leverage fix, directly targeting the confirmed root cause.
+4. Add the acceptance tests above, anchored to the real Hartom 30 / Weizmann 92 fixtures already proven in this investigation.
