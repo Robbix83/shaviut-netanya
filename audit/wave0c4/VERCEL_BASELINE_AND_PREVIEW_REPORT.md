@@ -202,3 +202,34 @@ The Browser pane's session is still not authenticated to Vercel (confirmed again
 **What stands in its place:** Wave 0C-4B already proved the fix correct via real browser DOM-geometry measurements (`getBoundingClientRect`, `scrollWidth` overflow checks) at all 5 required viewports (375×812, 390×844, 400×800, 768×1024, 1440 desktop) against a local dev server running the **exact same commit** (`5a1b2b5`) now deployed here — zero horizontal overflow, no mid-price wrap, clean centered stacking on narrow widths, single line preserved on tablet/desktop, RTL order correct. Since Tailwind CSS is compiled deterministically at build time from the same source and the layout is pure CSS (no data- or environment-dependent behavior), this is strong evidence the same behavior will hold here — but it is evidence from the prior wave's local testing, not a fresh observation of this deployed Preview, and is reported as such rather than re-asserted as freshly proven.
 
 **Outstanding:** a quick operator glance at `https://shaviut-netanya-nfbbwhcvo-robbublils-projects.vercel.app` around 375–400px width (their own authenticated Chrome session) would close this gap with direct evidence, but is not required to trust the fix given the local proof already obtained on the identical committed code.
+
+---
+
+## Wave 0C-4D — Mobile centering fix deployed to a new Preview
+
+The mobile centering fix from this wave (commit `b6e95d4`, `app/page.tsx` — added base `grid-cols-1` to the hero grid container, one line) was deployed to a **new** Preview deployment. All three prior deployments (the two earlier Previews and the Production baseline) were left untouched.
+
+### Deployment
+| Field | Value |
+|---|---|
+| Deployed HEAD | `b6e95d4` |
+| Deployment ID | `dpl_6q81geZek2ye7ZUpNnykxsKkrUZS` |
+| URL | `https://shaviut-netanya-97ah045fq-robbublils-projects.vercel.app` |
+| Classification | **Preview** (`"target": null`; `vercel ls` lists it under `Environment = Preview`) |
+| Build result | Succeeded |
+
+`npx vercel@59.4.0 ls` after this deploy: **4 deployments total** — this new Preview, the two prior Previews (`...nfbbwhcvo...`, `...ilp5agjed...`, both retained, untouched), and the Production baseline (`...6ycwo1czg...`, retained, untouched). No custom domain.
+
+### What was verified this wave
+- `GET /` on the new Preview → HTTP 200 (via `npx vercel@59.4.0 curl`, no bypass token extracted or printed).
+- The Browser pane's session is still not authenticated to Vercel (confirmed again: navigating to this new Preview URL redirected straight to `vercel.com`'s login page). Per the hard rule against bypass-token use, browser automation was stopped at that point rather than worked around.
+
+### Live mobile centering check — WAITING FOR OPERATOR
+Not yet independently observed against this live deployed Preview. **What stands in its place:** the centering fix was rigorously proven this wave via real browser DOM geometry (not guesswork) against a local dev server running this exact commit (`b6e95d4`) before deploying:
+- A controlled runtime test (`grid-template-columns: minmax(0,1fr)` applied live) proved the root cause conclusively — card center moved to exactly the viewport center (delta 0px) — before any source change was made.
+- After applying the real one-line fix, `centerDelta = 0px` was measured at 375×812, 390×844, 400×800, and 430×932, with zero horizontal overflow at every width, and the price-wrap fix (`5a1b2b5`) confirmed still intact (clean two-line stack, no mid-price break). Tablet (768×1024) and desktop (1440) showed no regression (single-line price, unchanged two-column layout).
+
+This is the same evidentiary gap as Wave 0C-4C's report: strong local proof on the identical committed code, not yet a fresh observation of the specific live Preview URL. Closing it needs either the operator's own authenticated glance at `https://shaviut-netanya-97ah045fq-robbublils-projects.vercel.app` around 375–400px, or acceptance of the local proof as sufficient.
+
+### Known non-blocking follow-up (unchanged)
+- `favicon.ico` → 404. Not touched this wave.
