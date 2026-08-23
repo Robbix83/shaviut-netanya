@@ -656,7 +656,32 @@ Location: https://vercel.com/sso-api?url=...&nonce=...
 Vercel Authentication (Deployment Protection) intercepted the request as expected — redirected to Vercel's SSO flow rather than serving the app. Protection was not bypassed, not disabled, and no Automation Bypass secret was created, inspected, or printed.
 
 ### Live acceptance
-STOPPED here per Phase 6 — awaiting the operator's manual test of the three acceptance cases (CASE A/B/C) in an already-authenticated browser against the Preview URL above. This section will be completed once the operator reports results.
+Operator tested all three cases against the protected Preview (`https://shaviut-netanya-9q5h5skwf-robbublils-projects.vercel.app`) in an already-authenticated browser:
+
+```
+CASE_A_MISSING_NUMBER=PASS
+CASE_B_WEIZMANN92=PASS
+CASE_C_HARTOM30=PASS
+```
+
+- **CASE A** — apartment, empty house number: could not advance/calculate; Hebrew requirement message shown; no valuation produced.
+- **CASE B** — ויצמن 92: valuation succeeded; header showed "הערכת שווי — ויצמן 92, נתניה"; ויצמן 92 (אותו בניין) returned first; the prior broken behavior (93/99/97/103 before building 92) did **not** recur.
+- **CASE C** — הרב שמואל הרטום 30: valuation succeeded; header showed "הערכת שווי — הרב שמואל הרטום 30, נתניה"; building 30 transactions returned first (אותו בניין); the prior broken behavior (building 29 instead of 30) did **not** recur.
+
+### Wave 0E-3 closure
+
+**WAVE 0E-3 = CLOSED PASS.**
+
+### Wave 0E closure
+
+All sub-waves of Wave 0E are now closed:
+- 0E-1/0E-1A/0E-1B — root-cause investigation: **CLOSED**
+- 0E-2A — `SupabaseStore` comparable-selection parity fix, live-verified: **CLOSED PASS**
+- 0E-2B — mandatory house number + result address UX: **CLOSED PASS**
+- 0E-3 — protected Preview deployment + live operator acceptance (Cases A/B/C): **CLOSED PASS**
+- 0E-3A — Weizmann alias investigation (classification B, no risk): **CLOSED CLEAR**
+
+**WAVE 0E = CLOSED PASS.** Production deployment and custom-domain attachment remain explicitly deferred — not performed in Wave 0E, not started automatically. The next Production step is to be decided with the operator.
 
 ---
 
