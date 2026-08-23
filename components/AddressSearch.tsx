@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { HOUSE_NUMBER_REQUIRED_MESSAGE } from "@/lib/houseNumberRule";
 
 export interface StreetSuggestion {
   label: string;            // שם הרחוב להצגה
@@ -19,6 +20,8 @@ interface Props {
   selected: StreetSuggestion | null;
   houseNumber?: string;
   houseNumberNotFound?: boolean;
+  /** דירה/בית — מספר בית חובה. מגרש — נותר רשות (ההתנהגות הקיימת). */
+  required?: boolean;
   neighborhoods?: { id: string; name: string; x?: number; y?: number }[];
 }
 
@@ -31,7 +34,7 @@ interface ApiSuggestion {
   y?: number | null;
 }
 
-export default function AddressSearch({ onSelect, onClear, selected, houseNumber, houseNumberNotFound, onHouseNumberChange }: Props) {
+export default function AddressSearch({ onSelect, onClear, selected, houseNumber, houseNumberNotFound, onHouseNumberChange, required }: Props) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<ApiSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
@@ -118,8 +121,10 @@ const inputRef = useRef<HTMLInputElement>(null);
           <button onClick={clear} className="text-slate-400 hover:text-slate-700 text-lg flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center" title="שנה" aria-label="שנה רחוב">✕</button>
         </div>
         {/* מספר בית — מאפשר חיפוש ברמת בניין ספציפי */}
-        <div className="flex items-center gap-2">
-          <label htmlFor="addr-house-number" className="text-xs font-medium text-slate-600 shrink-0">מספר בית:</label>
+        <div className="flex items-center gap-2 flex-wrap">
+          <label htmlFor="addr-house-number" className="text-xs font-medium text-slate-600 shrink-0">
+            מספר בית{required && <span className="text-red-500"> *</span>}:
+          </label>
           <input
             id="addr-house-number"
             type="text"
@@ -128,14 +133,18 @@ const inputRef = useRef<HTMLInputElement>(null);
             className="field-input max-w-[90px] text-center"
             placeholder="12"
             autoComplete="address-line2"
+            aria-required={required || undefined}
             value={houseNumber ?? ""}
             onChange={(e) => onHouseNumberChange?.(e.target.value.replace(/[^\d\w]/g, ""))}
           />
-          <span className="text-xs text-slate-400">(לא חובה — ישפר דיוק)</span>
+          {!required && <span className="text-xs text-slate-400">(לא חובה — ישפר דיוק)</span>}
           {houseNumberNotFound && (
             <span className="text-xs font-medium text-amber-600">⚠ מספר לא נמצא — שכונה משוייכת לפי שם הרחוב</span>
           )}
         </div>
+        {required && !(houseNumber ?? "").trim() && (
+          <p className="text-xs font-medium text-amber-600">{HOUSE_NUMBER_REQUIRED_MESSAGE}</p>
+        )}
       </div>
     );
   }

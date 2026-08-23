@@ -4,6 +4,7 @@ import { notifyNewLead } from "@/lib/notify";
 import { rateCheck, getIP } from "@/lib/rateLimit";
 import { verifyLeadProof } from "@/lib/otp";
 import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
+import { isValidHouseNumber } from "@/lib/houseNumberRule";
 import type { Lead, Valuation } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -53,6 +54,9 @@ function validateValuationInput(vi: unknown): ValuationInput | null {
   const pt = o.propertyType;
   const propertyType: "apartment" | "house" | "land" =
     pt === "house" || pt === "land" ? pt : "apartment";
+  const houseNumber = typeof o.houseNumber === "string" ? o.houseNumber : null;
+  // אכיפת שרת עצמאית לחובת מספר בית (דירה/בית) — לא סומכים על ה-UI בלבד.
+  if (!isValidHouseNumber(propertyType, houseNumber)) return null;
   return {
     neighborhoodId: o.neighborhoodId.trim(),
     propertyType,
@@ -61,7 +65,7 @@ function validateValuationInput(vi: unknown): ValuationInput | null {
     plotSqm: num(o.plotSqm),
     floor: num(o.floor),
     yearBuilt: num(o.yearBuilt),
-    houseNumber: typeof o.houseNumber === "string" ? o.houseNumber : null,
+    houseNumber,
     streetName: typeof o.streetName === "string" ? o.streetName : null,
     streetX: num(o.streetX),
     streetY: num(o.streetY),

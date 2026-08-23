@@ -520,3 +520,106 @@ $env:DATA_SOURCE = "supabase"
 npx tsx scripts/verify-supabase-comparables-diagnostic.ts
 ```
 Expected (not assumed): `GETALLDEALS_COUNT=12642`, `GETALLDEALS_SAMPLE_HAS_STREET=true`, `GETALLDEALS_SAMPLE_HAS_HOUSENUMBER=true`, `WEIZMANN_NEIGHBORHOOD_ROW_COUNT` > 1000 (real value ~3010), `WEIZMANN_92_PRESENT_IN_NEIGHBORHOOD_POOL=true`, `HARTOM_30_PRESENT_IN_OWN_NEIGHBORHOOD=true` (already true pre-fix, unaffected), and both `HARTOM_RESULT_TOP3`/`WEIZMANN_RESULT_TOP3` showing the exact building at `[building]` tier first, subject only to the existing (unchanged) quality/scoring rules.
+
+### Wave 0E-2A live confirmation
+
+The operator reran the diagnostic against real Supabase post-fix. Result — every expected signal matched:
+
+```
+GETALLDEALS_COUNT=12642
+GETALLDEALS_SAMPLE_HAS_STREET=true
+GETALLDEALS_SAMPLE_HAS_HOUSENUMBER=true
+GETALLDEALS_SAMPLE_HAS_PRICE=true
+WEIZMANN_NEIGHBORHOOD_ROW_COUNT=3010
+WEIZMANN_92_PRESENT_IN_NEIGHBORHOOD_POOL=true
+HARTOM_RESULT_TOP3=["הרב שמואל הרטום 30 [building]", "הרב שמואל הרטום 30 [building]", "הרב שמואל הרטום 30 [building]"]
+WEIZMANN_RESULT_TOP3=["ויצמן 92 [building]", "ויצמן 92 [building]", "ויצמן 107 [street]"]
+ERROR=null
+```
+
+Wave 0E-2A is **CLOSED PASS**. Both real operator-reported cases (הרב שמואל הרטום 30, ויצמן 92) now resolve to the exact building at `tier=building` first, against the live table — not just the local mock. No further action needed on the `SupabaseStore` parity fix.
+
+---
+
+## Wave 0E-2B — Mandatory House Number + Result Address Context
+
+**Objective:** house number becomes mandatory (UI + server) for property types where it's meaningful, and the result screen clearly repeats the evaluated address, so a user can never again get a valuation that silently skipped the building-level match the Wave 0E-2A fix made possible. Explicitly forbidden: touching the comparable engine, tiers, scoring, the 5-year window, address resolution, `SupabaseStore`/`LocalStore`, the database, the importer, or Vercel config.
+
+### Phase 2 — contract trace (before editing)
+```
+CURRENT_HOUSE_NUMBER_TYPE=string (component state; sent as houseNumber.trim() || null)
+CURRENT_UI_REQUIRED=false          — canCalc never checked houseNumber
+CURRENT_SERVER_REQUIRED=false      — /api/valuation had NO input validation at all;
+                                      /api/lead's validateValuationInput() accepted any string/null
+CURRENT_RESULT_HAS_STREET=false    — Valuation type carries no street/houseNumber
+CURRENT_RESULT_HAS_HOUSE_NUMBER=false
+```
+Smallest safe implementation, per the wave's own preferred order: **reuse existing wizard state** (`selectedStreet.street` + `houseNumber`, already in `ValuationWizard`'s own component scope) to render the result header — no change to `Valuation`/`Deal`/`ComparableDeal` types, no new API response field.
+
+### Property-type model actually in the codebase (Phase 5)
+`PropertyType = "apartment" | "house" | "land"` (`components/ValuationWizard.tsx`, `lib/valuationService.ts`, `app/api/lead/route.ts` — identical literal union in all three). No other property types exist to classify. Rule implemented: `apartment`/`house` → required; `land` → not required (existing behavior retained).
+
+### Single source of truth (new file)
+`lib/houseNumberRule.ts` — pure, dependency-free (zero imports), so it is safe to import from **both** the "use client" wizard and the server API routes without risking the service-role key (used by `lib/store.ts`/`lib/valuationService.ts`) ever reaching the client bundle. Exports:
+- `isHouseNumberRequired(propertyType)` — `propertyType !== "land"` (default apartment when omitted).
+- `isValidHouseNumber(propertyType, houseNumber)` — required check + trim, non-empty.
+- `formatEvaluatedAddress(street, houseNumber, city = "נתניה")` — `"הערכת שווי — {street} {houseNumber}, {city}"`, `null` if no street is known (never invents one).
+- `HOUSE_NUMBER_REQUIRED_MESSAGE` — the single Hebrew copy, imported everywhere it's shown (UI inline hint, wizard error banner, server 422 message) so wording can never drift between them.
+
+### UI enforcement (Phase 3)
+- `components/ValuationWizard.tsx`: `canCalc` now also requires `isValidHouseNumber(propertyType, houseNumber)`; the step-1 "המשך" button is disabled until it's satisfied (in addition to the existing `neighborhoodId` check); `calcValuation()` independently blocks and sets the Hebrew error banner (mirrors the existing `validateSize()` pattern) as defense-in-depth against any state-navigation edge case.
+- `components/AddressSearch.tsx`: new `required` prop. When true: adds a `*` to the "מספר בית" label, sets `aria-required`, removes the old "(לא חובה — ישפר דיוק)" copy, and shows the shared Hebrew hint inline whenever the field is empty.
+- **Necessary consistency fix**, found while implementing: the pre-existing "לא מוצאים את הרחוב? בחרו שכונה ידנית" fallback (manual neighborhood dropdown, used when a street isn't in the autocomplete index) had **no house-number field at all**. Making the rule unconditional on property type (matching the approved product decision literally) without also exposing a house-number input there would have created a dead-end — an apartment/house user in that fallback could never satisfy the requirement. Added the same required input + hint to that fallback block. This is the one small deviation beyond the three files named in the prompt's scope list, and it's still squarely "address form / wizard validation" — no valuation/store/tier logic touched.
+- Values with letter suffixes (`30א`, `12ב`) are not blocked by the new required-check (`isValidHouseNumber` only tests `.trim().length > 0`). Note: `AddressSearch`'s pre-existing character filter (`e.target.value.replace(/[^\d\w]/g, "")`) already strips Hebrew letters today (JS `\w` is ASCII-only) — a pre-existing limitation, not introduced or fixed by this wave (fixing it is out of scope: "do not redesign same-building matching for suffixes").
+
+### Server enforcement (Phase 4)
+- `app/api/valuation/route.ts`: calls `isValidHouseNumber(body.propertyType, body.houseNumber)` before `resolveAndValuate()`; on failure returns `422 { error: "house_number_required", message }` and **never calls `resolveAndValuate`**.
+- `app/api/lead/route.ts`: `validateValuationInput()` (the existing, only, validator for this input — extended, not duplicated) now rejects when the property type requires a house number and none is present, returning `null` → the existing `invalid_valuation_input` 422 path. No parallel validator created.
+
+### Result address context (Phase 6/7)
+Both the step-3 and step-4 result cards now show `formatEvaluatedAddress(selectedStreet?.street ?? null, houseNumber)` as a header line above the existing "טווח שווי משוער · {neighborhood}" line — sourced from the wizard's own selection state, never reconstructed from `comparableDeals`. Renders only when a street is actually known (silently omitted for the neighborhood-only manual-fallback path, consistent with "do not invent" — that path never had a street to show).
+
+### Tests (Phase 8)
+This repo has **no DOM/React component-testing infrastructure** (no jsdom `environment`, no `@testing-library/react`, no `.test.tsx` file anywhere) — confirmed by inspecting `vitest.config.ts` and the existing test suite before writing new tests. Introducing one for this micro-wave would be a new-architecture change the wave's own scope explicitly forbids ("Do not create new architecture"). Tests A/B/C/F/G/H are therefore implemented as direct unit tests of the exact shared pure functions that drive the UI gate and header text (`lib/__tests__/houseNumberRule.test.ts`, 17 tests) rather than simulated clicks on a rendered DOM — the same functions `ValuationWizard.tsx`/`AddressSearch.tsx` import, not a re-implementation. Tests D/E are real integration tests against the live route handlers (`app/api/valuation/__tests__/valuation.houseNumber.test.ts`, 5 tests), matching this repo's existing precedent for API-route testing (`app/api/lead/__tests__/lead.valuation.test.ts`). Two pre-existing fixtures (`lead.valuation.test.ts`'s `tamperedBody`, `lead.gate.test.ts`'s `validBody`) predated this rule and needed a `houseNumber` added to stay valid — fixed, plus 2 new tests added directly to `lead.valuation.test.ts` (6b/6c) covering the same server rule end-to-end through `/api/lead`.
+
+| Test | Where | Result |
+|---|---|---|
+| A — apartment, `houseNumber=""` invalid | `houseNumberRule.test.ts` | pass |
+| B — house, `houseNumber=""` invalid | `houseNumberRule.test.ts` | pass |
+| C — whitespace-only invalid | `houseNumberRule.test.ts` | pass |
+| D — server rejects missing house number, no valuation execution | `valuation.houseNumber.test.ts` (+ `lead.valuation.test.ts` 6b) | pass |
+| E — server accepts `"92"`, preserved as string | `valuation.houseNumber.test.ts` | pass |
+| F — Weizmann 92 header string | `houseNumberRule.test.ts` + live browser (below) | pass |
+| G — Hartom 30 header string | `houseNumberRule.test.ts` + live browser (below) | pass |
+| H — land exception, no regression | `houseNumberRule.test.ts` + `valuation.houseNumber.test.ts` + `lead.valuation.test.ts` 6c | pass |
+
+### Manual local acceptance (Phase 11) — real browser, `npm run dev`
+- **Case 1 (ויצמן 92, apartment):** clicking "המשך →" with the house-number field empty stayed on step 1 with the Hebrew hint visible; entering `92` resolved the neighborhood and cleared the hint; step-2 "חשב שווי" produced a result whose header read exactly **"הערכת שווי — ויצמן 92, נתניה"**, with "ויצמן 92" / "🏢 אותו בניין" as the first two comparable cards.
+- **Case 2 (הרב שמואל הרטום 30, apartment):** same flow; result header read exactly **"הערכת שווי — הרב שמואל הרטום 30, נתניה"**, with three "הרב שמואל הרטום 30" building-tier comparables shown.
+- **Mobile safety:** at 375×812 the address header line measured `left:68.7 right:306.7 width:238` — fully inside the 375px viewport, `document.body.scrollWidth === clientWidth` (no horizontal overflow anywhere on the page).
+- Console: no errors other than the sandboxed preview proxy's expected HMR-websocket noise (pre-existing, unrelated to this change).
+- Server-side spot-check via direct `curl` against the running dev server confirmed the same three cases at the HTTP layer: apartment without `houseNumber` → `422 house_number_required`; `land` without `houseNumber` → passes the gate (fails later on unrelated `insufficient_data`, proving the land exception works).
+
+### Quality gates
+- Focused new tests: `houseNumberRule.test.ts` 17/17, `valuation.houseNumber.test.ts` 5/5 — all pass.
+- Full suite: **153 passed** (16 files; 129 prior + 22 new/updated: 17 + 5, plus 2 tests added to `lead.valuation.test.ts`, netting the file-count and test-count deltas above).
+- Typecheck: clean.
+- Lint: **not run** — same pre-existing `next lint` non-functional condition documented in the Wave 0E-2A section; unrelated to and unfixable within this micro-wave's scope.
+- Build: `next build` — succeeded, same route classification as every prior wave (`/api/valuation` and `/api/lead` still dynamic `ƒ`, no new routes).
+
+### Scope check
+```
+git diff --stat -- app lib components (excluding graphify-out)
+app/api/lead/__tests__/lead.gate.test.ts      |  2 +-
+app/api/lead/__tests__/lead.valuation.test.ts | 24 ++++++++-
+app/api/lead/route.ts                         |  6 ++-
+app/api/valuation/route.ts                    |  9 ++++
+components/AddressSearch.tsx                  | 17 +++++--
+components/ValuationWizard.tsx                | 71 ++++++++++++++++++++++-----
+6 files changed, 109 insertions(+), 20 deletions(-)
++ new: lib/houseNumberRule.ts, lib/__tests__/houseNumberRule.test.ts, app/api/valuation/__tests__/valuation.houseNumber.test.ts
+```
+Confirmed **not touched**: `lib/store.ts` (the Wave 0E-2A `SupabaseStore` fix), `lib/valuation.ts` (comparable engine/tiers/scoring/5-year window), `lib/valuationService.ts` (the `resolveAndValuate` seam — the house-number gate lives in the two route handlers that call it, not inside it), the address resolver (`app/api/resolve-address/route.ts`), the database, import scripts, and Vercel configuration.
+
+### Deployment
+None. No Production or Preview deployment performed in this wave.

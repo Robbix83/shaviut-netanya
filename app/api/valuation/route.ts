@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
+import { isValidHouseNumber, HOUSE_NUMBER_REQUIRED_MESSAGE } from "@/lib/houseNumberRule";
 
 export const runtime = "nodejs";
 
@@ -9,6 +10,14 @@ export async function POST(req: NextRequest) {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
+  }
+
+  // אכיפת שרת עצמאית — לא סומכים על ולידציית ה-UI בלבד.
+  if (!isValidHouseNumber(body.propertyType, body.houseNumber)) {
+    return NextResponse.json(
+      { error: "house_number_required", message: HOUSE_NUMBER_REQUIRED_MESSAGE },
+      { status: 422 },
+    );
   }
 
   const outcome = await resolveAndValuate(body);

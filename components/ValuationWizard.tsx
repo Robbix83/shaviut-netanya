@@ -6,6 +6,12 @@ import AddressSearch, { StreetSuggestion } from "./AddressSearch";
 import CbsPanel from "./CbsPanel";
 import MavatPanel from "./MavatPanel";
 import AccessibilityPanel from "./AccessibilityPanel";
+import {
+  isHouseNumberRequired,
+  isValidHouseNumber,
+  formatEvaluatedAddress,
+  HOUSE_NUMBER_REQUIRED_MESSAGE,
+} from "@/lib/houseNumberRule";
 
 type PropertyType = "apartment" | "house" | "land";
 
@@ -584,6 +590,9 @@ export default function ValuationWizard() {
 
   const neighborhoodName = neighborhoods.find((n) => n.id === neighborhoodId)?.name || "";
   const neighborhoodCoords = neighborhoods.find((n) => n.id === neighborhoodId);
+  // כתובת הנכס שהוערך — מהמצב הקיים של האשף (הרחוב/מספר בית שהמשתמש בפועל בחר/הזין),
+  // לא שחזור מעסקאות ההשוואה.
+  const evaluatedAddress = formatEvaluatedAddress(selectedStreet?.street ?? null, houseNumber);
 
   // טעינת נתוני teaser כשמגיעים לשלב 3
   useEffect(() => {
@@ -613,9 +622,11 @@ export default function ValuationWizard() {
   const isHouse = propertyType === "house";
   const needsArea = !isLand; // דירה/בית
   const needsPlot = isLand || isHouse; // בית/מגרש
+  const houseNumberRequired = isHouseNumberRequired(propertyType);
 
   const canCalc =
-    (!needsArea || !!area) && (!needsPlot || !!plot) && (isLand || isHouse || !!rooms);
+    (!needsArea || !!area) && (!needsPlot || !!plot) && (isLand || isHouse || !!rooms) &&
+    isValidHouseNumber(propertyType, houseNumber);
 
   function validateSize(): string | null {
     if (needsArea) {
@@ -634,6 +645,7 @@ export default function ValuationWizard() {
 
   async function calcValuation() {
     setError(null);
+    if (!isValidHouseNumber(propertyType, houseNumber)) return setError(HOUSE_NUMBER_REQUIRED_MESSAGE);
     const sizeErr = validateSize();
     if (sizeErr) return setError(sizeErr);
     setLoading(true);
@@ -826,6 +838,7 @@ export default function ValuationWizard() {
               selected={selectedStreet}
               houseNumber={houseNumber}
               houseNumberNotFound={houseNumberNotFound}
+              required={houseNumberRequired}
               onHouseNumberChange={setHouseNumber}
               onSelect={(s) => {
                 // שמור שכונת ה-autocomplete כ-fallback פנימי
@@ -860,22 +873,48 @@ export default function ValuationWizard() {
               </button>
             )}
             {showNeighFallback && !selectedStreet && (
-              <select
-                aria-label="בחרו שכונה"
-                className="field-input bg-white mt-2"
-                value={neighborhoodId}
-                onChange={(e) => setNeighborhoodId(e.target.value)}
-              >
-                <option value="">— בחרו שכונה —</option>
-                {neighborhoods.map((n) => (
-                  <option key={n.id} value={n.id}>{n.name}</option>
-                ))}
-              </select>
+              <>
+                <select
+                  aria-label="בחרו שכונה"
+                  className="field-input bg-white mt-2"
+                  value={neighborhoodId}
+                  onChange={(e) => setNeighborhoodId(e.target.value)}
+                >
+                  <option value="">— בחרו שכונה —</option>
+                  {neighborhoods.map((n) => (
+                    <option key={n.id} value={n.id}>{n.name}</option>
+                  ))}
+                </select>
+                {houseNumberRequired && (
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <label htmlFor="addr-house-number-fallback" className="text-xs font-medium text-slate-600 shrink-0">
+                        מספר בית<span className="text-red-500"> *</span>:
+                      </label>
+                      <input
+                        id="addr-house-number-fallback"
+                        type="text"
+                        inputMode="numeric"
+                        dir="ltr"
+                        className="field-input max-w-[90px] text-center"
+                        placeholder="12"
+                        autoComplete="address-line2"
+                        aria-required
+                        value={houseNumber}
+                        onChange={(e) => setHouseNumber(e.target.value.replace(/[^\d\w]/g, ""))}
+                      />
+                    </div>
+                    {!houseNumber.trim() && (
+                      <p className="text-xs font-medium text-amber-600">{HOUSE_NUMBER_REQUIRED_MESSAGE}</p>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
           <button
             className="btn-primary w-full"
-            disabled={!neighborhoodId}
+            disabled={!neighborhoodId || !isValidHouseNumber(propertyType, houseNumber)}
             onClick={() => { trackEvent("wizard_step1_complete", { propertyType, neighborhoodId }); setStep(2); }}
           >
             המשך →
@@ -1033,6 +1072,9 @@ export default function ValuationWizard() {
                  : "🏘️ מבוסס על השכונה"}
               </span>
 
+              {evaluatedAddress && (
+                <p className="text-sm font-bold text-white/90">{evaluatedAddress}</p>
+              )}
               <p className="text-sm font-medium text-white/55">
                 טווח שווי משוער{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
@@ -1365,6 +1407,9 @@ export default function ValuationWizard() {
                  : valuation.compSearchScope === "radius" ? "📐 טווח מהשכונה הקרובה"
                  : "🏘️ מבוסס על השכונה"}
               </span>
+              {evaluatedAddress && (
+                <p className="text-sm font-bold opacity-90">{evaluatedAddress}</p>
+              )}
               <p className="text-sm font-semibold opacity-80">
                 טווח שווי משוער{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>

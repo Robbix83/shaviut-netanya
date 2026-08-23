@@ -64,7 +64,7 @@ const tamperedBody = {
   estimateLow: 1,
   estimateHigh: 999_999_999,
   // Legitimate INPUTS the server uses to recompute:
-  valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100 },
+  valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100, houseNumber: "1" },
 };
 
 describe("POST /api/lead — server-owned valuation (client outputs ignored)", () => {
@@ -120,6 +120,28 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
     expect((await res.json()).error).toBe("invalid_valuation_input");
     expect(insertLead).not.toHaveBeenCalled();
     expect(resolveAndValuate).not.toHaveBeenCalled();
+  });
+
+  it("6b. Wave 0E-2B: apartment valuationInput missing houseNumber → 422, no recompute, no persistence", async () => {
+    const body = {
+      ...tamperedBody,
+      valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100 },
+    };
+    const res = await POST(makeReq(body, proof()));
+    expect(res.status).toBe(422);
+    expect((await res.json()).error).toBe("invalid_valuation_input");
+    expect(insertLead).not.toHaveBeenCalled();
+    expect(resolveAndValuate).not.toHaveBeenCalled();
+  });
+
+  it("6c. Wave 0E-2B: land valuationInput without houseNumber is still accepted (no regression)", async () => {
+    const body = {
+      ...tamperedBody,
+      valuationInput: { neighborhoodId: "66239255", propertyType: "land", plotSqm: 500 },
+    };
+    const res = await POST(makeReq(body, proof()));
+    expect(res.status).toBe(200);
+    expect(resolveAndValuate).toHaveBeenCalledTimes(1);
   });
 
   it("7a. recompute unavailable (insufficient_data) → lead saved with null estimates (option B)", async () => {

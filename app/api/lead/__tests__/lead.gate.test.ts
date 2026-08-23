@@ -49,7 +49,7 @@ const validBody = {
   phone: "0501234567",
   consentReport: true,
   propertyType: "apartment",
-  valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100 },
+  valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100, houseNumber: "1" },
 };
 
 describe("POST /api/lead — server-enforced OTP proof", () => {
