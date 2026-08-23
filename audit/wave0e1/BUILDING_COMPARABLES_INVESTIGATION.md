@@ -880,3 +880,102 @@ Vercel Authentication intercepted the request as expected. Not bypassed, not dis
 
 ### Live acceptance
 STOPPED here per Phase 4 — awaiting the operator's manual test of the four acceptance cases (Weizmann dedup, Weizmann 92 valuation, Ben Gurion dedup, Oved Ben Ami dedup) in an already-authenticated browser against the Preview URL above. This section will be completed once the operator reports results.
+
+---
+
+## Wave 0F-2A — Ben Ami 45 Live Fallback / Zero-Address Investigation
+
+**Investigation-only. Wave 0F-2 acceptance is STOPPED, not marked PASS. No application source, data, or deployment changed.** Operator found this live on the Wave 0F-2 Preview while testing case D (Oved Ben Ami autocomplete); target address is Ben Ami house number **45** (corrected from an initial 42).
+
+### Target (Phase 1)
+Only one Ben-Ami-family entry pair exists in `street-index.json` — the same pair proven in Wave 0F-1: `"שד עובד בן עמי"` (code 1078) and `"עובד בן עמי"` (uncoded), both `neighborhoodId=66239231`, both `x=185473, y=690366`. No other distinct Ben-Ami street exists. Canonical (post-0F-1) = `"שד עובד בן עמי"`.
+```
+AUTOCOMPLETE_DISPLAY=שד עובד בן עמי, כוכב הים
+STREET_CODE=1078
+X=185473
+Y=690366
+NEIGHBORHOOD_ID=66239231
+NORMALIZED_STREET_KEY=עובד בן עמי
+```
+
+### Real root cause (Phases 2–4) — proven via `resolveAndValuate()` traced against local data (proven byte-identical to Supabase in prior waves; real Supabase credentials remain unavailable in this environment, per every prior wave's Evidence Note — the exact operator rerun command for live confirmation is given below)
+
+**The real defect has nothing to do with house number 45 specifically, and nothing to do with Wave 0F-1.** Two independent, compounding facts:
+
+1. **Every real "עובד בן עמי" deal (65 rows) is stored under `neighborhoodId=66239254` ("מרכז העיר צפון")** — not `66239231`, the neighborhoodId the street itself resolves to. This is the exact same bug *class* proven for Hartom in Wave 0E-1B (a street whose transactions were imported under a different `neighborhoodId` than the one address-resolution assigns the street to) — except here the mismatch is total (0 of 65 rows are under 66239231), not partial.
+2. `lib/valuation.ts` already has a designed safety net for exactly this scenario (the "שלב טקסטואלי עירוני" block, lines 251–272 — the same mechanism Hartom's fix relies on): if the resolved-neighborhood pool (`geoPool`) is small (`< MIN_DEALS_FOR_ROOM_FILTER = 6`), it searches `lazyAllDeals()` city-wide by normalized street name instead. **This safety net never fires here**, because `neighborhoodId=66239231` ("נוף הטיילת"/"כוכב הים") is itself a large, real, populated neighborhood — 500 total deals, 108 with `rooms=4` within the 5-year window — so `geoPool.length` is far above the `<6` trigger. The gate that exists specifically to rescue this exact situation silently does not apply when the *wrong* neighborhood happens to be populous rather than empty.
+
+Traced with the real `resolveAndValuate()` seam (input: `neighborhoodId=66239231`, `streetName="שד עובד בן עמי"`, `houseNumber="45"`, `rooms=4`, `areaSqm=100`, real street coordinates):
+```
+RESOLVED_NEIGHBORHOOD=נוף הטיילת (66239231)
+COMP_SEARCH_SCOPE=neighborhood
+BASED_ON_DEALS=28
+WINDOW_MONTHS=6
+```
+Building tier: 0 candidates (no house-45 deals exist anywhere in the dataset for this street — genuinely absent, not a bug by itself). Street tier: 0 candidates *from `geoPool`* (all 65 real Ben Ami deals are outside `geoPool` entirely, per fact 1) — the would-be rescue (city-wide street search) never executes, per fact 2. Falls straight through to neighborhood tier, which is dominated by an unrelated data-quality issue (next section).
+
+### Zero-address root cause (Phase 4)
+Traced the exact returned comparable rows to their raw `data/deals.json` records:
+```json
+{"dealDate":"2026-05-19","price":1025000,"areaSqm":103,"address":"0","street":"0","houseNumber":null,"neighborhoodId":"66239231","neighborhood":"נוף הטיילת", ...}
+```
+```
+RAW_DEAL_STREET="0"        (literal string, not missing/null)
+RAW_DEAL_HOUSE_NUMBER=null
+```
+**391 of the ~500 deals in `neighborhoodId=66239231` have this literal `street: "0"` / `address: "0"` value** — a pre-existing data-import artifact (present in this environment's `data/deals.json`, i.e. presumably Supabase too since this file was proven byte-identical in prior waves; not introduced by any wave in this engagement). It is not missing/`null` — it is a stored placeholder string.
+
+`CompDealCard()` in `components/ValuationWizard.tsx` renders:
+```ts
+const streetLine = c.address
+  ? c.address.replace(/,?\s*נתניה$/i, "").trim()
+  : hasStreet ? `רח' ${c.street}...` : null;
+```
+`"0"` is a truthy string, so `c.address ? ... : ...` takes the `c.address` branch, the neighborhood-suffix regex doesn't match `"0"`, and the formatter faithfully renders the literal stored placeholder. This is not a formatter bug in the sense of miscomputing anything — it renders exactly what's stored — but it has no guard recognizing `"0"` (or an all-zero/placeholder value) as "no real address," unlike its existing guard for empty/falsy values.
+```
+DISPLAY_FORMATTER=CompDealCard() in components/ValuationWizard.tsx (streetLine computation)
+RENDERED_RESULT="0"
+```
+
+### Wave 0F-1 regression check (Phase 5) — proven NOT a regression
+Re-ran the identical `resolveAndValuate()` trace with `streetName="עובד בן עמי"` (the uncoded alias — the exact string a user would have selected before Wave 0F-1's dedup existed):
+```
+COMP_SEARCH_SCOPE=neighborhood
+BASED_ON_DEALS=28
+FIRST_3 comparables: byte-identical dates/areas/tier/street("0") to the canonical-alias run
+```
+Both aliases already carried the identical `neighborhoodId` (`66239231`) and identical coordinates in `street-index.json` **before** Wave 0F-1 existed (verified directly in the raw data, not assumed) — so Wave 0F-1 changed only which *label* is shown in autocomplete, never which `neighborhoodId`/coordinates get resolved into the valuation request. The defect is provably independent of, and predates, Wave 0F-1.
+
+### Product expectation (Phase 6 — not implemented yet)
+Documented, not built: if building 45 had valid recent deals, show building comparables first; else if same-street deals exist (they do — 65 real rows, just invisible to the current neighborhood-scoped fallback), show them before neighborhood; if only neighborhood fallback truly applies, show neighborhood comparables but never render a literal `"0"` — use a safe, truthful representation (e.g. omit the address line entirely when the stored value is a known placeholder) rather than inventing an address that isn't in the source data.
+
+### Root-cause classification (Phase 7)
+```
+BEN_AMI_MATCHING_ROOT_CAUSE=G — multiple causes:
+  (1) legitimate absence of house-45-specific deals (would justify falling past building tier alone), compounding
+  (2) E — selector fallback bug: the existing city-wide street-name rescue (lib/valuation.ts:254, designed for exactly
+      this "street lives under a different neighborhoodId" scenario) is gated on geoPool.length < 6, which fails to
+      trigger when the wrong-but-resolved neighborhood is itself large/populous (here: 500 deals) rather than small —
+      so the rescue never runs even though it would have found all 65 real same-street deals city-wide.
+
+ZERO_ADDRESS_ROOT_CAUSE=Does not cleanly match any of A–D as literally worded — closest to B in spirit (no real
+  street exists for these deals) but the source data encodes that as the literal string "0" rather than
+  null/empty, and the UI formatter's existing truthy-check does not recognize "0" as a placeholder. Best
+  classified as a source-data-placeholder + formatter-validation-gap pair, i.e. E — multiple causes.
+```
+
+### Wave 0F-1 regression
+```
+YES/NO = NO — proven via identical resolveAndValuate() output for both pre- and post-dedup alias spellings.
+```
+
+### Live Supabase confirmation (not yet run — operator step)
+This investigation used local `data/deals.json` (proven byte-identical to Supabase in prior waves). For final live confirmation, the operator can run:
+```powershell
+$env:DATA_SOURCE = "supabase"
+npx tsx -e "import('./lib/valuationService').then(async ({resolveAndValuate}) => { const r = await resolveAndValuate({neighborhoodId:'66239231', propertyType:'apartment', rooms:4, areaSqm:100, houseNumber:'45', streetName:'שד עובד בן עמי', streetX:185473, streetY:690366}); console.log(JSON.stringify(r, null, 2)); });"
+```
+Expected (not assumed): `compSearchScope=neighborhood`, and the top comparables' `street`/`address` fields showing the literal `"0"` placeholder — matching this local trace.
+
+### Source changes
+NONE. DB writes: NONE. Deployment: NONE.
