@@ -623,3 +623,125 @@ Confirmed **not touched**: `lib/store.ts` (the Wave 0E-2A `SupabaseStore` fix), 
 
 ### Deployment
 None. No Production or Preview deployment performed in this wave.
+
+---
+
+## Wave 0E-3 — Protected Preview Acceptance
+
+**Deployment + verification wave only. No application source was modified.**
+
+### Baseline
+`HEAD=283971c` — confirmed to contain both Wave 0E-2A (`lib/store.ts` pagination fix — `PAGE_SIZE`-based `.range()` loops present) and Wave 0E-2B (`lib/houseNumberRule.ts` present, imported by `app/api/valuation/route.ts`). Working tree clean (`graphify-out/` residue excluded, left untouched per instruction) both immediately before and immediately after the deploy — the deployed source is provably exactly the tree at commit `283971c`.
+
+### Pre-deploy gate
+- Full test suite: **153/153 passed** (16 files) — matches expected state.
+- Typecheck: clean.
+- Build (`next build`, local): succeeded, same route table as every prior wave.
+- Lint: not run — pre-existing `next lint` non-functional condition (Next.js 16, no ESLint config), unchanged, not addressed (out of scope, as instructed).
+
+### Deployment
+- Command: `npx vercel@59.4.0 deploy --target=preview --yes` (pinned CLI version, no `--prod`, no domain flags).
+- Deployment ID: `dpl_F6wTh49VWyRYqJxVdfYguyA8fuCv`
+- Preview URL: `https://shaviut-netanya-9q5h5skwf-robbublils-projects.vercel.app`
+- Target: confirmed **`preview`** via `vercel inspect <id> --json` (a concrete server-side deployment record, not assumed from deploy-command text output alone) — `"target": "preview"`, `"readyState": "READY"`.
+- Vercel-side build log (remote, same commit) shows the identical route table as the local Phase-2 build (`/api/valuation`, `/api/lead` still dynamic `ƒ`, no new/removed routes) — consistent with the local build, not proof of git SHA by itself since this project has no Vercel↔GitHub git integration (`vercel inspect --json` has no `meta`/`gitSource` field — confirmed by inspecting the JSON's top-level keys), so commit identity rests on the working-tree-clean-at-283971c evidence above, which is conclusive for a CLI-uploaded (non-git-integrated) deployment.
+- No Production deployment. No `shaviut-netanya.co.il` domain attachment. No Preview environment variable changes (none were needed — build succeeded without any).
+
+### Protection check
+Unauthenticated plain `curl` (not `vercel curl`, which would mint an ephemeral Automation Bypass token) against the Preview URL:
+```
+HTTP/1.1 302 Found
+Location: https://vercel.com/sso-api?url=...&nonce=...
+```
+Vercel Authentication (Deployment Protection) intercepted the request as expected — redirected to Vercel's SSO flow rather than serving the app. Protection was not bypassed, not disabled, and no Automation Bypass secret was created, inspected, or printed.
+
+### Live acceptance
+STOPPED here per Phase 6 — awaiting the operator's manual test of the three acceptance cases (CASE A/B/C) in an already-authenticated browser against the Preview URL above. This section will be completed once the operator reports results.
+
+---
+
+## Wave 0E-3A — Weizmann Alias Investigation
+
+**Investigation-only. No application source, `street-index.json`, deal data, or Supabase state was modified. No redeploy.**
+
+Trigger: live Preview autocomplete for "ויצמן" returns two suggestions — "שד ויצמן" and "ויצמן".
+
+### Phase 1 — street-index.json evidence
+Both entries found in `data/street-index.json` (991 entries):
+
+| field | "שד ויצמן" | "ויצמן" |
+|---|---|---|
+| DISPLAY_NAME | שד ויצמן | ויצמן |
+| CANONICAL_NAME (municipal `code`) | `417` | **none — no `code` field at all** |
+| STREET_ID | `417` (from `data/netanya-streets-raw.json`) | none |
+| CITY | נתניה (implicit — single-city dataset) | נתניה |
+| NEIGHBORHOOD_ID | `66239254` | `66239254` — **identical** |
+| NEIGHBORHOOD_NAME (as stored) | "צפון מזרח מרכז העיר" | "מרכז העיר צפון" — **different spelling, same ID** |
+| X / Y | `186965 / 693532` | `186965 / 693532` — **byte-identical** |
+| SOURCE_FIELDS | `street, code, neighborhoodId, neighborhoodName, x, y` | `street, neighborhoodId, neighborhoodName, x, y` (no `code`) |
+
+Cross-checked against the raw municipal source, `data/netanya-streets-raw.json` (1,048 official street records, `{code, name}` only): it contains **exactly one** Weizmann entry — `{code: 417, name: "שד ויצמן"}`. There is **no "ויצמן" (bare) entry anywhere in the official municipal list.** Same result in `data/streets.json` (the canonical neighborhood→streets map): under "צפון מזרח מרכז העיר" the only Weizmann entry is `"שד ויצמן"` — no bare "ויצמן".
+
+Conclusion: `"ויצמן"` (no code) is **not** an official municipal street — it does not exist in either canonical source file. It exists only as a second, hand/script-added row in `street-index.json`, sharing the exact coordinates and neighborhoodId of the one real municipal entry.
+
+Additional alias check — none of the following appear in any of the three data files (`street-index.json`, `netanya-streets-raw.json`, or as a distinct value in `deals.json`'s `street` field): `שדרות ויצמן`, `שדר' ויצמן`, `חיים ויצמן`, `ויצמן חיים`. The only two Weizmann-related strings anywhere in the codebase's data are the two already identified.
+
+### Phase 2 — deal data distribution
+Read-only scan of local `data/deals.json` (12,642 deals total — same file proven byte-identical to Supabase in prior waves):
+```
+WEIZMANN_COUNT=292
+SD_WEIZMANN_COUNT=0
+```
+`"שד ויצמן"` has **zero** deals anywhere in the dataset. All 292 real Weizmann transactions are stored under the bare `"ויצמן"` spelling.
+
+WEIZMANN ("ויצמן"): min date 2000-07-06, max date 2026-04-27, 58 distinct house numbers (sample: 3, 7, 8, 10, 17, 18, 20, 24, 25, 30, 31, 32, 35, 36, 37, …), single `neighborhoodId`: `66239254`.
+SD_WEIZMANN ("שד ויצמן"): no rows — min/max/house-numbers/neighborhoodIds all empty/undefined.
+
+### Phase 3 — house-number overlap
+```
+OVERLAPPING_HOUSE_NUMBERS= (none possible — SD_WEIZMANN has zero rows)
+ONLY_IN_WEIZMANN= all 58 house numbers
+ONLY_IN_SD_WEIZMANN= none
+WEIZMANN_92_PRESENT=true (3 rows)
+SD_WEIZMANN_92_PRESENT=false (0 rows)
+```
+No duplicate rows to compare — house number 92 (and every other house number) exists exactly once per real transaction, always under `"ויצמן"`. Sample: the three real Weizmann-92 deals (₪1,800,000 / 4 rooms / 107.3 m² / 2023-11-21; ₪476,289 / 3 rooms / 76.85 m² / 2022-11-24; ₪2,100,000 / 3 rooms / 106 m² / 2022-08-11) all carry `street: "ויצמן"`, `x: 186965`, `y: 693532`.
+
+### Phase 4 — geographic / entity check
+Both `street-index.json` rows resolve to **the same neighborhoodId (`66239254`) and byte-identical coordinates (`x=186965, y=693532`)** — not inferred from the Hebrew wording, read directly from the data. "שד" is the standard Hebrew abbreviation for "שדרות" (boulevard) — "שד ויצמן" is the full official/municipal form (registered under municipal street `code 417`); "ויצמן" is the short form the tax-authority (רשות המסים) deals dataset uses exclusively. Same physical corridor, same municipal entity, one name is a boulevard-form of the other — confirmed by identical coordinates/neighborhoodId, not by wording alone.
+
+### Phase 5 — autocomplete behavior
+Traced to `app/api/autocomplete/route.ts:81-93`. The de-duplication line:
+```ts
+const seen = new Set<string>();
+const hits = index
+  .filter((s) => streetMatches(s.street, q))
+  .filter((s) => (seen.has(s.street) ? false : seen.add(s.street)))
+```
+De-duplicates **only by exact raw `street` string** (a `Set<string>` keyed on `s.street`). There is **no** de-duplication by canonical street ID/`code`, by normalized name (no prefix-stripping applied here), or by coordinates/`neighborhoodId`. Since `"ויצמן"` and `"שד ויצמן"` are different raw strings, both independently pass the filter and both are returned as separate suggestions — this is the exact and complete mechanism producing the two-suggestion UX the operator observed.
+
+### Phase 6 — valuation risk
+Traced `lib/valuation.ts:175-219`. The comparable-matching code already anticipates and explicitly documents this exact case:
+```ts
+// ─── נורמליזציה של שם רחוב: הסרת "שד'" / "שדרות" / "רחוב" / "רח'" ───
+// מאפשר התאמה בין "שד ויצמן" (כפי שנשמר ב-DB) ל-"ויצמן" (כפי שהמשתמש הקליד).
+const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח')\s*/i;
+const normalizeStreet = (s: string) => s.replace(STREET_PREFIX, "").trim();
+```
+`byStreetName()`, `byExactBuilding()`, and `byBuildingNumber()` all compare `normalizeStreet(deal.street)` against `normalizeStreet(input.streetName)` — never the raw strings. Applying this normalization to both real inputs:
+- User selects `"ויצמן"` → `inputStreetNorm = "ויצמן"` (no prefix to strip).
+- User selects `"שד ויצמן"` → `inputStreetNorm = "ויצmন"` after stripping the `שד ` prefix → **also `"ויצמן"`**.
+- Every real deal's `street` is `"ויצמן"` → `normalizeStreet(d.street) = "ויצמן"` in every case (since no deal is ever stored as `"שד ויצמן"`).
+
+`ds === inputStreetNorm` evaluates `true` identically regardless of which alias was selected — this is the **primary always-active matching path** (`byStreetName`/`byExactBuilding` gate every tier, not a fallback triggered only in edge cases). House number 92 specifically: `byExactBuilding()` filters the already-street-matched pool by `parseInt(houseNumber) === 92`, which runs identically on the same 3-row result set regardless of which Weizmann alias produced that pool. Geo-radius fallback (tier 2) is equally unaffected since both aliases carry byte-identical `x`/`y`.
+
+**Conclusion: selecting "שד ויצמן" vs "ויצמן" retrieves the exact same transactions, including for house number 92 at building tier. This is not a fallback/best-effort behavior — it is the engine's designed, primary, and already-tested matching path** (the same normalization also underlies the Hartom/Weizmann fixes verified in Wave 0E-2A).
+
+### Root-cause classification
+```
+WEIZMANN_ALIAS_CLASSIFICATION=B — SAME STREET, TWO ALIASES, SAFELY CANONICALIZED DOWNSTREAM
+```
+The canonicalization happens in `lib/valuation.ts`'s `normalizeStreet()` at query time (not in the street index, and not in autocomplete's de-duplication, which is why the user-visible duplicate suggestion still appears) — but its effect on the actual valuation result is proven safe by direct source and data evidence, not assumption.
+
+### Non-blocking UX observation (not fixed — out of scope for this investigation-only wave)
+Autocomplete shows two suggestions for what is provably one street, because its de-duplication key is the raw string, not the canonical `code`/coordinates. This is a cosmetic duplicate-looking-suggestion issue, not a valuation-correctness risk (proven above) — worth a future minimal fix (de-dup by `code` when present, or by `neighborhoodId`+`x`+`y`) but explicitly not implemented in this investigation-only wave.
