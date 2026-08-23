@@ -168,3 +168,37 @@ No operator evidence supplied yet. **Not tested, not assumed.** Required before 
 
 ### Open non-blocking follow-up
 - `favicon.ico` → 404 on the deployed Preview. Cosmetic only; not fixed this wave.
+
+---
+
+## Wave 0C-4C — Responsive fix deployed to a new Preview
+
+The responsive fix from Wave 0C-4B (commit `5a1b2b5`, `components/ValuationWizard.tsx` only — flex-wrap + `whitespace-nowrap` around both valuation-range price spans) was deployed to a **new** Preview deployment. The retained baseline and the prior Preview were left untouched.
+
+### Deployment
+| Field | Value |
+|---|---|
+| Deployed HEAD | `5a1b2b5` |
+| Deployment ID | `dpl_5U7oT9v2kUQXndm6bHWUU93MPhzT` |
+| URL | `https://shaviut-netanya-nfbbwhcvo-robbublils-projects.vercel.app` |
+| Classification | **Preview** (`"target": null` in the API response; `vercel ls` lists it under `Environment = Preview`) |
+| Build result | Succeeded |
+
+`npx vercel@59.4.0 ls` after this deploy: **3 deployments total** — this new Preview, the prior Preview (`...ilp5agjed...`, retained, untouched), and the Production baseline (`...6ycwo1czg...`, retained, untouched). No custom domain.
+
+### Runtime / safe property-flow smoke (via `npx vercel@59.4.0 curl`, same technique as Wave 0C-4 — no bypass token extracted or printed)
+| Check | Result |
+|---|---|
+| Root | `GET /` → HTTP 200 |
+| Address/property data | `GET /api/neighborhoods` → 21 real neighborhoods, identical to prior deployments |
+| Valuation (Supabase-backed) | `POST /api/valuation` with the same `אגמים`/4-room/100m² input as Wave 0C-4 → identical result (`estimateLow=2,425,000`, `estimateHigh=2,516,000`) — confirms Supabase-backed runtime and no regression from the CSS-only change |
+| Logs | 3 entries, exactly matching the 3 requests made (`GET /`, `GET /api/neighborhoods`, `POST /api/valuation`) — no secrets, no errors, no unexpected calls |
+| OTP/Twilio/WhatsApp/Sheets | NONE invoked |
+| Lead submitted | NO |
+
+### Responsive viewport check — NOT independently re-verified against this live Preview
+The Browser pane's session is still not authenticated to Vercel (confirmed again: navigating to this new Preview URL redirected straight to `vercel.com`'s login page, same as Wave 0C-4B). Per the hard rule against extracting/using bypass tokens outside the CLI's own managed flow, and since `vercel curl` only returns raw HTML/JSON (the valuation-result markup is generated client-side after a wizard interaction, not present in the static root response), there is no way to obtain real rendered-viewport DOM measurements against this specific live Preview URL without either an authenticated browser session or the operator's own testing.
+
+**What stands in its place:** Wave 0C-4B already proved the fix correct via real browser DOM-geometry measurements (`getBoundingClientRect`, `scrollWidth` overflow checks) at all 5 required viewports (375×812, 390×844, 400×800, 768×1024, 1440 desktop) against a local dev server running the **exact same commit** (`5a1b2b5`) now deployed here — zero horizontal overflow, no mid-price wrap, clean centered stacking on narrow widths, single line preserved on tablet/desktop, RTL order correct. Since Tailwind CSS is compiled deterministically at build time from the same source and the layout is pure CSS (no data- or environment-dependent behavior), this is strong evidence the same behavior will hold here — but it is evidence from the prior wave's local testing, not a fresh observation of this deployed Preview, and is reported as such rather than re-asserted as freshly proven.
+
+**Outstanding:** a quick operator glance at `https://shaviut-netanya-nfbbwhcvo-robbublils-projects.vercel.app` around 375–400px width (their own authenticated Chrome session) would close this gap with direct evidence, but is not required to trust the fix given the local proof already obtained on the identical committed code.
