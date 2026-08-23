@@ -252,3 +252,97 @@ Minimal operator test matrix for the final pre-launch session. **None of these w
 ## Recommended Next Step
 
 Work through the Operator Manual Actions above in order (DNS → Google OAuth → Twilio → Vercel env vars → domain attachment), then request a fresh wave to execute the Cutover Procedure once every Blocking Item is resolved. Do not attach the domain or configure Production env vars until the operator confirms each manual action is complete.
+
+---
+
+# Wave 0D-2 — Security Hygiene + Production Decision Gate
+
+## Automation Bypass secret exposure (disclosed, no value included)
+During Wave 0D-1, the read-only command `npx vercel@59.4.0 project protection shaviut-netanya --json` (run with the project name explicit, unlike earlier project-agnostic calls in prior waves) surfaced the actual Vercel Automation Protection Bypass secret value in its tool output. The value was **never** copied into chat, this report, source, or Git — but per standing security hygiene, anything that appeared in an AI/tool session's output is treated as exposed and should be revoked rather than trusted going forward.
+
+**No command in this wave printed the secret again**, and none will — this wave's guidance below is Dashboard-only precisely to avoid a repeat CLI/API round-trip that could re-expose it.
+
+### Required revocation — Dashboard steps for the operator
+This project currently has no intentional use for Protection Bypass for Automation (it exists only because `npx vercel@59.4.0 curl` auto-generated one, on demand, during Wave 0C-4's Preview smoke testing). Vercel Authentication (SSO Deployment Protection) alone is sufficient for this project's manual, protected-Preview workflow.
+
+1. Vercel Dashboard → select the `shaviut-netanya` project → **Settings** → **Deployment Protection**.
+2. Locate **Protection Bypass for Automation**.
+3. Delete/revoke the existing bypass secret. Do **not** generate a replacement — the preferred end state is **no active Automation Bypass secret at all**, since nothing in this project's workflow currently needs one.
+4. Confirm **Vercel Authentication** (the separate "Standard Protection" / SSO toggle) is still shown as **Enabled** afterward — it is a structurally separate setting from Protection Bypass for Automation (confirmed from the read-only `protection --json` response shape in Wave 0C-4: `ssoProtection` and `protectionBypass` are independent top-level fields) and is not affected by deleting the bypass secret.
+
+The CLI alternative (`vercel project protection disable <name> --protection-bypass --protection-bypass-secret <secret>`) requires re-supplying the secret value as a command argument to disable it — that would mean typing/exposing it again (shell history, process list). The Dashboard lets the operator delete it with a click, with no re-exposure. **Dashboard is the recommended path for this reason, not merely a preference.**
+
+### Reconfirmed protection model (no secrets involved, no scope changed)
+- Vercel Authentication (SSO Deployment Protection) remains enabled — unaffected by Automation Bypass deletion.
+- Preview deployment URLs remain protected (policy: `all_except_custom_domains`).
+- The retained Production baseline's generated `*.vercel.app` URL remains protected, same policy.
+- Once the real custom domain is attached to a Production deployment, that domain will be **public** under this same policy (custom domains are the built-in exemption) — this was always the intended launch mechanism, not a change.
+- Deleting the Automation Bypass secret does not disable, weaken, or reconfigure Vercel Authentication in any way — they are independent settings.
+
+## Production blocker priority (Phase 3)
+
+| Item | State |
+|---|---|
+| A. Production environment variables | **NEEDS OPERATOR ACTION** — mechanically simple (enter 6+ values in the Vercel dashboard), but sequenced behind decisions B–D since several values depend on them |
+| B. OTP / Twilio readiness | **NEEDS DECISION** — see below; existing account needs an operator-only billing/account action before it can serve real users |
+| C. Google OAuth admin readiness | **BLOCKED** — no OAuth client exists yet anywhere; nothing to configure in Vercel until the operator creates one in Google Cloud Console |
+| D. Production domain / DNS | **BLOCKED** — domain does not resolve; registration/ownership must be confirmed before any Vercel-side DNS work is possible |
+
+## OTP decision (Phase 4)
+```
+RECOMMENDED PROVIDER:      Twilio Verify (Option A — upgrade the existing account)
+REQUIRED ACCOUNT ACTION:   Upgrade the existing Twilio account from trial to a paid
+                            account (billing/payment method). A trial account
+                            structurally cannot serve arbitrary real end-user phone
+                            numbers regardless of configuration — pre-verifying a
+                            single test number in the Twilio console is only a
+                            stepping stone for controlled pre-launch testing, not a
+                            substitute for the paid-account upgrade the real launch
+                            requires.
+REQUIRED ENV:               TWILIO_VERIFY_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN
+REAL-PHONE TEST REQUIRED:   YES, before launch
+```
+**Why Option A over Option B:** Twilio Verify is already the code's highest-priority, already-implemented path (`app/api/otp/send/route.ts`) with real credentials already present locally — switching to Inforu or Green-API-WhatsApp as primary would mean standing up an entirely new vendor account and credential set from zero, for no code benefit (the provider-priority logic already exists and needs no changes either way). Upgrading the existing Twilio account is the smallest possible change to reach a working state. No new OTP vendor or framework is proposed.
+
+## Admin login decision (Phase 5)
+- **Production callback URL pattern** (next-auth v5 default Google provider path, matching the apex domain confirmed in Wave 0D-1): `https://shaviut-netanya.co.il/api/auth/callback/google`
+- **Is admin login required for launch?** Nuanced, not a flat yes/no:
+  - **Not a hard technical blocker** to the public site going live and capturing leads — leads persist to Supabase and optionally notify via WhatsApp/Sheets independently of whether admin login works (proven from source in Wave 0D-1).
+  - **Functionally required for normal business operation** — the admin dashboard (`app/admin/(protected)/dashboard`) is the only in-app way to view/manage submitted leads. Without working admin login, the operator would be relying entirely on WhatsApp/Sheets notifications (if enabled) to know leads exist, with no way to review history, update lead status, or use any dashboard feature.
+  - **Recommendation:** treat Google OAuth setup as a launch-week priority even though it doesn't block the public site itself, since the business has limited practical value without a way to review captured leads.
+- No alternative admin-auth method is proposed — the existing Google OAuth design is kept as-is, per instruction.
+
+## Domain decision (Phase 6)
+Next operator action, in order:
+1. **Confirm whether `shaviut-netanya.co.il` is already registered anywhere.** The NXDOMAIN result observed in Wave 0D-1 does not distinguish "never registered" from "registered but no DNS zone configured yet" — only the operator's own registration records (or a WHOIS lookup they trust) can resolve this.
+2. If not registered: register it with any registrar of choice.
+3. If already registered: identify which registrar/DNS provider currently holds it, so the Vercel-specified DNS records (generated only after the domain is added to the Vercel project) can be entered there.
+4. Only after 1–3 are resolved does "prepare Vercel DNS records" become an actionable step — no registrar was guessed or assumed this wave.
+
+## Production env staging order (Phase 7) — not entered this wave
+```
+1. CORE RUNTIME (enter first — everything else depends on the app actually running)
+   DATA_SOURCE
+   NEXT_PUBLIC_SUPABASE_URL
+   SUPABASE_SERVICE_ROLE_KEY
+   OTP_SECRET
+   ADMIN_EMAIL
+   AUTH_SECRET
+
+2. ADMIN OAUTH (enter once the Google Cloud OAuth client exists)
+   AUTH_GOOGLE_ID
+   AUTH_GOOGLE_SECRET
+
+3. OTP (enter once the Twilio account is upgraded to paid)
+   TWILIO_VERIFY_SID
+   TWILIO_ACCOUNT_SID
+   TWILIO_AUTH_TOKEN
+
+4. OPTIONAL INTEGRATIONS (enter anytime after launch, no dependency ordering)
+   WhatsApp / Green:  GREEN_API_ID_INSTANCE, GREEN_API_TOKEN_INSTANCE, LEAD_NOTIFY_WHATSAPP
+   Sheets:            GOOGLE_SHEETS_WEBHOOK
+   Analytics:         NEXT_PUBLIC_GA4_ID, NEXT_PUBLIC_FB_PIXEL_ID
+```
+**Reconfirmed forbidden in Production, unchanged from Wave 0D-1:** `ADMIN_DEV_BYPASS`, `NEXT_PUBLIC_DEV_BYPASS_OTP`.
+
+**Note:** entering group 1 (core runtime) now is mechanically safe and unblocked by the domain/OAuth/Twilio decisions — but no values were entered this wave, per the explicit instruction not to add any Production env values yet.
