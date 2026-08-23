@@ -1037,10 +1037,10 @@ export default function ValuationWizard() {
                 טווח שווי משוער{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
 
-              <p className="my-3 text-3xl font-black tracking-tight sm:text-[2.2rem]">
-                {nis(valuation.estimateLow)}
-                <span className="mx-2 text-xl font-light text-white/40">—</span>
-                {nis(valuation.estimateHigh)}
+              <p className="my-3 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-tight sm:text-[2.2rem]">
+                <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
+                <span className="text-xl font-light text-white/40">—</span>
+                <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
               </p>
 
               <p className="text-sm font-medium text-white/70">{sizeSummary(valuation)}</p>
@@ -1368,8 +1368,10 @@ export default function ValuationWizard() {
               <p className="text-sm font-semibold opacity-80">
                 טווח שווי משוער{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
-              <p className="my-2 text-3xl font-black sm:text-4xl drop-shadow-sm">
-                {nis(valuation.estimateLow)} – {nis(valuation.estimateHigh)}
+              <p className="my-2 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black sm:text-4xl drop-shadow-sm">
+                <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
+                <span>–</span>
+                <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
               </p>
               <p className="text-sm font-medium opacity-85">{sizeSummary(valuation)}</p>
               <p className="mt-2 text-xs opacity-70">
