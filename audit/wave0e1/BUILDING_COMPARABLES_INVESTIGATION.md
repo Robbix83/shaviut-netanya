@@ -349,3 +349,113 @@ WEIZMANN92=K
 
 ### Phase 8 — Result address header (reconfirmed, still not fixed)
 Unchanged from Wave 0E-1: `Valuation` has no `street`/`houseNumber` field, so the result screen cannot show *"הערכת שווי — ויצמן 92, נתניה"* today. To render that heading, the response type needs (at minimum) the resolved `streetName` and `houseNumber` echoed back — both already available server-side at the point `valuate()` is called, just not included in its return value. Not implemented this wave.
+
+---
+
+## Wave 0E-1B Preview vs Local A/B Trace
+
+**Both facts below are preserved, neither erased:**
+- **Fact 1 (Wave 0E-1A, still true)**: a faithful local reproduction, using `next dev` with `DATA_SOURCE=local` (`LocalStore`), correctly displays the exact building first for both Hartom 30 and Weizmann 92.
+- **Fact 2 (the operator's original report, still true)**: on a real deployed Preview, the operator observed Hartom 29 and Weizmann 93/99/97 instead.
+
+This wave finds a **source-proven, deterministic explanation** for why these two facts can both be true at once: **Preview runs `DATA_SOURCE=supabase` (`SupabaseStore`), and `SupabaseStore` has a real, verifiable code defect that `LocalStore` does not share** — not a data difference, not a timing issue, not a stale build.
+
+### Phase 1 — Preview build identification
+```
+PREVIEW_URL=https://shaviut-netanya-97ah045fq-robbublils-projects.vercel.app (latest Preview, Wave 0C-4D)
+PREVIEW_DEPLOYED_COMMIT=b6e95d4
+CURRENT_LOCAL_HEAD=231d9f7
+VALUATION_CODE_IDENTICAL=YES — `git log --oneline b6e95d4..HEAD` touching lib/valuation.ts, lib/valuationService.ts, components/ValuationWizard.tsx, components/AddressSearch.tsx, app/api/resolve-address/route.ts, app/api/autocomplete/route.ts, app/api/valuation/route.ts, lib/store.ts returns nothing — every commit since is docs/audit-only.
+DATA_SOURCE_PREVIEW=supabase (confirmed: this is one of the 6 Sensitive Preview-scoped env vars set in Vercel since Wave 0C-2/0C-4)
+```
+Not assumed which exact Preview the operator used — but since valuation-related code has not changed since `b6e95d4` (the commit backing every currently-retained Preview), **the specific Preview URL doesn't change the analysis**: whichever one they used ran identical `lib/valuation.ts`/`lib/store.ts` code against Supabase.
+
+### The core finding — `SupabaseStore.getAllDeals()` silently strips the fields the city-wide fallback needs
+
+Source comparison, `lib/store.ts`:
+```ts
+// LocalStore — used by Wave 0E-1A's successful local reproduction
+async getAllDeals(): Promise<Deal[]> {
+  return this.deals();          // full Deal objects — every field
+}
+
+// SupabaseStore — used by every Preview/Production deployment
+async getAllDeals(): Promise<Deal[]> {
+  const sb = await this.client();
+  const { data, error } = await sb.from("deals").select("id,neighborhoodId,x,y");  // ONLY 4 fields
+  if (error) throw error;
+  return (data ?? []) as Deal[];
+}
+```
+`lib/valuation.ts`'s `lazyAllDeals()` — the function backing **every** city-wide fallback (the "city-wide textual fallback" at lines 251-272, and the "city-wide exact-building augmentation for display" at lines 408-439, both explicitly written, per their own comments, to handle exactly the cross-neighborhood-tagging scenario found below) — calls `store.getAllDeals()`. On Supabase, every row it receives has `street === undefined` and `houseNumber === undefined`. Every filter in those fallbacks starts with `if (!d.street) return false` — so **on Preview/Production, these fallbacks always return zero results, silently, with no error.** On Local, the same fallbacks work correctly because `LocalStore.getAllDeals()` returns complete objects.
+
+This is not a live-Preview assumption — it is a direct, deterministic comparison of the two classes' source code. It is confirmed further below with a prepared read-only diagnostic against the real table.
+
+### Hartom 30 — the exact mechanism, fully explained
+
+Checked against the real (proven-parity) dataset:
+- **`הרב שמואל הרטום`'s deals are split across two different neighborhoodIds in the imported data**: house-number 30's 6 rows are tagged `neighborhoodId=66239241` (קריית השרון); house-number 29's 95 rows (and 265 other Hartom rows) are tagged `neighborhoodId=65867903` (משכנות זבולון).
+- **The app resolves the whole street to `65867903`** (via `/api/resolve-address`'s static `street-index.json` lookup — see Phase 5 below) — which happens to be exactly where house 29 lives, not house 30.
+- So `geoPool` (fetched via `getDealsByNeighborhood("65867903", ...)`, a **full-projection** `select("*")` query, unaffected by the field-stripping bug) legitimately contains dozens of real Hartom-29-and-others rows, and zero Hartom-30 rows — `byExactBuilding(geoPool)` correctly finds nothing for house 30, and the code falls to `compSearchScope="street"` using this pool. **This is where Hartom 29 comes from — a real, correctly-matched same-street deal, not a bug in the street-matching itself.**
+- The only mechanism that could still find house 30 is the city-wide fallback (`lazyAllDeals()`) — proven above to be non-functional on Supabase. **House 30 is therefore never found on Preview, at any stage.**
+- On Local, the identical scenario works because `LocalStore.getAllDeals()` returns full objects, so the city-wide fallback succeeds and correctly injects house 30 with `tier=0`.
+
+### Weizmann 92 — a second, independent manifestation of the same class of defect
+
+Checked against the real dataset:
+- All of Weizmann's addresses (92, 93, 97, 99) share **one single neighborhoodId** (`66239254`, מרכז העיר צפון) — no cross-neighborhood split here, unlike Hartom.
+- **That neighborhood has 3,010 deal rows — by far the largest in the dataset (next-largest is 500).** `SupabaseStore.getDealsByNeighborhood()` (`lib/store.ts`) has **no `.range()`/pagination and no explicit `ORDER BY`**:
+  ```ts
+  async getDealsByNeighborhood(neighborhoodId, q = {}) {
+    const sb = await this.client();
+    let query = sb.from("deals").select("*").eq("neighborhoodId", neighborhoodId);
+    if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack));
+    ...
+    const { data, error } = await query;   // no .range() — PostgREST default cap applies
+    return data ?? [];
+  }
+  ```
+  This is **the identical bug class already proven once before, in the same file, on `getStats()`, in Wave 0C-2B** — an unbounded PostgREST query silently capped at 1000 rows, with no error. That specific instance was fixed in `getStats()` (commit `2039580`); **`getDealsByNeighborhood()` and `getAllDeals()` were never touched and carry the same defect.**
+- With 3,010 rows in Weizmann's neighborhood and no `ORDER BY`, PostgREST's row order for a truncated response is **not guaranteed** — this wave cannot certify from source alone whether the specific 3 Weizmann-92 rows survive a real truncated response, only that the query is structurally unsafe for any neighborhood past 1,000 rows, and Weizmann's is the most extreme case in the entire dataset (3× over the cap). **This part requires the live diagnostic below to confirm, not assumed.**
+
+### Phase 5 — resolve-address / GovMap branch
+Traced `app/api/resolve-address/route.ts`: the route the wizard actually calls sends `{street, x, y}`, which hits **"מסלול 0"** first — a direct, synchronous lookup in the static `data/street-index.json` file (`streetIndexResolve()`), **not** going through `getStore()` at all. This path's output is therefore **identical on Local and Preview/Production** — same bundled static file, no Store/database involvement. GovMap/coordinate-based resolution ("מסלול 1") is a fallback used only if the street-name lookup fails, and would go through `getStore().getAllDeals()` if reached — another call site hitting the same defect, though not the one exercised in either reproduction (street-name resolution succeeded first in both). **Conclusion: the resolve-address step itself is not a source of Local/Preview divergence** — the divergence is entirely inside `lib/valuation.ts`'s use of the Store layer.
+
+### Phase 6 — Store parity diagnostic (prepared, not yet run — needs operator credentials)
+A new read-only script, `scripts/verify-supabase-comparables-diagnostic.ts`, was written and self-tested (without real credentials — confirmed it fails safely with a generic error, no crash, no secret exposure) to directly confirm or refute the above against the real Supabase table:
+- Whether `getAllDeals()` rows actually lack `street`/`houseNumber`/`price` on the real table (expected: YES, deterministically, from source).
+- The real row count `getDealsByNeighborhood("66239254", {})` returns, and whether it's capped near 1000 (expected, pending confirmation).
+- Whether Weizmann 92's specific rows survive that truncation (unknown pending this run).
+- **The ultimate check**: calling the real `resolveAndValuate()` seam — the exact function the app itself calls — with the exact captured Wave 0E-1A runtime inputs, against the real Supabase-backed store, and reporting the top-3 comparable addresses+tiers it returns. This should reproduce the operator's Hartom-29/Weizmann-93-97-99 result if the theory is correct, using the app's own real code path, not a reimplementation.
+
+**Operator command** (same PowerShell session with real credentials already set, no writes, no PII beyond these two known public addresses):
+```powershell
+$env:DATA_SOURCE = "supabase"
+npx tsx scripts/verify-supabase-comparables-diagnostic.ts
+```
+
+### Phase 2 — Chrome DevTools capture instructions (Weizmann 92, for independent live confirmation)
+For a second, fully independent confirmation straight from the authenticated Preview (not required if the Phase 6 script above already confirms the theory, but offered since it was requested):
+1. Open `https://shaviut-netanya-97ah045fq-robbublils-projects.vercel.app` in Chrome, signed into Vercel.
+2. Open DevTools → **Network** tab → click the 🚫 "clear" icon.
+3. On the page: property type "דירה", search "ויצמן", select the plain "ויצמן" suggestion (not "שד ויצמן"), enter house number **92**, continue.
+4. Enter rooms **4**, area **100** sqm, leave floor as you naturally would (please note whatever value, including "left blank," in your reply).
+5. Click "חשב שווי לפי עסקאות אמיתיות".
+6. In the Network panel, click the `valuation` request (POST to `/api/valuation`).
+7. **Payload/Request tab** — copy the JSON body (it's just `{neighborhoodId, propertyType, rooms, areaSqm, floor, houseNumber, streetName, streetX, streetY}` — no PII, safe to paste back).
+8. **Response tab** — copy the `comparableDeals` array's first 3–5 entries (`street`, `houseNumber`, `tier`, `dealDate`, `rooms`, `areaSqm`, `price`) and the top-level `compSearchScope`.
+9. If a `resolve-address` request also appears, copy its request body and response JSON the same way.
+10. **Do not** copy cookies, the `Authorization` header, or any request header — only the request/response **body** JSON described above.
+
+### Phase 7 — cache/stale-state check
+Checked only for mechanisms actually present in source/runtime, nothing speculative:
+- React component state (`ValuationWizard.tsx`) persists across steps within one mount, as expected — no evidence found of stale cross-address leakage once `houseNumber`/`selectedStreet` are explicitly set by user action (confirmed empirically in Wave 0E-1A: fresh inputs correctly produced fresh, correct outputs each time).
+- No server-side response caching exists on `/api/valuation` — `NextResponse.json(...)` with no `Cache-Control` header set (unlike `/api/neighborhoods`, which explicitly sets a 24h cache — `/api/valuation` has no such header).
+- One real, source-confirmed SPA-navigation quirk was observed while testing (Wave 0E-1A): a client-side hash-only `navigate()` between test runs preserved the previous run's component state rather than resetting to step 1, until a full page reload was forced. This is normal React/Next.js client-navigation behavior, not a bug — but is noted because it means **testing multiple addresses back-to-back in one browser tab without a full reload could show a stale previous result if the operator didn't notice the wizard hadn't reset to step 1.** No evidence this happened in the operator's real report, but flagged as a real, present mechanism per the phase's instruction.
+
+### Phase 9 — Root cause classification
+```
+WEIZMANN92=D (SupabaseStore/LocalStore behavior difference) — mechanism proven from source (getDealsByNeighborhood has no pagination against a 3,010-row neighborhood, the largest in the dataset); whether it specifically excludes Weizmann-92's 3 rows needs the Phase 6 live diagnostic to fully close, but the underlying defect is proven regardless of that specific outcome.
+HARTOM30=D (SupabaseStore/LocalStore behavior difference) — mechanism fully proven from source alone, no live run required: getAllDeals()'s field-stripping deterministically disables the exact fallback this scenario depends on, independent of row-order luck.
+```
+Both cases trace to the **same class of defect** (unbounded/under-projected Supabase queries in `lib/store.ts`'s `SupabaseStore`, the same class already found and partially fixed in `getStats()` back in Wave 0C-2B) — but manifesting through two different specific call sites (`getAllDeals()`'s missing fields for Hartom; `getDealsByNeighborhood()`'s missing pagination for Weizmann). **One common systemic root, two distinct trigger conditions.**
