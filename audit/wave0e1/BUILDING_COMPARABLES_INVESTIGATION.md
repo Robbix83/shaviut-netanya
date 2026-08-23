@@ -770,3 +770,86 @@ The canonicalization happens in `lib/valuation.ts`'s `normalizeStreet()` at quer
 
 ### Non-blocking UX observation (not fixed — out of scope for this investigation-only wave)
 Autocomplete shows two suggestions for what is provably one street, because its de-duplication key is the raw string, not the canonical `code`/coordinates. This is a cosmetic duplicate-looking-suggestion issue, not a valuation-correctness risk (proven above) — worth a future minimal fix (de-dup by `code` when present, or by `neighborhoodId`+`x`+`y`) but explicitly not implemented in this investigation-only wave.
+
+---
+
+## Wave 0F-1 — Street Autocomplete Alias Dedup
+
+**Micro-wave. Fixes exactly the UX observation flagged (not fixed) at the end of Wave 0E-3A. `lib/valuation.ts`, `lib/store.ts`, deal data, and `street-index.json` source data were not touched.**
+
+### Prior duplicate
+Confirmed in Phase 2 against real `app/api/autocomplete/route.ts` (991-entry `street-index.json`): query `"ויצמן"` returned both `["שד ויצמן", "ויצמן"]`; query `"שד ויצמן"` returned only `["שד ויצמן"]`. Root cause: the route's de-duplication (`Set<string>` keyed on the raw `street` field) treats two different spellings as two different streets, even when Wave 0E-3A already proved they are the same physical entity.
+
+### Identity rule
+New pure module `lib/streetAliasDedup.ts`. Two street-index entries are only merged into one alias group when **both** conditions hold:
+1. Their `normalizeStreetForAlias()` text is equal (same prefix-stripping regex as `lib/valuation.ts`'s `normalizeStreet()`, deliberately kept in exact sync — a constant, not shared business logic, so this route pulls in nothing from the valuation module).
+2. They share **proven physical identity**: exact-equal municipal `code` when both carry one, otherwise exact-equal `(x, y)` coordinates when a code is missing on either side. No fuzzy matching, no distance threshold, no Levenshtein — coordinates must be bit-for-bit equal as stored.
+
+Condition 1 alone is a candidate filter only, never sufficient by itself (Test D/E prove this) — two entries can coincidentally normalize to the same text while being genuinely different streets or lacking any proof of shared identity, and must stay separate in that case.
+
+### Why `neighborhoodId` is not used as street identity
+Per the wave's explicit instruction and by design: a `neighborhoodId` groups many streets, so two entries sharing one proves nothing about whether they're the *same street* — only that they're in the same area. Using it as identity evidence would risk collapsing genuinely distinct streets that merely happen to sit in the same neighborhood. The rule uses only evidence that is itself specific to a single street: an official municipal code, or an exact coordinate pair.
+
+### Canonical selection
+When a group has an entry with a municipal `code` and one without, the coded entry is always preferred as canonical (Test F) — it is the officially-registered municipal record. Otherwise the first-encountered entry is kept, for deterministic, order-stable output. Deal rows and `street-index.json` itself are never renamed — the canonical selection only affects which entry the autocomplete route serves as the displayed/selected suggestion; `lib/valuation.ts`'s existing `normalizeStreet()` already makes either spelling resolve identically at valuation time (proven in Wave 0E-3A), so there is nothing to rewrite downstream.
+
+### Alias searchability
+The route's matching step (`streetMatches`) still runs against every entry's own raw `street` string first — so a user typing the alias `"ויצמן"` still matches that raw entry. Only *after* a match, the result is looked up in `buildCanonicalStreetMap()` and replaced with its group's canonical entry before the (now canonical-keyed) de-duplication runs. This preserves searchability by any alias while guaranteeing one suggestion per proven physical street.
+
+### Real-data impact (Phase 8)
+Ran `groupStreetAliases()` against the actual `data/street-index.json` (991 entries, 988 groups):
+```
+BEFORE query="ויצמן":      ["שד ויצמן","ויצמן"]
+BEFORE query="שד ויצמן":   ["שד ויצמן"]
+AFTER  query="ויצמן":      ["שד ויצמן"]
+AFTER  query="שד ויצמן":   ["שד ויצמן"]
+TOTAL_ALIAS_GROUPS_COLLAPSED=3
+```
+The three collapsed groups, all the identical pattern (a coded "שד X" municipal boulevard entry + an uncoded "X" entry, both with byte-identical coordinates — verified individually, not just counted):
+- `שד ויצמן` (code 417) + `ויצמן` — the proven case.
+- `שד בן גוריון` (code 996) + `בן גוריון`.
+- `שד עובד בן עמי` (code 1078) + `עובד בן עמי`.
+
+No unexpected or unrelated collapses — narrow, evidence-based, consistent with the one proven pattern. No broad street-name cleanup was performed or needed.
+
+### Tests
+`lib/__tests__/streetAliasDedup.test.ts` — 10 tests, all against the pure `groupStreetAliases`/`buildCanonicalStreetMap`/`normalizeStreetForAlias` functions:
+- Weizmann pair collapses to one group; alias `"ויצמן"` remains searchable via the canonical map; coded entry wins as canonical regardless of input order (Tests A/B/C/F).
+- Distinct streets with a coincidentally-equal normalized name but non-matching coordinates and no code stay separate (Test D).
+- Shared `neighborhoodId` alone (even identical) never merges two entries lacking code/coordinate proof (Test E).
+- Equal codes merge even with different coordinates; different codes never merge even with identical coordinates; near-but-not-exactly-equal coordinates are not merged (no fuzzy/distance matching).
+
+Test G (valuation contract untouched): the full suite, including `lib/__tests__/store.supabaseComparables.test.ts` (Wave 0E-2A) and `lib/__tests__/valuation.fixture.test.ts`, was re-run unchanged and still passes — no valuation/comparable test was modified.
+
+### Manual local acceptance
+Real `npm run dev` server, real browser:
+- `GET /api/autocomplete?q=ויצמן` → exactly one suggestion, `"שד ויצמן"`.
+- `GET /api/autocomplete?q=שד ויצמן` → exactly one suggestion, `"שד ויצמן"`.
+- In the live UI: searching `"ויצמן"` showed exactly one suggestion ("בחר שד ויצמן"); selecting it, entering house number 92, 4 rooms, 100 sqm produced a successful valuation with result header **"הערכת שווי — שד ויצמן 92, נתניה"** and two building-tier ("אותו בניין") "ויצמן 92" comparables first — identical to the Wave 0E-3 acceptance result, no regression.
+
+### Quality gates
+- Focused: `lib/__tests__/streetAliasDedup.test.ts` — 10/10 passed.
+- Full suite: **163 passed** (17 files; 153 prior + 10 new).
+- Typecheck: clean.
+- Lint: not run — same pre-existing `next lint` non-functional condition, unrelated to this wave.
+- Build: `next build` — succeeded, same route table as every prior wave.
+
+### Scope check
+```
+git diff --stat -- app lib (excluding graphify-out)
+app/api/autocomplete/route.ts | 59 +++++++++++++++++++++++++++----------------
+1 file changed, 37 insertions(+), 22 deletions(-)
++ new: lib/streetAliasDedup.ts, lib/__tests__/streetAliasDedup.test.ts
+```
+```
+VALUATION_CHANGED=NO
+SUPABASESTORE_CHANGED=NO
+LOCALSTORE_CHANGED=NO
+DEAL_DATA_CHANGED=NO
+STREET_INDEX_DATA_CHANGED=NO
+DB_WRITES=NONE
+DEPLOYMENT=NONE
+```
+
+### Deployment
+None. No Production or Preview deployment performed in this wave.
