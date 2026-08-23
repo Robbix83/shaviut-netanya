@@ -204,20 +204,45 @@ class SupabaseStore implements Store {
 
   async getDealsByNeighborhood(neighborhoodId: string, q: DealsQuery = {}): Promise<Deal[]> {
     const sb = await this.client();
-    let query = sb.from("deals").select("*").eq("neighborhoodId", neighborhoodId);
-    if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack));
-    if (q.roomsMin != null) query = query.gte("rooms", q.roomsMin);
-    if (q.roomsMax != null) query = query.lte("rooms", q.roomsMax);
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data ?? []) as Deal[];
+    // PostgREST caps a single response at ~1000 rows — a neighborhood can exceed that
+    // (proven: one real neighborhood has 3,010 deals), silently truncating the candidate
+    // pool an unbounded select() would see. Page with .range() until a short page ends it,
+    // matching the exhaustive-pagination fix already applied to getStats() (Wave 0C-2B).
+    // .order("id") makes page boundaries deterministic — without it, Postgres gives no
+    // ordering guarantee across separate paginated requests.
+    const PAGE_SIZE = 1000;
+    const all: Deal[] = [];
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      let query = sb.from("deals").select("*").eq("neighborhoodId", neighborhoodId).order("id");
+      if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack));
+      if (q.roomsMin != null) query = query.gte("rooms", q.roomsMin);
+      if (q.roomsMax != null) query = query.lte("rooms", q.roomsMax);
+      const { data, error } = await query.range(offset, offset + PAGE_SIZE - 1);
+      if (error) throw error;
+      const page = (data ?? []) as Deal[];
+      all.push(...page);
+      if (page.length < PAGE_SIZE) break;
+    }
+    return all;
   }
 
   async getAllDeals(): Promise<Deal[]> {
     const sb = await this.client();
-    const { data, error } = await sb.from("deals").select("id,neighborhoodId,x,y");
-    if (error) throw error;
-    return (data ?? []) as Deal[];
+    // Full Deal projection (not a narrow id/neighborhoodId/x/y subset) and exhaustive
+    // pagination — city-wide fallback logic in lib/valuation.ts filters on `street` and
+    // `houseNumber`, which a narrower projection silently strips (proven root cause of
+    // the Hartom-30/Weizmann-92 comparable-selection bug, Wave 0E-1B). This must match
+    // LocalStore.getAllDeals()'s full-array semantics, not just avoid a crash.
+    const PAGE_SIZE = 1000;
+    const all: Deal[] = [];
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      const { data, error } = await sb.from("deals").select("*").order("id").range(offset, offset + PAGE_SIZE - 1);
+      if (error) throw error;
+      const page = (data ?? []) as Deal[];
+      all.push(...page);
+      if (page.length < PAGE_SIZE) break;
+    }
+    return all;
   }
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {

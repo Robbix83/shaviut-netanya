@@ -459,3 +459,64 @@ WEIZMANN92=D (SupabaseStore/LocalStore behavior difference) — mechanism proven
 HARTOM30=D (SupabaseStore/LocalStore behavior difference) — mechanism fully proven from source alone, no live run required: getAllDeals()'s field-stripping deterministically disables the exact fallback this scenario depends on, independent of row-order luck.
 ```
 Both cases trace to the **same class of defect** (unbounded/under-projected Supabase queries in `lib/store.ts`'s `SupabaseStore`, the same class already found and partially fixed in `getStats()` back in Wave 0C-2B) — but manifesting through two different specific call sites (`getAllDeals()`'s missing fields for Hartom; `getDealsByNeighborhood()`'s missing pagination for Weizmann). **One common systemic root, two distinct trigger conditions.**
+
+---
+
+## Wave 0E-2A SupabaseStore Parity Fix
+
+### Confirmed via the operator's real live diagnostic run
+The operator ran `scripts/verify-supabase-comparables-diagnostic.ts` against real Supabase and got **exact confirmation** of both defects proven from source in Wave 0E-1B:
+```
+GETALLDEALS_COUNT=1000                          <- capped, real total is 12,642
+GETALLDEALS_SAMPLE_HAS_STREET=false              <- confirms the field-stripping projection
+GETALLDEALS_SAMPLE_HAS_HOUSENUMBER=false
+WEIZMANN_NEIGHBORHOOD_ROW_COUNT=1000             <- capped, real total is 3,010
+WEIZMANN_92_PRESENT_IN_NEIGHBORHOOD_POOL=false   <- the specific row was excluded by truncation
+HARTOM_30_PRESENT_IN_RESOLVED_NEIGHBORHOOD=false <- confirms the cross-neighborhood split
+HARTOM_RESULT_TOP3=["הרב שמואל הרטום 29 [street]", ... ×3]
+WEIZMANN_RESULT_TOP3=["ויצמן 93 [street]", "ויצמן 103 [street]", "ויצמן 99 [street]"]
+```
+This **exactly reproduces** the operator's original Preview observation, using the app's own real code path against the live table — root cause is no longer merely proven from source, it is proven end-to-end on production data.
+
+### Root cause (final statement)
+- **Defect 1**: `SupabaseStore.getDealsByNeighborhood()` had no pagination — any neighborhood past PostgREST's ~1000-row default cap silently lost rows, with no error. Weizmann's neighborhood (3,010 real rows) is the most extreme case in the dataset.
+- **Defect 2**: `SupabaseStore.getAllDeals()` selected only `id,neighborhoodId,x,y` and was also capped at 1000 rows. Every city-wide fallback in `lib/valuation.ts` depends on this method and filters on `street`/`houseNumber`, both always missing — those fallbacks were structurally inert on any Supabase-backed environment.
+
+### Implementation (`lib/store.ts`, `SupabaseStore` only)
+Both methods now page through the table with `.range()` until a short page ends the loop — the same exhaustive-pagination pattern already proven correct in the `getStats()` fix (Wave 0C-2B), applied here to the two remaining unbounded call sites:
+- `getDealsByNeighborhood()`: added `.order("id")` + a `PAGE_SIZE=1000` `.range()` loop around the existing `select("*").eq(...)` query (filters — `monthsBack`/`roomsMin`/`roomsMax` — unchanged, still applied server-side per page). Deterministic (explicit order), exhaustive (loops until a page returns `< PAGE_SIZE`), no duplicates (disjoint offsets), errors thrown per existing store conventions, return type unchanged (`Promise<Deal[]>`).
+- `getAllDeals()`: changed the projection from `id,neighborhoodId,x,y` to `select("*")` (matching the existing repository pattern already used by `getDealsByNeighborhood`, `listNeighborhoods`, `getNeighborhood` — not a novel style) and added the identical `.order("id")` + `.range()` pagination loop. Return value now has full field parity with `LocalStore.getAllDeals()`.
+
+No valuation logic, location-tier logic, scoring, 5-year window, or address resolution was touched — confirmed by diff scope (see below). `.order("id")` was added to both (a change beyond the literal ask, justified): without an explicit order, Postgres/PostgREST gives no ordering guarantee across separate paginated requests, which could otherwise silently reintroduce duplicate or missing rows across pages even after adding `.range()`.
+
+### Regression tests (`lib/__tests__/store.supabaseComparables.test.ts`, 5 tests, all exercising the real `resolveAndValuate()` -> `valuate()` production seam against a faithful in-memory PostgREST-filter/order/range simulator — not a standalone pagination helper in isolation)
+1. **Pagination**: 1,200-row mocked neighborhood, target building's row placed after row 1000 — `getDealsByNeighborhood()` returns all 1,201 rows, target included.
+2. **Field parity**: `getAllDeals()` preserves `street`, `houseNumber`, and the full `Deal` shape (not the old narrow projection).
+3. **getAllDeals pagination**: 1,500 mocked city-wide rows — all returned, none dropped.
+4. **Hartom-equivalent fixture**: target resolves to neighborhood A; the real exact-building rows live under neighborhood B; asserts the city-wide fallback recovers them and they're ranked `tier: "building"`, first in `comparableDeals`.
+5. **Weizmann-equivalent fixture**: a 1,102-row neighborhood with the exact-building rows placed (by `id` order) after row 1000; asserts they're still found, exhaustively, and ranked `tier: "building"`, first in `comparableDeals`.
+
+All 5 passed on first run (manual trace of the exact filter/sort mechanics was done independently beforehand and matched the test results exactly — not just "tests pass," the underlying mechanics were understood, not merely asserted).
+
+### Quality gates
+- Focused: `lib/__tests__/store.supabaseComparables.test.ts` — 5/5 passed.
+- Full suite: **129 passed** (14 files; 124 prior + 5 new).
+- Typecheck: clean (one `unknown`-comparison type error in the new test's mock builder was caught and fixed — `gte`/`lte` value params narrowed from `unknown` to `string | number`).
+- Lint: **not run** — `next lint` is non-functional in this repo on Next.js 16.2.6 (`next lint` was removed from the Next.js CLI in this version; the project never migrated to a standalone ESLint config; `npx next lint` fails with `Invalid project directory provided, no such directory: ...\lint` regardless of arguments). This is a pre-existing repo condition, not something this wave introduced or can fix within its scope (fixing the build tool chain is not a `SupabaseStore` change).
+- Build: `next build` — succeeded, same route classification as every prior wave.
+
+### Scope check
+```
+git diff --stat -- app lib components scripts
+lib/store.ts | 45 +++++++++++++++++++++++++++++++++++----------
+1 file changed, 35 insertions(+), 10 deletions(-)
+```
+Only `lib/store.ts` (application source) and the new test file changed. `ValuationWizard.tsx`, valuation scoring (`lib/valuation.ts`), the address resolver (`app/api/resolve-address/route.ts`), any UI file, the database schema, import scripts, and Vercel configuration were **not touched** — confirmed by this diff, not merely asserted.
+
+### Live Supabase acceptance — status
+The fix has **not yet been re-verified against the live table** (would require re-running the diagnostic script post-fix, which needs the operator's credentials). The pre-fix run above is what proved the root cause; a post-fix run is the remaining step to close this wave with full live confirmation. Same command as before:
+```powershell
+$env:DATA_SOURCE = "supabase"
+npx tsx scripts/verify-supabase-comparables-diagnostic.ts
+```
+Expected (not assumed): `GETALLDEALS_COUNT=12642`, `GETALLDEALS_SAMPLE_HAS_STREET=true`, `GETALLDEALS_SAMPLE_HAS_HOUSENUMBER=true`, `WEIZMANN_NEIGHBORHOOD_ROW_COUNT` > 1000 (real value ~3010), `WEIZMANN_92_PRESENT_IN_NEIGHBORHOOD_POOL=true`, `HARTOM_30_PRESENT_IN_OWN_NEIGHBORHOOD=true` (already true pre-fix, unaffected), and both `HARTOM_RESULT_TOP3`/`WEIZMANN_RESULT_TOP3` showing the exact building at `[building]` tier first, subject only to the existing (unchanged) quality/scoring rules.
