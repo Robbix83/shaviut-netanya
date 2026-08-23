@@ -136,3 +136,35 @@ Six log lines total, exactly matching the requests made this wave. No request/re
 | DB counts | neighborhoods=21, deals-backed valuation consistent with 12,642; leads not freshly re-read (no writes possible, since no write endpoint was called) |
 
 **The first Production-target deployment is a Vercel-required technical baseline, not the application's Production launch.**
+
+---
+
+## Wave 0C-4B — Operator-authenticated Preview smoke test
+
+The Claude Browser pane's session was not authenticated to Vercel (confirmed: navigating to the Preview URL redirected to `vercel.com`'s login page — no bypass or credential entry was attempted, per hard rules). The operator instead performed the authenticated smoke test manually in their own logged-in Chrome session and reported the evidence below.
+
+### Desktop (operator-authenticated, real evidence)
+| Check | Result |
+|---|---|
+| Authenticated access | PASS — Preview loaded after normal Vercel Authentication (no bypass used) |
+| Root render | PASS — no 500, no error boundary |
+| RTL layout | PASS — Hebrew RTL rendered correctly |
+| Desktop layout | PASS — visually intact, property entry UI usable |
+| Property flow | PASS — operator exercised the public flow through to a valuation result |
+| Valuation | PASS — displayed `₪2,090,000 – ₪2,300,000`, ~₪22,004/m², 100 m² property, based on 18 comparable transactions, same-street comparable tier shown. This is real, operator-observed output from the live Preview, distinct from the `אגמים` fixture value checked via `vercel curl` in Wave 0C-4 (different neighborhood/inputs) — both are genuine, non-fabricated evidence, not the same number repeated |
+| Hydration | PASS, based on observed evidence — no hydration error reported |
+| Material application console errors | NONE |
+| Favicon | `/favicon.ico` → 404 — **non-blocking cosmetic follow-up**, not fixed this wave |
+
+**Supabase-backed runtime:** not re-derived from this smoke test alone (the operator correctly did not claim the valuation number alone proves Supabase — that exact mistake was already identified and corrected in Wave 0C-2A, since local and Supabase datasets were proven data-identical). The Supabase-backed runtime itself remains proven by Wave 0C-2B's real-credential, application-store-path evidence (`STORE_MODE=supabase`, `neighborhoods=21`, `deals=12642`, `leads=0`, `orphans=0`, `error=null`) and by Wave 0C-4's direct `vercel curl` evidence against this same Preview deployment (real 21-neighborhood API response, matching-fixture valuation). Not reopened or re-investigated this wave.
+
+**Console attribution:** `MaxListenersExceededWarning` and `ObjectMultiplex - orphaned data...` both originate from `contentscript.js` — a browser-extension-injected script, not an application bundle. Classified as **not an application defect**.
+
+### Mobile (375×812) — STILL PENDING
+No operator evidence supplied yet. **Not tested, not assumed.** Required before this wave can close: no horizontal overflow, no clipped Hebrew RTL content, property form usable, CTA visible/usable, no major layout break, no new application-origin console errors.
+
+### Deployment state (reconfirmed, read-only)
+`npx vercel@59.4.0 ls`: 2 deployments total — Preview (`...ilp5agjed...`) and Production (`...6ycwo1czg...`, the baseline), both `Ready`, unchanged classifications from Wave 0C-4. No custom domain. Neither deployment was touched, deleted, or modified this wave.
+
+### Open non-blocking follow-up
+- `favicon.ico` → 404 on the deployed Preview. Cosmetic only; not fixed this wave.
