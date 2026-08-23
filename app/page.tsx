@@ -32,7 +32,7 @@ export default async function Home() {
           <div className="absolute top-1/2 left-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600/10 blur-[80px]" />
         </div>
 
-        <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-5 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
+        <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-5 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
 
           {/* ── Copy ── */}
           <div className="text-center lg:text-right">
