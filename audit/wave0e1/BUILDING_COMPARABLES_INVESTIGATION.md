@@ -248,5 +248,104 @@ For both **Hartom 30** and **Weizmann 92** (as literal fixtures, since real prov
 Not implemented this wave. In order of smallest-safest-first:
 1. Fix the `pool4yr`/"4 years" comment-vs-`GEO_MONTHS=60` documentation mismatch (zero behavior change, pure clarity).
 2. Add `street`/`houseNumber` (or a formatted address string) to the `Valuation` response type and result header (Proposed Contract item F) — additive, no existing behavior change.
-3. Make house number a required field in the UI before calculating (Proposed Contract item A) — the highest-leverage fix, directly targeting the confirmed root cause.
+3. ~~Make house number a required field in the UI before calculating~~ — **superseded by Wave 0E-1A**: the operator confirmed house number *was* entered in both real failing cases, so "not entered" is no longer the explanation. House number will still become mandatory as a separately-approved product decision (see Wave 0E-1A), but not as a fix for this specific bug — see Wave 0E-1A for why.
 4. Add the acceptance tests above, anchored to the real Hartom 30 / Weizmann 92 fixtures already proven in this investigation.
+
+---
+
+## Wave 0E-1A Runtime Reconciliation
+
+### Prior classification rejected
+```
+PRIOR A CLASSIFICATION: REJECTED
+REASON: operator confirms the separate house-number field was populated with the
+correct value ("30" and "92" respectively) in both real failing sessions. The
+Wave 0E-1 "house number was likely never entered" hypothesis does not hold — it
+was entered, and the failure needs a different explanation.
+```
+This correction is recorded here, not silently rewritten into the original findings above — the original Wave 0E-1 text is left as-is with this correction layered on top, per instruction.
+
+**Separately, per operator direction**: house number will become mandatory for apartment/house valuations as an **already-approved product decision**, independent of this bug's root cause. That work is explicitly deferred to a future implementation wave and is **not** treated as an explanation for the Hartom 30 / Weizmann 92 failures, since the operator confirms it was already entered in both real sessions.
+
+### Method
+Reproduced both cases against the actual running application (`next dev`, same commit `d9e72ea`, same `data/deals.json` proven byte-identical to Supabase) via real browser DOM interaction — typing into the real autocomplete input, clicking the real rendered suggestion, typing into the real house-number input, clicking the real "המשך"/"חשב שווי" buttons — with `window.fetch` transparently instrumented (no source file touched) to capture the exact outgoing request bodies to `/api/resolve-address` and `/api/valuation`.
+
+### Phase 2 — Captured runtime payloads
+
+```
+CASE=HARTOM30
+UI_DISPLAY_ADDRESS=הרב שמואל הרטום (selected suggestion) + houseNumber field = "30"
+UI_STREET_STATE=selectedStreet.street = "הרב שמואל הרטום" (label field identical, per Wave 0E-1's AddressSearch.pick() finding)
+UI_HOUSE_NUMBER_STATE="30"
+REQUEST_STREET="הרב שמואל הרטום"
+REQUEST_HOUSE_NUMBER="30"
+SERVICE_STREET="הרב שמואל הרטום" (unchanged — resolveAndValuate/valuate pass input.streetName through verbatim, confirmed by source in Wave 0E-1, reconfirmed here: no code changed since)
+SERVICE_HOUSE_NUMBER="30" (unchanged, same reasoning)
+
+CASE=WEIZMANN92
+UI_DISPLAY_ADDRESS=ויצמן (selected suggestion) + houseNumber field = "92"
+UI_STREET_STATE=selectedStreet.street = "ויצמן"
+UI_HOUSE_NUMBER_STATE="92"
+REQUEST_STREET="ויצמן"
+REQUEST_HOUSE_NUMBER="92"
+SERVICE_STREET="ויצמן" (unchanged)
+SERVICE_HOUSE_NUMBER="92" (unchanged)
+```
+Full captured `/api/valuation` request bodies:
+- Hartom: `{"neighborhoodId":"65867903","propertyType":"apartment","rooms":4,"areaSqm":90,"plotSqm":null,"floor":null,"yearBuilt":null,"houseNumber":"30","streetName":"הרב שמואל הרטום","streetX":188367.912,"streetY":690681.882}`
+- Weizmann: `{"neighborhoodId":"66239254","propertyType":"apartment","rooms":4,"areaSqm":107,"plotSqm":null,"floor":null,"yearBuilt":null,"houseNumber":"92","streetName":"ויצמן","streetX":187067.163,"streetY":694046.39}`
+
+### Phase 3 — Street+number duplication check
+```
+STREET_CONTAINS_HOUSE_NUMBER=NO (both cases)
+EXACT_RUNTIME_VALUE=streetName:"הרב שמואל הרטום" / "ויצמן" — clean street text only, verified in the actual captured fetch body, not just source reading
+EXACT_STORED_VALUE=deals.street="הרב שמואל הרטום" / "ויצמן" — identical
+MATCH_PREDICATE_RESULT=TRUE (exact equality, no normalization even needed) for both
+```
+This hypothesis is disproven for both cases — the malformed-target theory does not hold.
+
+### Interesting side-finding: a real neighborhood-resolution mismatch exists (Hartom only)
+The address-resolution flow (browser-side govmap geocode → `/api/resolve-address`) resolved `הרב שמואל הרטום`'s neighborhood as **`65867903` (משכנות זבולון)**. The actual Hartom-30 deal rows in the dataset are stored under **`66239241` (קריית השרון)** — a genuine cross-source neighborhood disagreement, exactly the scenario `lib/valuation.ts`'s "city-wide textual fallback" and "city-wide exact-building augmentation" blocks were written to handle. **For Weizmann, no such mismatch exists** — the resolved neighborhoodId (`66239254`, מרכז העיר צפון) matches the stored deal rows' own neighborhoodId exactly. Despite this difference between the two cases (one has a neighborhood mismatch, one doesn't), **both reproduced correctly** — see below. This rules the neighborhood-mismatch out as the cause of the operator's observed failure (it's a real, separately-worth-fixing data-quality wrinkle, but the code already compensates for it, confirmed at runtime, not just in theory).
+
+### Phase 5/6/7 — Selector trace, tier verification, reinjection trace: reproduction SUCCEEDED
+
+**This is the central, most important finding of this wave.** Running the real application, real browser interaction, real captured network requests, with `houseNumber` genuinely present and correctly formed in both requests, **the exact building was correctly prioritized and displayed first in both cases**:
+
+**Hartom 30 result** (top 3 of the displayed comparables, verbatim from the rendered page):
+```
+הרב שמואל הרטום 30 · 🏢 אותו בניין · קומה 3 · 4 חד' · 90.3 מ"ר · ₪2,430,000 · 08/2024
+הרב שמואל הרטום 30 · 🏢 אותו בניין · קומה 1 · 4 חד' · 90.3 מ"ר · ₪2,500,000 · 01/2024
+הרב שמואל הרטום 30 · 🏢 אותו בניין · קומה 7 · 3 חד' · 83.1 מ"ר · ₪2,175,000 · 05/2023
+```
+
+**Weizmann 92 result** (top 2, then falls to radius — correctly, since only 2 quality-passing exact-building rows exist):
+```
+ויצמן 92 · 🏢 אותו בניין · קומה 5 · 4 חד' · 107.3 מ"ר · ₪1,800,000 · 11/2023
+ויצמן 92 · 🏢 אותו בניין · קומה 6 · 3 חד' · 106 מ"ר · ₪2,100,000 · 08/2022
+ויצמן 107 · 📍 אותו רחוב · קומה 4 · 4 חד' · 106.85 מ"ר · ₪1,980,000 · 04/2023   (correctly falls to same-street once exact-building supply (2) is exhausted)
+```
+
+Per-candidate trace (the level of detail Phases 5–7 requested), for the transactions that matter:
+
+| ADDRESS | DATE | ROOMS | AREA | PRICE | STREET_MATCH | HOUSE_NUMBER_MATCH | LOCATION_TIER (computed, runtime-observed) | DISPLAYED |
+|---|---|---|---|---|---|---|---|---|
+| Hartom 30 | 2024-08-30 | 4 | 90.3 | 2,430,000 | YES | YES | **0 (building)** | YES, #1 |
+| Hartom 30 | 2024-01-17 | 4 | 90.3 | 2,500,000 | YES | YES | **0 (building)** | YES, #2 |
+| Weizmann 92 | 2023-11-21 | 4 | 107.3 | 1,800,000 | YES | YES | **0 (building)** | YES, #1 |
+| Weizmann 92 | 2022-08-11 | 3 | 106 | 2,100,000 | YES | YES | **0 (building)** | YES, #2 |
+
+No exact-building candidate was found excluded, filtered, or mis-tiered in either reproduction. The re-injection safety net was not even needed to observe in action here since the primary building-tier path already succeeded directly (`compSearchScope` resolved to `"building"` on the first pass for Hartom despite the neighborhood mismatch, per the city-wide textual fallback; Weizmann's own neighborhood already contained its building's rows directly).
+
+### Phase 9 — Root cause classification (runtime evidence)
+
+```
+HARTOM30=K
+WEIZMANN92=K
+```
+
+**K — Insufficient evidence**, specifically: insufficient evidence of a *reproducible* defect. This is not an evasive answer — it reflects a real, load-bearing result: a faithful, real-UI, real-network-capture reproduction of both cases, with house number genuinely entered exactly as the operator describes, **produced the correct result** in both cases. Every other candidate classification (A/B/C/D/E/F/G/H) was directly and specifically tested against and disproven by this same reproduction (no request-level loss, no service-level loss, no malformed street string, no normalization failure, no missing data, no date/property exclusion, no mis-ranked tier, no display-mapping bug — all checked above with runtime evidence, not assumption). What remains unexplained is *why the operator's real session differed from this reproduction* — the two most likely candidates, neither confirmed nor ruled out this wave, are (a) different room/area/floor input values than the ones used here, or (b) a different resolution path if the browser-side govmap geocode failed for the operator (network/CSP-dependent) and the server fell back to a different `/api/resolve-address` code path than the one exercised here. Neither of these is speculation dressed as a finding — they are named as the specific next things to test, not asserted as the cause.
+
+**No single common systemic cause was found** — because no cause was found at all in the faithful reproduction. This is reported plainly rather than forcing a classification the evidence doesn't support.
+
+### Phase 8 — Result address header (reconfirmed, still not fixed)
+Unchanged from Wave 0E-1: `Valuation` has no `street`/`houseNumber` field, so the result screen cannot show *"הערכת שווי — ויצמן 92, נתניה"* today. To render that heading, the response type needs (at minimum) the resolved `streetName` and `houseNumber` echoed back — both already available server-side at the point `valuate()` is called, just not included in its return value. Not implemented this wave.
