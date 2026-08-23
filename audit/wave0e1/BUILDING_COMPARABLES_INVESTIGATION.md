@@ -853,3 +853,30 @@ DEPLOYMENT=NONE
 
 ### Deployment
 None. No Production or Preview deployment performed in this wave.
+
+---
+
+## Wave 0F-2 — Protected Preview Acceptance (Street Alias Dedup)
+
+**Deployment + verification wave only. No application source was modified.**
+
+### Baseline
+`HEAD=207567c` — confirmed to contain Wave 0F-1 (`lib/streetAliasDedup.ts` present, imported by `app/api/autocomplete/route.ts`). Working tree clean (`graphify-out/` residue excluded, untouched) both immediately before and immediately after the deploy — the deployed source is provably exactly the tree at commit `207567c`.
+
+### Deployment
+- Command: `npx vercel@59.4.0 deploy --target=preview --yes` (pinned CLI version, no `--prod`, no domain flags).
+- Deployment ID: `dpl_CbE1i5qq2KFsKaJkgP36dqjhbgc5`
+- Preview URL: `https://shaviut-netanya-ojna4ci6m-robbublils-projects.vercel.app`
+- Target: confirmed **`preview`** via `vercel inspect <id>` (concrete server-side record) — `target: preview`, `status: Ready`.
+- No Production deployment. No `shaviut-netanya.co.il` domain attachment. No Preview environment variable changes. Deployment Protection and Automation Bypass configuration untouched.
+
+### Protection check
+Unauthenticated plain `curl` against the Preview URL:
+```
+HTTP/1.1 302 Found
+Location: https://vercel.com/sso-api?url=...&nonce=...
+```
+Vercel Authentication intercepted the request as expected. Not bypassed, not disabled, no Automation Bypass secret created/inspected/printed.
+
+### Live acceptance
+STOPPED here per Phase 4 — awaiting the operator's manual test of the four acceptance cases (Weizmann dedup, Weizmann 92 valuation, Ben Gurion dedup, Oved Ben Ami dedup) in an already-authenticated browser against the Preview URL above. This section will be completed once the operator reports results.
