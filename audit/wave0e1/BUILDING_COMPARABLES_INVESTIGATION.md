@@ -1073,3 +1073,85 @@ DEPLOYMENT=NONE
 
 ### Deployment
 None. No Production or Preview deployment performed in this wave.
+
+---
+
+## Wave 0F-2C — Comparable Address Placeholder Display
+
+**Presentation-only micro-wave, authorized by Wave 0F-2A's proven open follow-up. Source deal data was NOT touched, NOT cleaned, NOT migrated — the "0" placeholder still exists in `data/deals.json`/Supabase exactly as before.**
+
+### Proven "0" source artifact (recap, unchanged from Wave 0F-2A, re-confirmed here)
+```
+RAW_FIELDS_AVAILABLE = Comparable.street: string|null, Comparable.address: string|null, Comparable.houseNumber: string|null, Comparable.tier?: "building"|"street"|"radius"|"neighborhood"
+CURRENT_ADDRESS_SOURCE (before) = c.address preferred over c.street/c.houseNumber when truthy
+CURRENT_FORMATTER (before) = c.address ? c.address.replace(/,?\s*נתניה$/i,"").trim() : hasStreet ? `רח' ${c.street}${c.houseNumber?...}` : null
+CURRENT_EMPTY_FALLBACK (before) = "כתובת לא פורסמה" — but only reached for null/empty, never for a truthy "0"
+```
+Re-confirmed directly against `data/deals.json`: **2,608 deals city-wide** have `street === "0"` and `address === "0"` — perfectly correlated (both fields always placeholder together), and `houseNumber` is **never** literally `"0"` anywhere in the dataset (0 occurrences, checked directly) — so, per this wave's explicit instruction not to broaden beyond proven evidence, house-number handling was left completely untouched.
+
+### Presentation rule
+New file `lib/comparableAddress.ts`, `formatComparableAddress(street, address, houseNumber, tier)`:
+- A street/address value is **not displayable** when, after trim, it is empty or literally `"0"` (the exact, evidence-proven placeholder — no numeric-street heuristics, no placeholder dictionary, nothing broader).
+- Prefers `address` (with the `, נתניה` suffix stripped, same as before) when displayable; falls back to `` `רח' ${street}${houseNumber ? ' '+houseNumber : ''}` `` when only `street` is displayable (house-number appending logic byte-identical to before); otherwise falls back to a truthful tier-based label.
+- Returns `{ text, isRealAddress }` so `CompDealCard` can keep its existing visual distinction (bold slate for a real address, italic gray for a fallback label) — same visual slot as the old "כתובת לא פורסמה" state, just correctly triggered now.
+
+### Fallback labels (exact real tier enum, no invented tiers)
+```
+building     -> "עסקה בבניין"
+street       -> "עסקה ברחוב"
+radius       -> "עסקה בסביבה הקרובה"
+neighborhood -> "עסקה בשכונה"
+no tier      -> "עסקה באזור"   (neutral — e.g. the manual-neighborhood-fallback path, which never sets a per-comparable tier)
+```
+
+### No data mutation
+`lib/comparableAddress.ts` reads only the four fields already passed into the component (`street`, `address`, `houseNumber`, `tier`) — it does not read, write, or touch `data/deals.json`, Supabase, `SupabaseStore`, `LocalStore`, the importer, or the database schema. **The literal "0" values remain in the source data exactly as before** — this wave changes only what the browser renders.
+
+### Tests
+`lib/__tests__/comparableAddress.test.ts` — 15 tests directly against `formatComparableAddress` (the same function `CompDealCard` imports, not a re-implementation — this repo has no DOM/component-testing infrastructure, same established rationale as Wave 0E-2B):
+- Tests A/B/C: literal `"0"` street, literal `"0"` address (including when address is `"0"` but street would otherwise be usable — proves address-rejection is independent, not merely a side effect of street also failing), empty/whitespace street+address, null/undefined — all render a truthful fallback, never `"0"`.
+- Tests D/E: valid street+houseNumber and valid street-without-houseNumber render exactly as before (no fabricated house number).
+- Tests F/G: Hartom 30 and Ben Ami street-deal regressions — unchanged output.
+- Test H: every real tier (`building`/`street`/`radius`/`neighborhood`) maps to its specified label; no tier maps to the neutral fallback.
+
+### Real-data sample (Phase 7) — read-only, no writes
+Rendered 3 real `street==="0"` rows from `data/deals.json` through the actual helper:
+```
+ZERO_SAMPLE_BEFORE="0"   ZERO_SAMPLE_AFTER="עסקה בשכונה"   (×3, all identical)
+```
+
+### Manual local acceptance
+Real `npm run dev` server, real browser, apartment / neighborhood-fallback path (66239231, the same neighborhood proven contaminated in Wave 0F-2A) with no street selected (forcing a tier-less neighborhood result — the code path that most directly exercises the placeholder):
+- The exact real deal row from the Wave 0F-2A investigation (₪1,025,000, floor 6, 4 rooms, 103 m², 05/2026) rendered as **"עסקה באזור"** — not `"0"` — with price/floor/rooms/area/date all intact and unchanged.
+- No literal `"0"` found in any comparable card on the page (checked programmatically across all rendered address spans).
+- 375px mobile viewport: no horizontal overflow (`document.body.scrollWidth === clientWidth`).
+- No console errors.
+- **Ben Ami 45 re-verified** (Wave 0F-2B's fix): result header **"הערכת שווי — שד עובד בן עמי 45, נתניה"**, comparable cards show the real **"עובד בן עמי 2"** address (street tier) — confirming the placeholder fix did **not** replace valid real addresses with generic labels.
+
+### Quality gates
+- Focused: `lib/__tests__/comparableAddress.test.ts` — 15/15 pass.
+- Full suite: **183 passed** (19 files; 168 prior + 15 new).
+- Typecheck: clean.
+- Lint: not run — same pre-existing `next lint` non-functional condition, unrelated to this wave.
+- Build: `next build` — succeeded, same route table as every prior wave.
+
+### Scope check
+```
+git diff --stat -- components lib (excluding graphify-out)
+components/ValuationWizard.tsx | 14 +++++---------
+1 file changed, 5 insertions(+), 9 deletions(-)
++ new: lib/comparableAddress.ts, lib/__tests__/comparableAddress.test.ts
+```
+```
+VALUATION_CHANGED=NO
+AUTOCOMPLETE_CHANGED=NO
+SUPABASESTORE_CHANGED=NO
+LOCALSTORE_CHANGED=NO
+DEAL_DATA_CHANGED=NO
+IMPORTER_CHANGED=NO
+DB_WRITES=NONE
+DEPLOYMENT=NONE
+```
+
+### Deployment
+None. No Production or Preview deployment performed in this wave.

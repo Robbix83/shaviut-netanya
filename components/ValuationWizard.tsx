@@ -12,6 +12,7 @@ import {
   formatEvaluatedAddress,
   HOUSE_NUMBER_REQUIRED_MESSAGE,
 } from "@/lib/houseNumberRule";
+import { formatComparableAddress } from "@/lib/comparableAddress";
 
 type PropertyType = "apartment" | "house" | "land";
 
@@ -306,12 +307,7 @@ const TIER_BADGE: Record<string, { label: string; cls: string }> = {
 };
 
 function CompDealCard({ c }: { c: Comparable }) {
-  const hasStreet = !!(c.street);
-  const streetLine = c.address
-    ? c.address.replace(/,?\s*נתניה$/i, "").trim()
-    : hasStreet
-    ? `רח' ${c.street}${c.houseNumber ? ` ${c.houseNumber}` : ""}`
-    : null;
+  const addr = formatComparableAddress(c.street, c.address, c.houseNumber, c.tier);
 
   const tierBadge = c.tier ? TIER_BADGE[c.tier] : null;
 
@@ -324,10 +320,10 @@ function CompDealCard({ c }: { c: Comparable }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-0.5">
           <div className="flex items-center gap-2 flex-wrap">
-            {streetLine ? (
-              <span className="font-semibold text-slate-800 truncate">{streetLine}</span>
+            {addr.isRealAddress ? (
+              <span className="font-semibold text-slate-800 truncate">{addr.text}</span>
             ) : (
-              <span className="text-slate-400 text-xs italic">כתובת לא פורסמה</span>
+              <span className="text-slate-400 text-xs italic">{addr.text}</span>
             )}
             {tierBadge && (
               <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-bold ${tierBadge.cls}`}>
