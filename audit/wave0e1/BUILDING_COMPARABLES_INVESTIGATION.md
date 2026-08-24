@@ -1188,4 +1188,136 @@ Location: https://vercel.com/sso-api?url=...&nonce=...
 Vercel Authentication intercepted the request as expected. Not bypassed, not disabled, no Automation Bypass secret created/inspected/printed.
 
 ### Operator acceptance
-STOPPED here per Phase 5 — awaiting the operator's manual test of the five acceptance cases (Weizmann autocomplete dedup, Weizmann 92 valuation, Ben Ami 45 fallback + real addresses, zero-placeholder check, Ben Gurion/Ben Ami alias dedup) in an already-authenticated browser against the Preview URL above. This section will be completed once the operator reports results.
+STOPPED here per Phase 5 — awaiting the operator's manual test of the five acceptance cases (Weizmann autocomplete dedup, Weizmann 92 valuation, Ben Ami 45 fallback + real addresses, zero-placeholder check, Ben Gurion/Ben Ami alias dedup) in an already-authenticated browser against the Preview URL above. **Superseded mid-acceptance by Wave 0F-3A** (below) — the operator found a new product-trust question before completing this checklist; Wave 0F-3 acceptance remains open, not closed.
+
+---
+
+## Wave 0F-3A — Ben Ami 41 Official-Data Reconciliation
+
+**Investigation-only. No application source, Supabase, or deal data was modified. No importer rerun. No deployment.**
+
+Trigger: on the Wave 0F-3 Preview, "שד עובד בן עמי 41" returned a street-tier estimate (₪1,209,000–₪1,565,000) based on house-2 comparables, badge "אותו רחוב". The operator independently checked nadlan.gov.il and found 5 real transactions recorded at the exact address "עובד בן עמי 41" within the relevant window, all labeled `דירת נופש` (vacation apartment).
+
+### The five official rows, individually reconciled
+
+| # | Date | Price | Area | Rooms | Type (official) | In `data/deals.json`? |
+|---|---|---|---|---|---|---|
+| 1 | 2024-11-15 | ₪280,000 | 65 m² | — | דירת נופש | **NO** |
+| 2 | 2023-06-21 | ₪925,000 | 65 m² | 3 | דירת נופש | **NO** |
+| 3 | 2023-05-11 | ₪680,000 | 45 m² | 2 | דירת נופש | **NO** |
+| 4 | 2023-04-20 | ₪975,000 | 65 m² | 3 | דירת נופש | **NO** |
+| 5 | 2022-06-08 | ₪232,000 | 45 m² | 2 | דירת נופש | **NO** |
+
+**Method (Phase 3):** searched all 12,642 rows in `data/deals.json` for each row by exact `(dealDate, price)` pair, then separately by `(dealDate, areaSqm)` — not by street name at all, specifically to catch a case where these rows were imported under a placeholder (`street: "0"`), a different alias, or a different neighborhoodId. **Zero matches on any of the 5 rows, on either search key.** A genuine date+price collision existing anywhere in a 12,642-row dataset by pure chance is vanishingly unlikely; zero hits across all 5 independently is direct, exhaustive proof of absence — not a classification/mapping error that moved them elsewhere. This is not parity by street name alone (which would not have caught a misfiled row); it's parity by the transaction's own identifying characteristics.
+
+`data/deals.json` has no `gush`/`helka`/parcel-ID field to cross-reference (the raw scrape's `parcelNum`, e.g. `"7992-66-58"` in the repo's `data/debug-raw-deal.json` sample record, is never mapped into `Deal` by `scripts/harvest.ts`'s `normalize()` — a pre-existing, unrelated gap, not something this wave changes), so date+price+area is the strongest identity check available with current data.
+
+### Raw source search (Phase 1)
+No separate raw/pre-transform harvest cache exists anywhere in the repository (`data/` contains only the final transformed `deals.json`, plus one unrelated single-record debug sample, `data/debug-raw-deal.json`, for a different address). `scripts/harvest.ts` scrapes nadlan.gov.il live and writes directly into `deals.json`/Supabase — there is no intermediate artifact to search. Result: **RAW_SOURCE_FOUND=NO for all 5 rows** — not because a file was searched and came up empty, but because no such intermediate file has ever existed for this project.
+
+### Import trace — property-type handling (Phase 2)
+Traced `scripts/harvest.ts`'s `classify()` (the only place raw `dealNature` becomes a stored `propertyType`):
+```ts
+function classify(dealNature: string | null): "apartment" | "house" | "land" {
+  const s = (dealNature || "").trim();
+  if (/מגרש|קרקע|מקרקעין|חקלאי|נחלה/.test(s)) return "land";
+  if (/דיר[הת]/.test(s)) return "apartment"; // דירה בבית קומות, דירת גג, דירת גן — לפני בדיקת בית
+  ...
+}
+```
+```
+IS_VACATION_APARTMENT_SUPPORTED = NO — there is no "vacation apartment" propertyType; Deal.propertyType is only "apartment"|"house"|"land"
+IS_VACATION_APARTMENT_MAPPED_TO_APARTMENT = YES — /דיר[הת]/ matches "דירת נופש" (the construct-state "דירת" form is exactly what this regex is written to also catch, per its own comment listing "דירת גג"/"דירת גן")
+IS_VACATION_APARTMENT_EXCLUDED = NO
+EXCLUSION_RULE = none exists
+EXCLUSION_LOCATION = N/A
+```
+This **structurally rules out** root cause B (importer excludes vacation apartments) — the code provably never excludes by `dealNature`. The raw `dealNature` string is preserved verbatim on the `Deal` (`dealNature: raw.dealNature ?? null`) for display only; nothing in `scripts/harvest.ts` or `lib/valuation.ts` filters on it.
+
+**Confirmed live in our own data**: `דירת נופש`-labeled deals ARE already present and already used as comparables today — the current Ben Ami 41 trace (below) shows two of the top-5 house-2 comparables carry `dealNature: "דירת נופש"` with normal full-market prices (₪23,158/sqm and ₪20,513/sqm). Excluding by `dealNature` categorically would be wrong; some `דירת נופש` transactions are legitimate market comparables.
+
+Also checked: is there a partial-rights/ownership-fraction filter? Yes — `lib/valuation.ts` line 98–103:
+```ts
+// סף מינימום ₪/מ"ר לפי סוג נכס — מסנן עסקאות חלקיות/זכויות שנדל"ן מפרסם ביחד
+// עם עסקאות שוק רגילות (מכירת 25% מדירה, העברות בין קרובים בתמורה סמלית וכו')
+const MIN_PPSQM: Record<string, number> = { apartment: 8_000, house: 12_000, land: 800 };
+```
+applied at `buildComparableDeals()` line 693–695 (`pool = pool.filter(d => d.pricePerSqm == null || d.pricePerSqm >= minPps)`) — to the **displayed comparable pool**, not just the numeric estimate range. Its own comment explicitly names "sale of 25% of an apartment" as the exact scenario it exists to catch. This is a real, pre-existing, already-active safeguard — not something this wave added or needs to add.
+
+### Why the prior "only house numbers 2 and 10" finding was accurate (Phase 5)
+```
+WHY_WAS_41_ABSENT_FROM_PRIOR_QUERY = the data genuinely does not contain it — proven by the exhaustive
+  date+price+area search above, not a classification, alias, or neighborhoodId bug.
+```
+`scripts/harvest.ts -> harvestByStreets()` (the mode used for this neighborhood, gated by `STREET_MODE_NEIGHBORHOODS`) searches nadlan.gov.il **by street name**, then scrolls to collect everything the site's own street-level result list returns — it does not query per house number, so it can't selectively skip one house number while catching others from the same street-level listing. What is **not provable without a live rerun of the harvester** (explicitly not authorized this wave, and this environment has no network path to nadlan.gov.il to test it) is *why* nadlan.gov.il's own street-level listing didn't surface these 5 rows to the scraper in the first place. The most evidence-consistent hypothesis — offered as a hypothesis, not a proven fact — is that vacation/timeshare-style ("דירת נופש") unit sales in a resort-style building may be indexed or categorized differently on nadlan.gov.il's own site than the standard street-transaction list the harvester reads, such that a direct address-level search (what the operator did manually) surfaces them while the bulk by-street scrape does not. Confirming this would require either a live harvest rerun against this specific street/address or an operator-side comparison of nadlan.gov.il's street-list view vs. its address-search view — both out of this wave's scope.
+
+### Valuation filter trace (Phase 6)
+Not applicable in the "data present but filtered" sense — there is nothing to trace. **DATA MISSING**, not **DATA PRESENT BUT INTENTIONALLY NOT COMPARABLE**: all `BUILDING_CANDIDATES`/eligibility fields are 0 because the underlying rows do not exist in `data/deals.json` (or, by the established byte-identical-parity finding from Wave 0B-2/0E-2A, in Supabase) at all — not because any filter (date, property type, room, area, outlier, or partial-rights) rejected a real row. This was not independently re-queried against live Supabase credentials in this session (none are available in this environment, consistent with every prior wave); the exhaustive `data/deals.json` search above is the evidence. Safe read-only operator command for live re-confirmation:
+```powershell
+$env:DATA_SOURCE = "supabase"
+npx tsx -e "import('./lib/store').then(async ({getStore}) => { const all = await getStore().getAllDeals(); const hits = all.filter(d => (d.dealDate==='2024-11-15'&&d.price===280000) || (d.dealDate==='2023-06-21'&&d.price===925000) || (d.dealDate==='2023-05-11'&&d.price===680000) || (d.dealDate==='2023-04-20'&&d.price===975000) || (d.dealDate==='2022-06-08'&&d.price===232000)); console.log('MATCHES=' + JSON.stringify(hits)); });"
+```
+Expected (if `data/deals.json` parity holds, as proven in every prior wave): `MATCHES=[]`.
+
+### Property-type product-contract question (Phase 7)
+```
+CURRENT_RULE = דירת נופש transactions are NOT excluded from ordinary apartment valuations — they are classified as
+  plain "apartment" and included as comparables like any other, subject only to the MIN_PPSQM price-per-sqm floor.
+```
+Applying `MIN_PPSQM.apartment = 8,000 ₪/sqm` to the operator's 5 official rows:
+```
+₪280,000 / 65 m² = ₪4,308/sqm  -> BELOW threshold -> would be filtered (looks like a partial/rights sale)
+₪925,000 / 65 m² = ₪14,231/sqm -> ABOVE threshold -> would NOT be filtered
+₪680,000 / 45 m² = ₪15,111/sqm -> ABOVE threshold -> would NOT be filtered
+₪975,000 / 65 m² = ₪15,000/sqm -> ABOVE threshold -> would NOT be filtered
+₪232,000 / 45 m² = ₪5,156/sqm  -> BELOW threshold -> would be filtered
+```
+```
+PRODUCT_RISK = real and evidence-grounded, not hypothetical: 3 of the operator's 5 official "דירת נופש" examples have
+  "normal-looking" market prices (₪14–15K/sqm) that the existing partial-rights filter would NOT catch. If a building
+  is predominantly vacation/timeshare units (unlike the rest of its street), and some of its transactions are ever
+  harvested, the current system has no dealNature-based safeguard — only the price floor — so a meaningfully different
+  property category could be silently blended into an "ordinary apartment" valuation. This is not unique to Ben Ami 41;
+  it is a general, pre-existing gap in the product contract (present since before this engagement), just newly proven
+  concrete by this specific operator report.
+```
+
+### Current Ben Ami 41 valuation trace (Phase 8) — local data (proven parity; representative inputs since the operator's exact rooms/area were not captured verbatim — reconstructed as 4 rooms / 100 sqm to match this engagement's established test convention, NOT claimed to be the operator's literal input)
+```
+TARGET_PROPERTY_TYPE=apartment  TARGET_ROOMS=4 (representative)  TARGET_AREA=100 sqm (representative)
+COMP_SEARCH_SCOPE=street
+BASED_ON_DEALS=16
+ESTIMATE=₪1,622,000 - ₪2,069,000  (differs numerically from the operator's ₪1,209,000–₪1,565,000, consistent with different reconstructed inputs — not claimed to reproduce their exact number)
+```
+Top comparables (all real, all house 2 on the same street):
+```json
+{"street":"עובד בן עמי","houseNumber":"2","tier":"street","dealNature":"דירת נופש","price":2200000,"areaSqm":95,"dealDate":"2025-02-12"}
+{"street":"עובד בן עמי","houseNumber":"2","tier":"street","dealNature":"דירה בבית קומות","price":1890000,"areaSqm":116,"dealDate":"2022-01-31"}
+{"street":"עובד בן עמי","houseNumber":"2","tier":"street","dealNature":"דירה בבית קומות","price":2400000,"areaSqm":117,"dealDate":"2023-12-31"}
+{"street":"עובד בן עמי","houseNumber":"2","tier":"street","dealNature":"דירת נופש","price":2400000,"areaSqm":117,"dealDate":"2022-08-09"}
+{"street":"עובד בן עמי","houseNumber":"2","tier":"street","dealNature":"דירה בבית קומות","price":1930000,"areaSqm":117,"dealDate":"2021-11-07"}
+```
+**Why house 2 was used instead of any Ben Ami 41 transaction**: because `BUILDING_CANDIDATES=0` — no house-41 row exists anywhere in the dataset (proven above) — the location hierarchy (building → street → radius → neighborhood, unchanged by this wave) correctly falls through to street tier, which the Wave 0F-2B fix (this session's prior wave) makes reachable at all for this street. This is the fallback mechanism working exactly as designed on the data that genuinely exists — not a bug, and not something this wave changes.
+
+### Trust/confidence gap (Phase 9) — not implemented, documented only
+The UI currently presents the **same confident styling** (📐/📍 tier badge, "מבוסס על N עסקאות") whether the true underlying reason for landing on street tier is (3) no exact-building transactions exist in the dataset at all — the proven case here — or any of the other four scenarios (data exists but was rejected as unsuitable; data exists in an unsupported category; etc.). There is currently **no UI signal distinguishing "we found nothing for this exact address" from "we found something and are choosing not to use it."** A user (or an operator manually cross-checking the government registry, as happened here) has no way to tell from the app alone that the street's data may be incomplete for a specific address.
+
+### Root cause (Phase 10)
+```
+BEN_AMI_41_DATA_ROOT_CAUSE=A — RAW GOVERNMENT ROWS NEVER HARVESTED
+```
+Proven by exhaustive date+price+area search across the entire 12,642-row dataset (zero matches on all 5 official rows) combined with structural proof that the importer never excludes by property type (ruling out B) and no separate raw-cache artifact exists to search for a "collected but dropped" scenario. The deeper question of why nadlan.gov.il's own street-level listing didn't surface these rows to the scraper is not provable in this environment (no network path to nadlan.gov.il, no harvester rerun authorized) and is reported as an open, evidence-consistent hypothesis, not a proven fact.
+```
+BEN_AMI_41_VALUATION_TRUST_RISK=MEDIUM
+```
+Not HIGH: the current output is not proven inaccurate — it is a legitimate, intentional street-tier fallback (Wave 0F-2B) using real, price-sane, honestly-labeled transactions from the same street (including `דירת נופש` rows already filtered/validated by the pre-existing `MIN_PPSQM` safeguard), not corrupted or fabricated data. Not LOW: this wave found a real, evidence-grounded gap — no dealNature-based signal at all, a price-floor filter that would miss 3 of 5 real official examples, and a UI that cannot currently communicate "this exact address has no data of its own" to the user. MEDIUM reflects a proven-real product-contract gap without a proven-real current miscalculation.
+
+### Wave 0F-1 regression
+```
+NO — this defect is unrelated to street-alias dedup; "עובד בן עמי" and "שד עובד בן עמי" already resolved to the
+same neighborhoodId/coordinates before Wave 0F-1 (established in Wave 0F-1's own real-data check), and the absence
+of house-41 data is a harvesting-coverage gap, not an alias-resolution defect.
+```
+
+### No fix performed
+Source changes: NONE. Data writes: NONE. Importer rerun: NO. Deployment: NONE.
