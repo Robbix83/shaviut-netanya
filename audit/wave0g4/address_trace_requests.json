@@ -1,0 +1,44 @@
+[
+  {
+    "seq": 1,
+    "timestamp": "2026-08-24T21:36:00.493Z",
+    "method": "GET",
+    "url": "https://data.nadlan.gov.il/api/index/neigh.json",
+    "resourceType": "xhr"
+  },
+  {
+    "seq": 2,
+    "timestamp": "2026-08-24T21:36:09.252Z",
+    "method": "GET",
+    "url": "https://data.nadlan.gov.il/api/pages/neighborhood/buy/65210195.json",
+    "resourceType": "fetch"
+  },
+  {
+    "seq": 3,
+    "timestamp": "2026-08-24T21:36:09.253Z",
+    "method": "GET",
+    "url": "https://data.nadlan.gov.il/api/index/dealNatureIndex.json",
+    "resourceType": "fetch"
+  },
+  {
+    "seq": 4,
+    "timestamp": "2026-08-24T21:36:09.253Z",
+    "method": "POST",
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "resourceType": "fetch"
+  },
+  {
+    "seq": 5,
+    "timestamp": "2026-08-24T21:36:09.280Z",
+    "method": "GET",
+    "url": "https://data.nadlan.gov.il/api/pages/neighborhood/buy/65210195.json?t=1787607369259",
+    "resourceType": "fetch"
+  },
+  {
+    "seq": 6,
+    "timestamp": "2026-08-24T21:36:09.289Z",
+    "method": "POST",
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "resourceType": "fetch"
+  }
+]
