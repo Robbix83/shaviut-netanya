@@ -1155,3 +1155,37 @@ DEPLOYMENT=NONE
 
 ### Deployment
 None. No Production or Preview deployment performed in this wave.
+
+---
+
+## Wave 0F-3 — Final Protected Preview Acceptance
+
+**Deployment + verification wave only. No application source was modified.**
+
+### Baseline
+`HEAD=7a00773` — confirmed to contain all three Wave 0F fixes: street-alias dedup (`lib/streetAliasDedup.ts`), the relevant-candidate city-wide fallback fix (`lib/valuation.ts`), and the comparable-address placeholder display fix (`lib/comparableAddress.ts`). Working tree clean (`graphify-out/` residue excluded, untouched) both before and after the deploy.
+
+### Pre-deploy gate
+- Full test suite: **183/183 passed** (19 files) — matches expected state.
+- Typecheck: clean.
+- Build: succeeded, same route table as every prior wave.
+- Lint: not run — pre-existing `next lint` non-functional condition, unchanged.
+
+### Deployment
+- Command: `npx vercel@59.4.0 deploy --target=preview --yes` (pinned CLI version, no `--prod`, no domain flags).
+- First attempt returned a transient `"reason": "deploy_failed", "message": "Not authorized"` API error (auth itself was confirmed healthy — `vercel whoami` and `vercel project ls` both succeeded normally against the correct project/team scope immediately before and after). Retried once, per the error's own suggested next step, and it succeeded — no source, config, or auth state was changed between attempts.
+- Deployment ID: `dpl_CHuqRRzNJwKLq9ZfhXrPDHizXkuy`
+- Preview URL: `https://shaviut-netanya-gs67chf42-robbublils-projects.vercel.app`
+- Target: confirmed **`preview`** via `vercel inspect <id>` (concrete server-side record) — `target: preview`, `status: Ready`.
+- No Production deployment. No `shaviut-netanya.co.il` domain attachment. No Preview/Production environment variable changes. Deployment Protection and Automation Bypass configuration untouched.
+
+### Protection check
+Unauthenticated plain `curl` against the Preview URL:
+```
+HTTP/1.1 302 Found
+Location: https://vercel.com/sso-api?url=...&nonce=...
+```
+Vercel Authentication intercepted the request as expected. Not bypassed, not disabled, no Automation Bypass secret created/inspected/printed.
+
+### Operator acceptance
+STOPPED here per Phase 5 — awaiting the operator's manual test of the five acceptance cases (Weizmann autocomplete dedup, Weizmann 92 valuation, Ben Ami 45 fallback + real addresses, zero-placeholder check, Ben Gurion/Ben Ami alias dedup) in an already-authenticated browser against the Preview URL above. This section will be completed once the operator reports results.
