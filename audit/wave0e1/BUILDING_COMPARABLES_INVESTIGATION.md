@@ -979,3 +979,97 @@ Expected (not assumed): `compSearchScope=neighborhood`, and the top comparables'
 
 ### Source changes
 NONE. DB writes: NONE. Deployment: NONE.
+
+---
+
+## Wave 0F-2B — Relevant-Candidate City-Wide Fallback Fix
+
+**Implementation micro-wave, authorized by the Wave 0F-2A root-cause proof. Not a Wave 0F-1 regression fix — this bug predates every wave in this engagement (present since the earliest baseline snapshot in this repo's git history).**
+
+### Old gate vs new gate
+```
+CURRENT_FALLBACK_GATE (before) = compSearchScope === "neighborhood" && inputStreetNorm && geoPool.length < MIN_DEALS_FOR_ROOM_FILTER (6)
+CURRENT_MIN_SAMPLE_RULE = MIN_DEALS_FOR_ESTIMATE (3) — already used everywhere else in the tier cascade
+BUILDING_CANDIDATE_COUNT_AT_GATE (Ben Ami) = 0
+STREET_CANDIDATE_COUNT_AT_GATE (Ben Ami, from geoPool) = 0 (all 65 real deals live outside geoPool's neighborhoodId)
+RADIUS_CANDIDATE_COUNT_AT_GATE = not reached until later
+WHY_GEOPOOL_6_EXISTS = git history shows this condition dates to the repo's earliest baseline snapshot (`0d9459f`), predating this engagement. The most evidence-consistent explanation (see scripts/harvest-missing.ts's documented "196 streets with a phantom neighborhoodId that doesn't exist in deals.json" concept): the gate was designed around "the resolved neighborhood pool is basically empty" (a real, separately-documented condition) as a proxy for "the street search failed for a data-completeness reason." That proxy holds when the wrong-resolved neighborhood is itself sparse, but silently fails when the wrong-resolved neighborhood is large/populous (Ben Ami: 500 unrelated deals) — exactly the gap Wave 0F-2A found.
+```
+New gate:
+```ts
+if (compSearchScope === "neighborhood" && inputStreetNorm) {
+```
+No new threshold was introduced. `compSearchScope` is still `"neighborhood"` at this point in the function if and only if the preceding local cascade (`byExactBuilding`/`byBuildingNumber`/`byStreetName` against `geoPool`) failed to reach `MIN_DEALS_FOR_ESTIMATE` at every tier — that's already the exact "not enough relevant candidates" signal, computed via the pre-existing threshold, just not previously reused as the rescue gate.
+
+### Performance / selectivity (Phase 3)
+```
+NORMAL_REQUEST_CITYWIDE_SCAN=NO
+```
+Verified both by construction (removing an `&&` condition can only make the gate strictly more, never less, permissive — so every case that already triggered the rescue under the old gate still triggers it) and by an automated test (`TEST C`, below) that tracks every `deals`-table query issued through the real seam and asserts none of them is an unscoped (non-`neighborhoodId`-filtered) bulk query when the resolved neighborhood already has an exact-building match.
+
+### Tests (Phase 5)
+`lib/__tests__/valuation.cityWideFallback.test.ts` — 5 tests against the real `resolveAndValuate()` → `valuate()` seam, mocked Supabase client (same pattern as `store.supabaseComparables.test.ts`):
+- **Test A (Ben Ami equivalent):** resolved neighborhood A populous (10 unrelated deals), target street's 5 real deals live under neighborhood B. Asserts the rescue fires and `compSearchScope === "street"`. **Confirmed to fail under the old gate** (`git stash` round-trip re-run: old gate produces `compSearchScope === "neighborhood"`, exactly reproducing the live Ben Ami defect) and pass under the new one.
+- **Test B (Hartom equivalent):** small resolved-neighborhood pool (the old gate's originally-working case) with an exact-building match in a different neighborhood. Still recovers `compSearchScope === "building"` — no regression.
+- **Test C (normal healthy neighborhood):** resolved neighborhood already has an exact-building match locally. Asserts **zero** unscoped `deals` queries were issued (the city-wide scan never runs) — a direct, automated proof of Phase 3's selectivity requirement, not just a manual claim.
+- **Test D (thin relevant sample):** only 2 local street-tier matches (below the existing `MIN_DEALS_FOR_ESTIMATE=3`) plus 1 more matching deal in another neighborhood — combined city-wide total reaches 3, upgrading to `"street"` tier via the *existing* threshold. **Also confirmed to fail under the old gate** (same `git stash` re-run). No new threshold was invented for this case.
+- **Test E (no street data anywhere):** target street has zero deals in the entire dataset. Rescue may run (harmless — `lazyAllDeals()` is memoized per request) but finds nothing; `compSearchScope` truthfully stays `"neighborhood"`, no comparable is falsely tagged `"building"`/`"street"`.
+
+All 5 pass with the fix; a `git stash`/`git stash pop` round-trip confirmed Tests A and D specifically fail against the pre-fix code (2/5 failures, exactly the two designed to exercise the new gate) while B/C/E already passed under the old gate too — proving the test suite isolates the actual fix, not a false positive.
+
+### Real Ben Ami diagnostic (Phase 6) — local data (real Supabase credentials remain unavailable in this environment; local `data/deals.json` proven byte-identical to Supabase in prior waves)
+Before the fix: `COMP_SEARCH_SCOPE=neighborhood`, `BASED_ON_DEALS=28`, top comparables all `street:"0"` (the separately-tracked, still-open placeholder issue).
+After the fix:
+```
+BEN_AMI_BUILDING_CANDIDATES=0 (house 45 genuinely has no deals — unchanged, correct)
+BEN_AMI_STREET_CANDIDATES=16 (real "עובד בן עמי" deals, recovered city-wide)
+BEN_AMI_RADIUS_CANDIDATES=not reached (street tier already satisfied)
+COMP_SEARCH_SCOPE=street
+BEN_AMI_FINAL_TOP3=["עובד בן עמי 2 [street]", "עובד בן עמי 2 [street]", "עובד בן עמי 2 [street]"]
+```
+All top comparables now show the real, genuine "עובד בן עמי 2" address — not the "0" placeholder — because these are real recovered deal rows, not neighborhood-tier filler. Live Supabase re-confirmation command (unchanged target from Wave 0F-2A, safe/read-only):
+```powershell
+$env:DATA_SOURCE = "supabase"
+npx tsx -e "import('./lib/valuationService').then(async ({resolveAndValuate}) => { const r = await resolveAndValuate({neighborhoodId:'66239231', propertyType:'apartment', rooms:4, areaSqm:100, houseNumber:'45', streetName:'שד עובד בן עמי', streetX:185473, streetY:690366}); console.log(JSON.stringify(r, null, 2)); });"
+```
+Expected post-fix: `compSearchScope: "street"`, non-empty `comparableDeals` with real `street`/`address` values (not `"0"`).
+
+### Wave 0E regression check (Phase 7) — local data, unchanged
+```
+Hartom 30 top-3:   ["הרב שמואל הרטום 30 [building]", "הרב שמואל הרטום 30 [building]", "הרב שמואל הרטום 30 [building]"]
+Weizmann 92 top-3: ["ויצמן 92 [building]", "ויצמן 92 [building]", "ויצמן 107 [street]"]
+```
+Byte-identical to the results verified live in Wave 0E-2A/0E-3 — no regression.
+
+### Open follow-up (Phase 8 — explicitly NOT fixed in this wave)
+```
+ZERO_PLACEHOLDER_DISPLAY = OPEN
+```
+This wave's fix naturally avoids the "0"-placeholder rows for the specific Ben Ami case (because it now surfaces real street-tier data instead of falling through to the "0"-contaminated neighborhood tier) — but that is a side effect, not a fix. The underlying defect (raw `deals.json`/Supabase rows with a literal `street`/`address` value of `"0"`, and `CompDealCard`'s formatter having no guard against it — proven in Wave 0F-2A) remains present and will still surface for any other request that legitimately falls through to neighborhood tier in a "0"-contaminated neighborhood. To be fixed separately (proposed Wave 0F-2C, per Wave 0F-2A's own recommendation).
+
+### Quality gates
+- Focused: `lib/__tests__/valuation.cityWideFallback.test.ts` — 5/5 pass.
+- Full suite: **168 passed** (18 files; 163 prior + 5 new).
+- Typecheck: clean.
+- Lint: not run — same pre-existing `next lint` non-functional condition, unrelated to this wave.
+- Build: `next build` — succeeded, same route table as every prior wave.
+
+### Scope check
+```
+git diff --stat -- lib (excluding graphify-out)
+lib/valuation.ts | 14 ++++++++++++--
+1 file changed, 12 insertions(+), 2 deletions(-)
++ new: lib/__tests__/valuation.cityWideFallback.test.ts
+```
+```
+AUTOCOMPLETE_CHANGED=NO
+SUPABASESTORE_CHANGED=NO
+LOCALSTORE_CHANGED=NO
+DEAL_DATA_CHANGED=NO
+ADDRESS_RESOLVER_CHANGED=NO
+DB_WRITES=NONE
+DEPLOYMENT=NONE
+```
+
+### Deployment
+None. No Production or Preview deployment performed in this wave.

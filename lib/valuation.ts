@@ -248,10 +248,20 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     }
   }
 
-  // ─── שלב טקסטואלי עירוני: כשהשכונה ריקה/קטנה — חפש לפי שם רחוב בכל עסקאות העיר ───
+  // ─── שלב טקסטואלי עירוני: כשלא נמצאו מספיק מועמדים רלוונטיים — חפש לפי שם רחוב
+  // בכל עסקאות העיר ───
   // קורה כשרחוב נמצא בשכונה שטרם נשאבה (למשל גבע → רמת אפרים), אבל עסקאותיו נשאבו
   // תחת neighborhoodId שונה (כגון שכונה סמוכה). מבטיח שמשתמש תמיד מקבל עסקאות רחובו.
-  if (compSearchScope === "neighborhood" && inputStreetNorm && geoPool.length < MIN_DEALS_FOR_ROOM_FILTER) {
+  //
+  // Wave 0F-2B: התנאי הקודם היה geoPool.length < MIN_DEALS_FOR_ROOM_FILTER — בודק את
+  // גודל ה-pool הגולמי של השכונה שנפתרה, לא את כמות המועמדים הרלוונטיים בפועל
+  // (בניין/רחוב) שנמצאו. compSearchScope === "neighborhood" בנקודה הזו כבר אומר
+  // במדויק "אף אחד ממדרגי הטקסט (בניין/קרבת-מספר/רחוב) לא הגיע לסף הקיים
+  // MIN_DEALS_FOR_ESTIMATE" — זה בדיוק אות "מספיק מועמדים רלוונטיים" שכבר קיים,
+  // בלי צורך בסף שרירותי חדש. ה-gate הישן חסם את החילוץ הזה כשה-neighborhoodId
+  // שנפתר (השגוי) היה בעצמו שכונה גדולה/מאוכלסת (למשל "עובד בן עמי" 45 — 500 עסקאות
+  // בשכונה, 0 מהן ברחוב המבוקש) — למרות שאפס מועמדים רלוונטיים נמצאו בפועל.
+  if (compSearchScope === "neighborhood" && inputStreetNorm) {
     const allCityDeals = await lazyAllDeals();
     const cityPool = allCityDeals.filter((d) => (d.propertyType ?? "apartment") === ptype);
     const cityBuilding = ageFilter(byBuildingNumber(cityPool), AGE_TOLERANCES.building);
