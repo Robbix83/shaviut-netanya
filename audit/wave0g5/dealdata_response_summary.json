@@ -1,0 +1,12 @@
+[
+  {
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "status": 200,
+    "itemCount": 101
+  },
+  {
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "status": 200,
+    "itemCount": 500
+  }
+]

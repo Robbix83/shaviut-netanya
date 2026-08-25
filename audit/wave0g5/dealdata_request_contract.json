@@ -1,0 +1,32 @@
+[
+  {
+    "seq": 1,
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "method": "POST",
+    "contentType": "text/plain",
+    "postData_REDACTED_NOTE": "The raw '##' field is a reversed-base64-encoded, HS256-header-shaped envelope. Its structural (non-credential) claims were decoded via passive reversal+base64 of an already-captured request payload -- no signing key was accessed, no token was forged, and nothing was replayed. The envelope's embedded 'sk' (a nested short-lived JWT with a domain+expiry claim) and 'token' (a per-request UUID) fields are session-bound anti-bot/anti-replay credentials and have been deliberately REDACTED here, per this wave's explicit instruction not to collect or expose anti-bot tokens -- even though this specific credential had already expired by the time this file was written.",
+    "decoded_non_credential_claims": {
+      "base_id": "72721794",
+      "base_name": "addressId",
+      "fetch_number": 1,
+      "type_order": "dealDate_down",
+      "domain": "www.nadlan.gov.il"
+    },
+    "redacted_fields": ["sk (nested short-lived JWT)", "token (per-request UUID)", "exp (unix timestamp)"]
+  },
+  {
+    "seq": 2,
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "method": "POST",
+    "contentType": "text/plain",
+    "postData_REDACTED_NOTE": "Same envelope shape as seq 1 -- see that entry's note. This request's own sk/token/exp fields have likewise been redacted.",
+    "decoded_non_credential_claims": {
+      "base_id": "65210195",
+      "base_name": "neighborhoodId",
+      "fetch_number": 1,
+      "type_order": "dealDate_down",
+      "domain": "www.nadlan.gov.il"
+    },
+    "redacted_fields": ["sk (nested short-lived JWT)", "token (per-request UUID)", "exp (unix timestamp)"]
+  }
+]
