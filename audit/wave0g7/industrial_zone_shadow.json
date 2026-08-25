@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "sourceId": "65210388",
+    "sourceName": "אזור תעשיה קריית אל",
+    "requestValid": false,
+    "error": "NO_SUGGESTION_OR_EMPTY_RESULT — no matching autocomplete suggestion was found for this name, or the site genuinely returned zero rows; these are NOT distinguished as a success",
+    "idMismatch": false,
+    "distinctUpstreamNeighborhoodIds": [],
+    "rawRows": 0,
+    "uniqueRows": 0,
+    "earliestDate": null,
+    "latestDate": null,
+    "distinctStreetsCount": 0
+  },
+  "normalized": [],
+  "pageEvents": []
+}
