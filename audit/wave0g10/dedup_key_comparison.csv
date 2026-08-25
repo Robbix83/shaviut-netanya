@@ -1,0 +1,12 @@
+entity,dataset,candidate_key,total_items,unique_keys,collisions,notes
+nof_hatayelet,500-row raw sample (top-level only),parcelNum only,500,500,0,"top-level rows only; no repeat-sale rows present because history is nested, not top-level"
+nof_hatayelet,500-row raw sample flattened (top-level + nested prevDeals),parcelNum only,683,500,183,"UNSAFE: collapses every property's transaction history into one row"
+nof_hatayelet,500-row raw sample flattened,parcelNum + dealDate,683,680,3,"3 same-day multi-amount collisions found; insufficient alone"
+nof_hatayelet,500-row raw sample flattened,parcelNum + dealDate + dealAmount,683,683,0,"zero collisions - best proven candidate"
+rasko,500-row raw sample (top-level only),parcelNum only,500,500,0,"top-level rows only"
+rasko,500-row raw sample flattened,parcelNum only,679,500,179,"UNSAFE: collapses transaction history"
+rasko,500-row raw sample flattened,parcelNum + dealDate,679,663,16,"16 same-day multi-amount collisions found; insufficient alone"
+rasko,500-row raw sample flattened,parcelNum + dealDate + dealAmount,679,679,0,"zero collisions - best proven candidate"
+nof_hatayelet,2000-row overlapping top-level union (2x descending + baseline-desc-dup + ascending),parcelNum only,2000,1276,724,"top-level-only union; matches proven total_rows=1276 exactly"
+nof_hatayelet,2000-row overlapping top-level union,parcelNum + dealDate + dealAmount,2000,1276,724,"identical result to parcelNum-only at top-level (no top-level parcelNum ever repeats) - CAUTION: this union does NOT include nested prevDeals rows, so it does not test the collision case that matters"
+canonical,data/deals.json (12642 rows),existing synthetic id (neighborhoodId-dealDate-price-areaSqm),12642,12642,0,"canonical data has NO parcelNum field at all - candidate key cannot be constructed from current canonical schema"
