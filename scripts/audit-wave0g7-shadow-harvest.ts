@@ -1,19 +1,33 @@
 /**
  * scripts/audit-wave0g7-shadow-harvest.ts — READ-ONLY shadow acquisition probe
- * for the NEW official-catalog discovery source (lib/nadlanCatalog.ts).
+ * for the official-catalog discovery source (lib/nadlanCatalog.ts).
  *
- * Reuses the same real acquisition request/parser path established across
- * Waves 0G-2 through 0G-5 (duplicated, not imported, from scripts/harvest.ts,
- * which has no exports and is a standalone script) — this file does NOT
- * introduce a second independent harvester architecture, it is the same
+ * WAVE 0G-8 UPDATE: this script originally targeted an entity by typing its
+ * NAME into nadlan.gov.il's search box and clicking an autocomplete
+ * suggestion. Wave 0G-7 proved that mechanism unreliable — requesting
+ * sourceId=65210195 ("נוף הטיילת") returned 500 rows belonging entirely to a
+ * different, unrequested entity (65210243). Wave 0G-8 proved a direct,
+ * ID-based alternative: navigating straight to
+ * `https://www.nadlan.gov.il/?view=neighborhood&id={sourceId}&page=deals`
+ * triggers a correctly entity-scoped /deal-data request with ZERO
+ * autocomplete/name-search interaction — verified 3/3 (two ordinary
+ * residential entities plus one special-category industrial zone, all with
+ * exact 100% id-match, see audit/wave0g8/). This script now uses ONLY that
+ * direct-URL mechanism. No search box is touched anywhere in this file.
+ *
+ * Reuses the same real parser logic established across Waves 0G-2 through
+ * 0G-5 (duplicated, not imported, from scripts/harvest.ts, which has no
+ * exports and is a standalone script) — this file does NOT introduce a
+ * second independent harvester architecture, it is the same
  * shadow-diagnostic pattern already used and ECC-approved multiple times this
- * engagement, now parameterized by an official nadlan sourceId/name instead of
- * a hardcoded target.
+ * engagement, now parameterized by an official nadlan sourceId/name instead
+ * of a hardcoded target.
  *
  * HARD GUARANTEES:
  *  - Never opens or writes data/deals.json.
  *  - Never touches Supabase.
  *  - Never writes any production/canonical checkpoint file.
+ *  - Never types into or clicks any search/autocomplete suggestion.
  *  - Writes only under audit/wave0g7/.
  *
  * Usage:
@@ -23,6 +37,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import zlib from "zlib";
+import { buildDirectNeighborhoodUrl, assertDirectIdAcquisitionIdentity } from "../lib/nadlanAcquisition";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { chromium: chromiumExtra } = require("playwright-extra");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -152,32 +167,12 @@ async function shadowHarvestOne(sourceId: string, sourceName: string) {
   });
 
   try {
-    await page.goto("https://www.nadlan.gov.il/", { waitUntil: "domcontentloaded", timeout: 45000 });
-    await page.waitForTimeout(3000);
-    const input = page.locator("input#myInput2, input.react-autosuggest__input").first();
-    await input.fill(`${sourceName} נתניה`);
-    await page.waitForTimeout(3000);
-
-    const suggestions = await page.locator("li").allTextContents();
-    console.log("SUGGESTIONS=" + JSON.stringify(suggestions.map((s) => s.trim().replace(/\s+/g, " "))));
-
-    const exact = page.locator("li", { hasText: sourceName }).filter({ hasText: "שכונה" }).first();
-    let clicked = false;
-    let clickedLabel = "";
-    if (await exact.count()) {
-      clickedLabel = (await exact.textContent()) || "";
-      await exact.click(); clicked = true;
-    } else {
-      const opt = page.locator("li").filter({ hasText: "שכונה" }).first();
-      if (await opt.count()) {
-        clickedLabel = (await opt.textContent()) || "";
-        await opt.click(); clicked = true;
-      }
-    }
-    if (!clicked) { console.log("NO_NEIGHBORHOOD_SUGGESTION_FOUND — falling back to Enter"); await input.press("Enter"); }
-    else console.log("SUGGESTION_CLICKED=" + clickedLabel.trim().replace(/\s+/g, " "));
-
-    await page.waitForTimeout(4000);
+    // Wave 0G-8 direct-ID navigation — no search box, no autocomplete, no
+    // name resolution of any kind. This is the ENTIRE targeting mechanism.
+    const directUrl = buildDirectNeighborhoodUrl(sourceId);
+    console.log("NAVIGATING_DIRECTLY_TO=" + directUrl);
+    await page.goto(directUrl, { waitUntil: "domcontentloaded", timeout: 45000 });
+    await page.waitForTimeout(5000);
 
     const MAX_SCROLL_ROUNDS = 200;
     const SCROLL_IDLE_ROUNDS = 4;
@@ -209,36 +204,23 @@ async function shadowHarvestOne(sourceId: string, sourceName: string) {
   const dates = normalized.map((d) => d.dealDate).filter(Boolean).sort();
   const streets = new Set(normalized.map((d) => d.street).filter(Boolean));
 
-  // Self-diagnosing mismatch check: does the data actually returned carry the
-  // SAME upstream neighborhoodId we asked for? The UI's name-typed search box
-  // is proven (this wave) NOT to guarantee this — silently trusting a "success"
-  // result without this check would recreate exactly the silent-mismatch defect
-  // this whole investigation exists to eliminate.
-  const distinctUpstreamIds = [...new Set(normalized.map((d: any) => d.rawUpstreamNeighborhoodId).filter(Boolean))];
-  const matchingRowCount = normalized.filter((d: any) => d.rawUpstreamNeighborhoodId === sourceId).length;
-  // Deliberately NOT `.includes(sourceId)` — that would only check that SOME row
-  // matches, silently accepting a MIXED batch (e.g. 5 correct rows buried among
-  // 495 contaminated ones) as a clean success. Every row must match.
-  const idMismatch = normalized.length > 0 && matchingRowCount !== normalized.length;
+  // Self-diagnosing, fail-closed identity check via the shared, unit-tested
+  // lib/nadlanAcquisition.ts helper — not a locally-duplicated inline check.
+  // Even with direct-URL targeting (no autocomplete involved), this is kept
+  // as belt-and-suspenders against any future upstream behavior change.
+  const identity = assertDirectIdAcquisitionIdentity(uniqueRaw, sourceId);
 
-  let requestValid = !last405 && !navigationError;
-  let error: string | null = navigationError ?? (last405 ? "405 reCAPTCHA rejection" : null);
-  if (requestValid && collected.length === 0) {
-    requestValid = false;
-    error = "NO_SUGGESTION_OR_EMPTY_RESULT — no matching autocomplete suggestion was found for this name, or the site genuinely returned zero rows; these are NOT distinguished as a success";
-  } else if (requestValid && idMismatch) {
-    requestValid = false;
-    error = `ID_MISMATCH — requested sourceId=${sourceId} but only ${matchingRowCount}/${normalized.length} returned rows carry that rawUpstreamNeighborhoodId (distinct ids present: ${JSON.stringify(distinctUpstreamIds)}) — the name-typed search box resolved to a DIFFERENT (or MIXED) entity set than requested`;
-  }
+  let requestValid = !last405 && !navigationError && identity.valid;
+  let error: string | null = navigationError ?? (last405 ? "405 reCAPTCHA rejection" : identity.error);
 
   const summary = {
     sourceId, sourceName,
     requestValid,
     error,
-    idMismatch,
-    matchingRowCount,
-    totalRowCount: normalized.length,
-    distinctUpstreamNeighborhoodIds: distinctUpstreamIds,
+    idMismatch: !identity.valid && identity.error?.startsWith("ID_MISMATCH") === true,
+    matchingRowCount: identity.matchingCount,
+    totalRowCount: identity.totalCount,
+    distinctUpstreamNeighborhoodIds: identity.distinctIds,
     rawRows: collected.length,
     uniqueRows: uniqueRaw.length,
     earliestDate: dates[0] ?? null,
@@ -258,6 +240,10 @@ async function main() {
     console.error("Usage: npx tsx scripts/audit-wave0g7-shadow-harvest.ts <sourceId> <label> [sourceName]");
     process.exit(1);
   }
+  // sourceName is display metadata only (echoed into diagnostic output rows)
+  // — it plays NO role in targeting; targeting is sourceId-only via the
+  // direct URL. This is exactly the "no sourceId -> name -> autocomplete"
+  // separation Wave 0G-8 requires.
   const sourceName = process.argv[4] ?? labelArg;
 
   const { summary, normalized, pageEvents } = await shadowHarvestOne(sourceId, sourceName);

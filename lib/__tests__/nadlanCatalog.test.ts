@@ -199,10 +199,21 @@ describe("TEST E/F — shadow harvest script cannot write canonical data or Supa
 
   it("the id-mismatch check requires EVERY row to match, not just some (guards against a mixed-batch silently passing as clean)", () => {
     // A prior version used `.includes(sourceId)`, which would treat a batch of
-    // 5 correct rows buried among 495 contaminated ones as a full match. The
-    // fixed version must compare a per-row match count against the total.
+    // 5 correct rows buried among 495 contaminated ones as a full match.
+    // Wave 0G-8 extracted this logic into the shared, unit-tested
+    // lib/nadlanAcquisition.ts helper (assertDirectIdAcquisitionIdentity) —
+    // see lib/__tests__/nadlanAcquisition.test.ts's Phase 11 TEST C for the
+    // direct behavioral proof; this check confirms the script actually CALLS
+    // that shared helper rather than reintroducing an inline `.includes()` check.
     expect(shadowSrc).not.toMatch(/distinctUpstreamIds\.includes\(sourceId\)/);
-    expect(shadowSrc).toMatch(/matchingRowCount\s*!==\s*normalized\.length/);
+    expect(shadowSrc).toMatch(/assertDirectIdAcquisitionIdentity\(/);
+    const acquisitionSrc = readFileSync(path.join(__dirname, "..", "nadlanAcquisition.ts"), "utf8");
+    expect(acquisitionSrc).toMatch(/matchingCount\s*!==\s*items\.length/);
+    // Stronger than "the helper is called somewhere": confirm the script's
+    // own `requestValid` flag is actually WIRED to `identity.valid`, not
+    // just that assertDirectIdAcquisitionIdentity() is invoked for logging
+    // while requestValid is computed some other, unverified way.
+    expect(shadowSrc).toMatch(/requestValid\s*=\s*!last405\s*&&\s*!navigationError\s*&&\s*identity\.valid/);
   });
 
   it("all fs.writeFile calls target only the wave0g7 output directory", () => {
@@ -222,13 +233,17 @@ describe("TEST I — production harvest path is untouched by this wave's additiv
 
   it("lib/nadlanCatalog.ts is not imported by any production (non-test, non-audit) application file", () => {
     // A lightweight, dependency-free repo scan (pure fs, no shell/grep): any
-    // .ts/.tsx file outside __tests__ under lib/app/components that imports
-    // nadlanCatalog would indicate this wave's additive module got silently
-    // wired into the live app/harvest path.
+    // .ts/.tsx file outside __tests__ under lib/app/components that IMPORTS
+    // nadlanCatalog (an `import ... from ".../nadlanCatalog"` statement, not
+    // merely a comment mentioning its name — lib/nadlanAcquisition.ts's own
+    // header comment legitimately explains its relationship to nadlanCatalog.ts
+    // without importing it) would indicate this wave's additive module got
+    // silently wired into the live app/harvest path.
     const fs = require("fs") as typeof import("fs");
     const repoRoot = path.join(__dirname, "..", "..");
     const dirsToScan = ["lib", "app", "components"];
     const offenders: string[] = [];
+    const importPattern = /(?:from\s+["'][^"']*nadlanCatalog["']|require\(["'][^"']*nadlanCatalog["']\))/;
 
     function walk(dir: string) {
       let entries: import("fs").Dirent[];
@@ -240,7 +255,7 @@ describe("TEST I — production harvest path is untouched by this wave's additiv
           walk(full);
         } else if (/\.(ts|tsx)$/.test(entry.name) && full !== path.join(repoRoot, "lib", "nadlanCatalog.ts")) {
           const content = fs.readFileSync(full, "utf8");
-          if (/nadlanCatalog/.test(content)) offenders.push(path.relative(repoRoot, full));
+          if (importPattern.test(content)) offenders.push(path.relative(repoRoot, full));
         }
       }
     }

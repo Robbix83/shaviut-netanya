@@ -1,0 +1,11 @@
+dealDataRequests (session 1, page1 — address click + later in-app pushState):
+2026-08-25T11:33:02.431Z POST https://api.nadlan.gov.il/deal-data
+2026-08-25T11:33:02.486Z POST https://api.nadlan.gov.il/deal-data
+2026-08-25T11:33:19.368Z POST https://api.nadlan.gov.il/deal-data
+
+dealDataRequests2 (session 2, cold navigation to captured address URL, no search interaction):
+2026-08-25T11:33:08.984Z POST https://api.nadlan.gov.il/deal-data
+2026-08-25T11:33:09.296Z POST https://api.nadlan.gov.il/deal-data
+
+dealDataRequests3 (session 3, cold navigation to guessed neighborhood URL, no search interaction):
+2026-08-25T11:33:16.527Z POST https://api.nadlan.gov.il/deal-data

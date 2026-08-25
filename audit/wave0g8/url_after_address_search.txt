@@ -1,0 +1,7 @@
+HOMEPAGE_URL=https://www.nadlan.gov.il/?view=address&id=72721794&page=deals
+AFTER_ADDRESS_SEARCH_URL=https://www.nadlan.gov.il/?view=address&id=72721794&page=deals
+ROUTER_STATE={
+  "locationHref": "https://www.nadlan.gov.il/?view=address&id=72721794&page=deals",
+  "locationSearch": "?view=address&id=72721794&page=deals",
+  "locationHash": ""
+}
