@@ -1,0 +1,9 @@
+scope,dataset,key,total_events,unique_keys,collisions,collision_classification
+Nof Hatayelet,top-level within one fetch window (500 rows),parcelNum+dealDate+dealAmount,500,500,0,none
+Nof Hatayelet,top-level across 3 overlapping windows (DESC1+DESC2+ASC),parcelNum+dealDate+dealAmount,1500,1276,224,TRUE_DUPLICATE (exact re-fetch of the same transaction through overlapping windows - correctly collapsed)
+Nof Hatayelet,flattened (500 top-level + 183 prevDeals inheriting parent parcelNum),parcelNum+dealDate+dealAmount,683,683,0,none - confirms repeat sales of the same property remain distinct when dealAmount differs
+Rasko,top-level DESC (fetch1+fetch2),parcelNum+dealDate+dealAmount,1000,1000,0,none
+Rasko,top-level ASC (fetch1+fetch2) - NEW this wave,parcelNum+dealDate+dealAmount,1000,1000,0,none
+Rasko,DESC+ASC four-window union - NEW this wave,parcelNum+dealDate+dealAmount,2000,2000,0,none (zero overlap between sort directions at all)
+Nof Hatayelet,"-0 parcelNum row 8252-109-0, 2 prevDeals same date different amount",parcelNum+dealDate+dealAmount,3 (1 top-level + 2 prevDeals),3,0,LEGITIMATE_DISTINCT_TRANSACTION - same date (1999-12-29), different amounts (4805000 vs 788000) - key correctly separates them via dealAmount
+Nof Hatayelet (Wave 0G-10 prior finding),parcelNum+dealDate only (candidate WITHOUT dealAmount) applied to flattened set,parcelNum+dealDate,683,680,3,AMBIGUOUS if dealAmount were dropped - same-day same-parcel different-price cases exist; dealAmount is necessary, not optional

@@ -1,0 +1,53 @@
+{
+  "sourceId": "65210248",
+  "entityName": "רסקו",
+  "entityFailed": false,
+  "failureReason": null,
+  "loginWallDetected": false,
+  "exchanges": [
+    {
+      "seq": 1,
+      "contract": {
+        "sourceId": "65210248",
+        "totalRows": 2012,
+        "totalFetch": 5,
+        "totalPage": 202
+      },
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "identityValid": true,
+      "rawItemCount": 500
+    },
+    {
+      "seq": 2,
+      "contract": {
+        "sourceId": "65210248",
+        "totalRows": 2012,
+        "totalFetch": 5,
+        "totalPage": 202
+      },
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_up",
+      "identityValid": true,
+      "rawItemCount": 500
+    },
+    {
+      "seq": 3,
+      "contract": {
+        "sourceId": "65210248",
+        "totalRows": 2012,
+        "totalFetch": 5,
+        "totalPage": 202
+      },
+      "itemCount": 500,
+      "fetchNumber": 2,
+      "typeOrder": "dealDate_up",
+      "identityValid": true,
+      "rawItemCount": 500
+    }
+  ],
+  "networkRequests": 3,
+  "elapsedSeconds": 53
+}

@@ -1,0 +1,11 @@
+window,type_order,fetch_number,raw_rows,unique_within_window,earliest_date,latest_date,source
+DESC fetch 1,dealDate_down,1,500,500,2022-03-27,2026-06-15,"Wave 0G-12 stored output, re-used for merge (re-loaded live as this run's own page baseline, but NOT re-merged from that live baseline load - the merge used 0G-12's already-normalized stored rows)"
+DESC fetch 2,dealDate_down,2,500,500,2016-09-07,2022-03-26,Wave 0G-12 stored output (not refetched)
+ASC fetch 1,dealDate_up,1,500,500,1998-01-12,2009-03-18,Wave 0G-13 (new live capture)
+ASC fetch 2,dealDate_up,2,500,500,2009-03-25,2016-06-06,"Wave 0G-13 (new live capture - first time ANY entity's ascending sort was pushed to fetch_number=2)"
+DESC union (1+2),dealDate_down,"1,2",1000,1000,2016-09-07,2026-06-15,Wave 0G-12
+ASC union (1+2),dealDate_up,"1,2",1000,1000,1998-01-12,2016-06-06,Wave 0G-13
+DESC-ASC overlap,,,0,0 (zero collision between the two sort directions),,,measured this wave
+FOUR-WINDOW UNION,,,2000,2000,1998-01-12,2026-06-15,"parcelNum+dealDate+dealAmount key, this wave"
+OFFICIAL_TOTAL_ROWS,,,,2012,,,nadlan.gov.il response field (data.total_rows, total_fetch=5 - only 2 of 5 windows retrieved per sort direction)
+DELTA_TO_OFFICIAL,,,,12,,,"2012-2000=12. Window 3 (of 5 total per the official total_fetch) was never requested; the ~3-month gap 2016-06-06..2016-09-07 between ASC-latest and DESC-earliest is consistent with where those 12 rows likely sit, but this is NOT independently verified - no request was made to confirm it."
