@@ -1,0 +1,46 @@
+{
+  "sourceId": "65210248",
+  "classified": [
+    {
+      "text": "כל החדרים",
+      "kind": "filter"
+    },
+    {
+      "text": "3 חדרים",
+      "kind": "filter"
+    },
+    {
+      "text": "4 חדרים",
+      "kind": "filter"
+    },
+    {
+      "text": "5 חדרים",
+      "kind": "filter"
+    },
+    {
+      "text": "תאריך עסקה - סדר יורד",
+      "kind": "sort"
+    },
+    {
+      "text": "תאריך עסקה - סדר עולה",
+      "kind": "sort"
+    },
+    {
+      "text": "מחיר העסקה - סדר יורד",
+      "kind": "sort"
+    },
+    {
+      "text": "מחיר העסקה - סדר עולה",
+      "kind": "sort"
+    },
+    {
+      "text": "מס' חדרים - סדר יורד",
+      "kind": "sort"
+    },
+    {
+      "text": "מס' חדרים - סדר עולה",
+      "kind": "sort"
+    }
+  ],
+  "error": null
+}

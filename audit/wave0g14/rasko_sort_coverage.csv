@@ -1,0 +1,7 @@
+sort_label,type_order,fetch_number,rows,already_known,new_rows,cumulative_unique,delta_to_2012,notes
+DESC (baseline),dealDate_down,"1,2",1000,n/a,1000,1000,1012,Wave 0G-12/0G-13 stored output re-used
+ASC,dealDate_up,"1,2",1000,n/a,0 (zero overlap with DESC),2000,12,Wave 0G-13 new live capture
+Price desc,dealAmount_down,1,500,498,2,2002,10,Wave 0G-14 new live capture; both new rows in known gap window
+Rooms desc,roomNum_down,1,500,not separately isolated (combined dedup),3 additional (5 total combined with price),2005,7,Wave 0G-14 new live capture; all 3 additional new rows also in known gap window
+UNTESTED,dealAmount_up,n/a,n/a,n/a,n/a,n/a,n/a,Out of this wave's 2-request budget
+UNTESTED,roomNum_up,n/a,n/a,n/a,n/a,n/a,n/a,Out of this wave's 2-request budget
