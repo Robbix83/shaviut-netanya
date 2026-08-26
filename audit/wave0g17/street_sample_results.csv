@@ -1,0 +1,4 @@
+street_name,street_id,selection_rationale,official_total_rows,total_fetch,rows_returned,already_in_baseline,new_rows,on_street_rate,contamination_rows
+דגניה,74000847,A: high baseline representation (202 rows in corpus carry this street name; 201 of the 500 fetched street-level rows matched an existing baseline key),501,2,500,201,299,100%,0
+טבת,74001224,B: low baseline representation (7 rows already in corpus),16,1,16,7,9,100%,0
+הר שגיא,74001205,C: ordinary control street (13 rows already in corpus),58,1,58,13,45,100%,0

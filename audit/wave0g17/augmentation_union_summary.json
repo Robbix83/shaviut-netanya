@@ -1,0 +1,88 @@
+{
+  "correctionNotice": "This file reflects the CORRECTED wave findings after ECC review found the first draft's street-enumeration conclusion was wrong. See ADDRESS_AUGMENTATION_FEASIBILITY.md's 'IMPORTANT CORRECTION NOTICE' section.",
+  "primaryEntity": {
+    "name": "קריית השרון",
+    "sourceId": "65209683",
+    "officialTotalRows": 5640,
+    "baselineUnique": 2518,
+    "baselineDelta": 3122,
+    "baselineCoveragePercent": 44.65,
+    "officialStreetCountMeasured": 70
+  },
+  "streetEnumeration": {
+    "sourceNativeStreetIdAvailable": true,
+    "officialEnumerationEndpointFound": true,
+    "endpoint": "https://data.nadlan.gov.il/api/pages/neighborhood/buy/{sourceId}.json",
+    "responseField": "otherNeighborhoodStreets",
+    "fieldShape": "[{id: <numeric streetCode>, title: <street name>}]",
+    "safe": "plain unauthenticated GET, no reCAPTCHA -- same endpoint already used by lib/nadlanCatalog.ts",
+    "note": "Already partially documented in Wave 0G-4/0G-5 but not checked by this wave's first draft; found and confirmed after ECC specialist review flagged the omission."
+  },
+  "directStreetQuery": {
+    "mechanismProven": true,
+    "urlPattern": "https://www.nadlan.gov.il/?view=street&id={streetId}&page=deals",
+    "requestShape": { "base_name": "streetCode", "base_id": "<streetId from otherNeighborhoodStreets>" },
+    "identityFieldInResponse": "neighborhoodId (validated against the parent entity's sourceId)",
+    "fetchNumberProvenSafeDepth": 1,
+    "note": "A second fetch (fetch_number=2) was NOT attempted this wave for any street -- one street (דגניה) has enough transactions (501) to need it, disclosed as an open item, not tested."
+  },
+  "streetSample": {
+    "run": true,
+    "streetsTested": 3,
+    "totalOfficialStreetsForPrimaryEntity": 70,
+    "fractionTested": "3/70 (4.3%)",
+    "results": [
+      { "street": "דגניה", "streetId": "74000847", "officialTotalRows": 501, "totalFetch": 2, "rowsReturned": 500, "alreadyInBaseline": 201, "newRows": 299, "contamination": 0 },
+      { "street": "טבת", "streetId": "74001224", "officialTotalRows": 16, "totalFetch": 1, "rowsReturned": 16, "alreadyInBaseline": 7, "newRows": 9, "contamination": 0 },
+      { "street": "הר שגיא", "streetId": "74001205", "officialTotalRows": 58, "totalFetch": 1, "rowsReturned": 58, "alreadyInBaseline": 13, "newRows": 45, "contamination": 0 }
+    ]
+  },
+  "addressLevelDiscovery": {
+    "mechanismProven": true,
+    "requestShape": { "base_name": "addressId", "base_id": "<internal numeric id, e.g. 72714167>" },
+    "discoveredVia": "free-text autocomplete suggestion selection only -- NOT an enumerable endpoint",
+    "cleanSingleAddressQuery": true,
+    "sampleTested": { "address": "הר שגיא 3 נתניה", "addressId": "72714167", "rowsReturned": 1, "contamination": 0, "newRows": 0 },
+    "conclusion": "Superseded in practical value by street-level querying (Phase 5/8), which recovered the SAME street's 45 missing rows via one request instead of one addressId lookup per address."
+  },
+  "coverage": {
+    "baselineUnique": 2518,
+    "newFromStreetSample": 353,
+    "newFromAddressSample": 0,
+    "unionUnique": 2871,
+    "deltaBefore": 3122,
+    "deltaAfter": 2769,
+    "coverageBefore": 44.65,
+    "coverageAfter": 50.90
+  },
+  "transactionIdentity": {
+    "key": "parcelNum+dealDate+price",
+    "rawRowsAcrossSurfaces": 3092,
+    "uniqueKeys": 2871,
+    "trueDuplicateCrossSurface": 221,
+    "ambiguousCollisions": 0,
+    "legitimateDistinctCollisions": 0
+  },
+  "addressQuality": {
+    "baselineValidAddressRate": 0.89,
+    "augmentationValidAddressRate": 1.0,
+    "baselineStreetZeroRate": 0.11,
+    "augmentationStreetZeroRate": 0.0,
+    "note": "Street-level acquisition structurally cannot return address='0' placeholder rows."
+  },
+  "augmentationIncrementalValue": "HIGH",
+  "citywideAugmentationScale": {
+    "measured": {
+      "officialStreetCountsPer11PartialEntities": {
+        "מרכז העיר": 69, "קריית השרון": 70, "קריית נורדאו": 41, "מע\"ר - מרכז עירוני ר": 72,
+        "אבו שדיד": 26, "עיר ימים": 22, "חוף הים והמלונות": 19, "מכנס": 23,
+        "רמת אפרים": 46, "רסקו": 26, "אזור תעשיה פנחס ספי": 30
+      },
+      "totalOfficialStreetsAcross11PartialEntities": 444
+    },
+    "estimated": {
+      "note": "444 fetch_number=1 street requests would cover every street once citywide; an unknown additional number would need fetch_number=2 for streets whose own total_rows exceeds 500 (1 of 3 tested needed this)."
+    },
+    "citywideAugmentationScaleRating": "MODERATE"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "url": "https://www.nadlan.gov.il/?view=neighborhood&id=65209683&page=deals",
+    "method": "GET"
+  },
+  {
+    "url": "https://www.negishim.com/accessibility/wheelchair.ashx?is_pro=1&fps=a3e7b482d16a5b1787bf9fd09c2a93b2&v=255&css_style=1&src=www.nadlan.gov.il&purl=www.nadlan.gov.il&ii=1787779557727",
+    "method": "GET"
+  },
+  {
+    "url": "https://api.nadlan.gov.il/deal-info",
+    "method": "POST"
+  },
+  {
+    "url": "https://api.nadlan.gov.il/deal-data",
+    "method": "POST"
+  }
+]

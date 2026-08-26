@@ -1,0 +1,53 @@
+[
+  {
+    "triedUrl": "https://www.nadlan.gov.il/?view=street&id=74001205&page=deals",
+    "finalUrl": "https://www.nadlan.gov.il/?view=street&id=74001205&page=deals",
+    "redirected": false,
+    "navError": null,
+    "exchanges": [
+      {
+        "itemCount": 58,
+        "base_id": "74001205",
+        "base_name": "streetCode",
+        "identityValid": true,
+        "distinctIds": [
+          "65209683"
+        ]
+      }
+    ]
+  },
+  {
+    "triedUrl": "https://www.nadlan.gov.il/?view=street&id=74001205&neigh_id=65209683&page=deals",
+    "finalUrl": "https://www.nadlan.gov.il/?view=street&id=74001205&neigh_id=65209683&page=deals",
+    "redirected": false,
+    "navError": null,
+    "exchanges": [
+      {
+        "itemCount": 58,
+        "base_id": "74001205",
+        "base_name": "streetCode",
+        "identityValid": true,
+        "distinctIds": [
+          "65209683"
+        ]
+      }
+    ]
+  },
+  {
+    "triedUrl": "https://www.nadlan.gov.il/?view=neighborhood&id=65209683&street=74001205&page=deals",
+    "finalUrl": "https://www.nadlan.gov.il/?view=neighborhood&id=65209683&street=74001205&page=deals",
+    "redirected": false,
+    "navError": null,
+    "exchanges": [
+      {
+        "itemCount": 500,
+        "base_id": "65209683",
+        "base_name": "neighborhoodId",
+        "identityValid": true,
+        "distinctIds": [
+          "65209683"
+        ]
+      }
+    ]
+  }
+]

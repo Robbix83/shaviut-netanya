@@ -1,0 +1,12 @@
+name,source_id,official_total_rows,shadow_unique,delta,coverage_percent,safe_surfaces_used,official_street_count_measured
+מרכז העיר,65209717,9972,3282,6690,32.91,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,69
+קריית השרון,65209683,5640,2518,3122,44.65,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,70
+קריית נורדאו,65209705,3281,2265,1016,69.03,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,41
+מע"ר - מרכז עירוני ר,65210243,3273,2329,944,71.16,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,72
+אבו שדיד,65210245,3082,2292,790,74.37,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,26
+עיר ימים,65209703,3060,2325,735,75.98,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,22
+חוף הים והמלונות,65209727,2612,2343,269,89.70,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,19
+מכנס,65210752,2375,2165,210,91.16,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,23
+רמת אפרים,65209736,2266,2082,184,91.88,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,46
+רסקו,65210248,2012,2010,2,99.90,date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1,26
+אזור תעשיה פנחס ספי,65209689,1021,1000,21,97.94,date_desc_1|date_desc_2,30

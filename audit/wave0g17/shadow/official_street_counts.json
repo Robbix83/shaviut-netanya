@@ -1,0 +1,71 @@
+{
+  "results": [
+    {
+      "id": "65209717",
+      "name": "מרכז העיר",
+      "streetCount": 69,
+      "error": null
+    },
+    {
+      "id": "65209683",
+      "name": "קריית השרון",
+      "streetCount": 70,
+      "error": null
+    },
+    {
+      "id": "65209705",
+      "name": "קריית נורדאו",
+      "streetCount": 41,
+      "error": null
+    },
+    {
+      "id": "65210243",
+      "name": "מע\"ר - מרכז עירוני ר",
+      "streetCount": 72,
+      "error": null
+    },
+    {
+      "id": "65210245",
+      "name": "אבו שדיד",
+      "streetCount": 26,
+      "error": null
+    },
+    {
+      "id": "65209703",
+      "name": "עיר ימים",
+      "streetCount": 22,
+      "error": null
+    },
+    {
+      "id": "65209727",
+      "name": "חוף הים והמלונות",
+      "streetCount": 19,
+      "error": null
+    },
+    {
+      "id": "65210752",
+      "name": "מכנס",
+      "streetCount": 23,
+      "error": null
+    },
+    {
+      "id": "65209736",
+      "name": "רמת אפרים",
+      "streetCount": 46,
+      "error": null
+    },
+    {
+      "id": "65210248",
+      "name": "רסקו",
+      "streetCount": 26,
+      "error": null
+    },
+    {
+      "id": "65209689",
+      "name": "אזור תעשיה פנחס ספי",
+      "streetCount": 30,
+      "error": null
+    }
+  ],
+  "total": 444
+}

@@ -1,0 +1,75 @@
+{
+  "sourceId": "65209683",
+  "exchanges": [
+    {
+      "seq": 1,
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "base_id": "65209683",
+      "base_name": "neighborhoodId",
+      "identityValid": true,
+      "distinctIds": [
+        "65209683"
+      ]
+    },
+    {
+      "seq": 2,
+      "itemCount": 1,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "base_id": "72714167",
+      "base_name": "addressId",
+      "identityValid": true,
+      "distinctIds": [
+        "65209683"
+      ],
+      "items": [
+        {
+          "assetId": 81318460,
+          "addressId": 72714167,
+          "polygonId": "64753962",
+          "neighborhoodName": "קריית השרון",
+          "neighborhoodId": 65209683,
+          "address": "הר שגיא 3",
+          "dealDate": "2025-10-26",
+          "dealAmount": 3540000,
+          "parcelNum": "9901-51-75",
+          "dealNature": "דירה בבית קומות",
+          "roomNum": 5,
+          "floor": "קומה ‎6‏",
+          "assetArea": 137.8,
+          "yearBuilt": 2009,
+          "streetCode": 74001205,
+          "settlmentID": 7400,
+          "buildingFloors": 15,
+          "hokHamecher": 0,
+          "trend": {
+            "rate": 0,
+            "years": 0
+          },
+          "prevDeals": [],
+          "ownership": [],
+          "priceSM": 25689,
+          "row_id": 1
+        }
+      ]
+    },
+    {
+      "seq": 3,
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "base_id": "65209683",
+      "base_name": "neighborhoodId",
+      "identityValid": true,
+      "distinctIds": [
+        "65209683"
+      ]
+    }
+  ],
+  "addressScopedRawRows": 1,
+  "addressScopedOnStreetRows": 1,
+  "addressScopedOtherRows": 0,
+  "otherAddressSample": []
+}
