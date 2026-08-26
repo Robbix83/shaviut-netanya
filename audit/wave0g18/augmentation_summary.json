@@ -1,0 +1,217 @@
+{
+  "entitySourceId": "65209683",
+  "officialTotalRows": 5640,
+  "entityBaselineUnique": 2518,
+  "entityBaselineDelta": 3122,
+  "streetsEnumerated": 70,
+  "streetsAttempted": 70,
+  "streetsFetch1Sufficient": 61,
+  "streetsTotalFetchGt1": 2,
+  "streetsWithUnknownFetchDepth": 0,
+  "streetsEmpty": 32,
+  "streetsFailed": 7,
+  "failedStreets": [
+    {
+      "streetId": "74000865",
+      "name": "הרב שמואל הרטום",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 134/481 items match requested sourceId=65209683 (distinct ids present: 65210241,65209683)"
+    },
+    {
+      "streetId": "74001235",
+      "name": "הרב נרייה",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 16/17 items match requested sourceId=65209683 (distinct ids present: 65209683,0)"
+    },
+    {
+      "streetId": "74000826",
+      "name": "הפארק",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 46/217 items match requested sourceId=65209683 (distinct ids present: 65210240,65209683)"
+    },
+    {
+      "streetId": "74000153",
+      "name": "אריאל שרון",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 0/5 items match requested sourceId=65209683 (distinct ids present: 65210388)"
+    },
+    {
+      "streetId": "74001232",
+      "name": "בני רייך",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 79/91 items match requested sourceId=65209683 (distinct ids present: 0,65209683)"
+    },
+    {
+      "streetId": "74001260",
+      "name": "טום לנטוס",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 411/419 items match requested sourceId=65209683 (distinct ids present: 65209683,0)"
+    },
+    {
+      "streetId": "74000607",
+      "name": "האר\"י",
+      "status": "FAILED_IDENTITY",
+      "reason": "IDENTITY_FAIL: ID_MISMATCH: 0/237 items match requested sourceId=65209683 (distinct ids present: 65210244,65210242)"
+    }
+  ],
+  "rawStreetRows": 3986,
+  "normalizedStreetRows": 3986,
+  "normalizationDrops": 0,
+  "streetUniqueWithinStreetCorpus": 3986,
+  "trueDuplicateEntityVsStreet": 1673,
+  "trueDuplicateStreetVsStreet": 0,
+  "ambiguousCollisions": 0,
+  "ambiguousExamples": [],
+  "genuinelyNewStreetRows": 2313,
+  "augmentedUnique": 4831,
+  "deltaAfter": 809,
+  "coverageBefore": 44.645390070921984,
+  "coverageAfter": 85.65602836879432,
+  "completeness": "FAILED",
+  "addressQuality": {
+    "validStreet": 3986,
+    "validHouse": 3986,
+    "streetZero": 0,
+    "missingHouse": 0,
+    "entityBaselineValidAddressRate": 88.99920571882446,
+    "streetCorpusValidAddressRate": 100,
+    "entityBaselineStreetZeroRate": 11.000794281175535,
+    "streetCorpusStreetZeroRate": 0
+  },
+  "dealNature": {
+    "streetRowsWithDealNature": 3945,
+    "distinctStreetDealNatureValues": 19
+  },
+  "prevDeals": {
+    "rawStreetPrevDealEvents": 2659,
+    "uniqueStreetPrevDealEvents": 2659,
+    "newHistoricalPrevDealsFromStreets": 1639
+  },
+  "economics": {
+    "streetRequests": 74,
+    "retries": 0,
+    "totalLiveRequests": 70,
+    "elapsedSeconds": 448.00000000000017,
+    "avgSecondsPerStreet": 6.400000000000002,
+    "requestsPerNewTransaction": 0.030263726761781237
+  },
+  "residualGap": {
+    "streetsWithTotalFetchGt1": 2,
+    "estimatedUnrecoveredFromDeeperFetch": 34,
+    "failedStreetCount": 7,
+    "baselineStreetZeroRatePct": 11.000794281175535,
+    "normalizationDropsThisWave": 0
+  },
+  "fetch2Decision": {
+    "isNextLogicalExperiment": "YES",
+    "candidate": {
+      "streetName": "אברהם שפיגלמן",
+      "streetId": "74000875",
+      "totalRows": 533,
+      "totalFetch": 2,
+      "fetch1Rows": 500
+    }
+  },
+  "scale": {
+    "kiryatStreetCount": 70,
+    "otherPartialStreetCount": 374,
+    "estimatedFetch1RequestsForOtherPartials": 374
+  },
+  "architecture": {
+    "entityPlusStreetArchitecture": "PROVEN",
+    "fullKiryatHasharonTopLevelCompleteness": "FAILED"
+  },
+  "topStreetsByNewRows": [
+    {
+      "streetId": "74000875",
+      "streetName": "אברהם שפיגלמן",
+      "status": "PARTIAL_MORE_FETCHES_INDICATED",
+      "rawRows": 500,
+      "newVsEntityBaseline": 304,
+      "newAfterAllPriorStreets": 304,
+      "cumulativeAugmentedTotal": 4520
+    },
+    {
+      "streetId": "74000847",
+      "streetName": "דגניה",
+      "status": "PARTIAL_MORE_FETCHES_INDICATED",
+      "rawRows": 500,
+      "newVsEntityBaseline": 299,
+      "newAfterAllPriorStreets": 299,
+      "cumulativeAugmentedTotal": 3096
+    },
+    {
+      "streetId": "74001008",
+      "streetName": "ד\"ר יהודה פרח",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 290,
+      "newVsEntityBaseline": 158,
+      "newAfterAllPriorStreets": 158,
+      "cumulativeAugmentedTotal": 4831
+    },
+    {
+      "streetId": "74001217",
+      "streetName": "אשר",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 273,
+      "newVsEntityBaseline": 155,
+      "newAfterAllPriorStreets": 155,
+      "cumulativeAugmentedTotal": 3264
+    },
+    {
+      "streetId": "74001220",
+      "streetName": "יוסף",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 305,
+      "newVsEntityBaseline": 139,
+      "newAfterAllPriorStreets": 139,
+      "cumulativeAugmentedTotal": 3570
+    },
+    {
+      "streetId": "74001252",
+      "streetName": "ברוש",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 161,
+      "newVsEntityBaseline": 123,
+      "newAfterAllPriorStreets": 123,
+      "cumulativeAugmentedTotal": 3745
+    },
+    {
+      "streetId": "74001253",
+      "streetName": "תאשור",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 177,
+      "newVsEntityBaseline": 122,
+      "newAfterAllPriorStreets": 122,
+      "cumulativeAugmentedTotal": 4207
+    },
+    {
+      "streetId": "74001250",
+      "streetName": "נופר",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 154,
+      "newVsEntityBaseline": 114,
+      "newAfterAllPriorStreets": 114,
+      "cumulativeAugmentedTotal": 4085
+    },
+    {
+      "streetId": "74001234",
+      "streetName": "זאב ליבר",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 201,
+      "newVsEntityBaseline": 106,
+      "newAfterAllPriorStreets": 106,
+      "cumulativeAugmentedTotal": 3860
+    },
+    {
+      "streetId": "74001228",
+      "streetName": "אייר",
+      "status": "SUCCESS_ROWS",
+      "rawRows": 112,
+      "newVsEntityBaseline": 90,
+      "newAfterAllPriorStreets": 90,
+      "cumulativeAugmentedTotal": 3967
+    }
+  ],
+  "streetsWithZeroIncrementalValue": 41
+}

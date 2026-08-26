@@ -8,6 +8,8 @@ import {
   inferEntityCategoryHint,
   parseNadlanEntityCoordinates,
   getNadlanEntityCoordinates,
+  parseNadlanStreetCatalog,
+  getOfficialEntityStreets,
   type NadlanEntity,
 } from "../nadlanCatalog";
 
@@ -199,6 +201,79 @@ describe("TEST J — per-entity coordinate parsing (Wave 0G-11)", () => {
   it("propagates a clear error on a non-OK HTTP response", async () => {
     const fakeFetch = (async () => ({ ok: false, status: 404 }) as unknown as Response) as typeof fetch;
     await expect(getNadlanEntityCoordinates("65210195", fakeFetch)).rejects.toThrow(/FETCH_FAILED/);
+  });
+});
+
+describe("TEST K — official street catalog parsing (Wave 0G-18 Phase 3)", () => {
+  function streetPage(streets: unknown = [
+    { id: 74000847, title: "דגניה" },
+    { id: 74001224, title: "טבת" },
+    { id: 74001205, title: "הר שגיא" },
+  ]) {
+    return { ...page(), otherNeighborhoodStreets: streets };
+  }
+
+  it("returns one NadlanStreet per otherNeighborhoodStreets entry, identity is streetId not name", () => {
+    const streets = parseNadlanStreetCatalog(streetPage());
+    expect(streets.length).toBe(3);
+    expect(streets.map((s) => s.streetId).sort()).toEqual(["74000847", "74001205", "74001224"].sort());
+    expect(streets.find((s) => s.streetId === "74000847")?.name).toBe("דגניה");
+  });
+
+  it("throws (does not silently return []) when otherNeighborhoodStreets is missing", () => {
+    expect(() => parseNadlanStreetCatalog(page())).toThrow(/EMPTY_STREET_CATALOG/);
+  });
+
+  it("throws when otherNeighborhoodStreets is an empty array", () => {
+    expect(() => parseNadlanStreetCatalog(streetPage([]))).toThrow(/EMPTY_STREET_CATALOG/);
+  });
+
+  it("throws when raw is not an object", () => {
+    expect(() => parseNadlanStreetCatalog(null)).toThrow(/EMPTY_STREET_CATALOG/);
+  });
+
+  it("throws on a structurally invalid entry (missing id or blank title)", () => {
+    expect(() => parseNadlanStreetCatalog(streetPage([{ title: "X" }]))).toThrow(/INVALID_STREET_ENTRY/);
+    expect(() => parseNadlanStreetCatalog(streetPage([{ id: 1 }]))).toThrow(/INVALID_STREET_ENTRY/);
+    expect(() => parseNadlanStreetCatalog(streetPage([{ id: 1, title: "  " }]))).toThrow(/INVALID_STREET_ENTRY/);
+  });
+
+  it("throws on a duplicate streetId within the same response — never silently collapsed", () => {
+    expect(() =>
+      parseNadlanStreetCatalog(streetPage([{ id: 1, title: "A" }, { id: 1, title: "B" }])),
+    ).toThrow(/DUPLICATE_STREET_ID/);
+  });
+
+  it("does NOT collapse two streets sharing an identical name string but different ids", () => {
+    const streets = parseNadlanStreetCatalog(streetPage([
+      { id: 1, title: "הרצל" },
+      { id: 2, title: "הרצל" },
+    ]));
+    expect(streets.length).toBe(2);
+    expect(streets.map((s) => s.streetId).sort()).toEqual(["1", "2"]);
+  });
+
+  it("accepts a catalog larger than the currently-observed 70 for this entity (no hardcoded count)", () => {
+    const many = Array.from({ length: 100 }, (_, i) => ({ id: i + 1, title: `רחוב ${i + 1}` }));
+    expect(parseNadlanStreetCatalog(streetPage(many)).length).toBe(100);
+    const src = readFileSync(path.join(__dirname, "..", "nadlanCatalog.ts"), "utf8");
+    expect(src).not.toMatch(/===\s*70|length\s*===\s*70|!==\s*70/);
+  });
+
+  it("getOfficialEntityStreets fetches the requested entity's OWN page, not a bootstrap entity's", async () => {
+    const calls: string[] = [];
+    const fakeFetch = (async (url: string) => {
+      calls.push(url);
+      return { ok: true, json: async () => streetPage() } as unknown as Response;
+    }) as typeof fetch;
+    const streets = await getOfficialEntityStreets("65209683", fakeFetch);
+    expect(streets.length).toBe(3);
+    expect(calls).toEqual(["https://data.nadlan.gov.il/api/pages/neighborhood/buy/65209683.json"]);
+  });
+
+  it("propagates a clear error on a non-OK HTTP response, without silently returning an empty street list", async () => {
+    const fakeFetch = (async () => ({ ok: false, status: 500 }) as unknown as Response) as typeof fetch;
+    await expect(getOfficialEntityStreets("65209683", fakeFetch)).rejects.toThrow(/FETCH_FAILED/);
   });
 });
 

@@ -188,6 +188,93 @@ export async function getNadlanEntityCoordinates(
   return parseNadlanEntityCoordinates(raw);
 }
 
+/** A street belonging to one entity, as nadlan.gov.il's own catalog exposes
+ * it via `otherNeighborhoodStreets` (Wave 0G-17 discovery). Identity is the
+ * upstream numeric streetId — never the name, for the same reason
+ * NadlanEntity's identity is sourceId, not name (see module docstring). */
+export interface NadlanStreet {
+  streetId: string;
+  name: string;
+}
+
+interface RawStreetEntry {
+  id?: unknown;
+  title?: unknown;
+}
+
+interface RawNeighborhoodPageWithStreets extends RawNeighborhoodPage {
+  otherNeighborhoodStreets?: unknown;
+}
+
+/**
+ * Parses the `otherNeighborhoodStreets` field of a neighborhood-page
+ * response into a validated, id-preserving street list for that one entity.
+ * Same fail-closed shape as parseNadlanCatalog: throws (never silently
+ * returns a partial/empty list) on a missing/empty field, an invalid entry,
+ * or a duplicate streetId — Wave 0G-18 Phase 3 explicitly requires "no
+ * duplicate source IDs, no silent name-based collapse".
+ */
+export function parseNadlanStreetCatalog(raw: unknown): NadlanStreet[] {
+  if (raw == null || typeof raw !== "object") {
+    throw new Error("EMPTY_STREET_CATALOG: response body is not an object");
+  }
+  const page = raw as RawNeighborhoodPageWithStreets;
+  const list = page.otherNeighborhoodStreets;
+  if (!Array.isArray(list) || list.length === 0) {
+    throw new Error("EMPTY_STREET_CATALOG: otherNeighborhoodStreets is missing, not an array, or empty");
+  }
+
+  const seenIds = new Set<string>();
+  const streets: NadlanStreet[] = [];
+  for (const entry of list as RawStreetEntry[]) {
+    if (entry == null || typeof entry !== "object") {
+      throw new Error("INVALID_STREET_ENTRY: non-object entry in otherNeighborhoodStreets");
+    }
+    const idVal = entry.id;
+    const nameVal = entry.title;
+    if (idVal == null || (typeof idVal !== "number" && typeof idVal !== "string")) {
+      throw new Error(`INVALID_STREET_ENTRY: missing or invalid id (${JSON.stringify(entry)})`);
+    }
+    if (typeof nameVal !== "string" || nameVal.trim().length === 0) {
+      throw new Error(`INVALID_STREET_ENTRY: missing or invalid title (${JSON.stringify(entry)})`);
+    }
+    const streetId = String(idVal);
+    if (seenIds.has(streetId)) {
+      throw new Error(`DUPLICATE_STREET_ID: streetId ${streetId} appears more than once in this catalog response`);
+    }
+    seenIds.add(streetId);
+    streets.push({ streetId, name: nameVal.trim() });
+  }
+
+  return streets;
+}
+
+/**
+ * Fetches ONE entity's own neighborhood-page response (same safe,
+ * unauthenticated GET as getNadlanEntityCoordinates) and returns its
+ * validated street list. Entity-scoped — a street enumerated here belongs
+ * to THIS sourceId's own page, never merged across entities.
+ */
+export async function getOfficialEntityStreets(
+  sourceId: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<NadlanStreet[]> {
+  const url = buildNadlanNeighborhoodPageUrl(sourceId);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!res.ok) {
+    throw new Error(`FETCH_FAILED: GET ${url} -> HTTP ${res.status}`);
+  }
+  const raw = await res.json();
+  return parseNadlanStreetCatalog(raw);
+}
+
 /**
  * Best-effort, NAME-PATTERN-derived category hint for diagnostic/reporting use
  * only. nadlan's own catalog response carries no structured category/type
