@@ -1,0 +1,183 @@
+[2026-08-26T19:48:30.495Z] === WAVE 0G-16 CITYWIDE SHADOW COVERAGE AUDIT (contract=wave0g16-v1) ===
+[2026-08-26T19:48:30.667Z] CATALOG_ENTITY_COUNT=38
+[2026-08-26T19:48:30.669Z] TARGET_ENTITY_COUNT=38
+[2026-08-26T19:48:32.529Z] [1/38] 65209735 גבעת האירוסים — starting live acquisition
+[2026-08-26T19:48:39.649Z]   [retry] navigate+observe-baseline attempt 1/3 failed: NO_TOTAL_ROWS_OBSERVED_AFTER_BASELINE_LOAD
+[2026-08-26T19:48:48.316Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:49:19.031Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:49:25.066Z] [1/38] 65209735 גבעת האירוסים — COMPLETE unique=626 official=626 delta=0 reqs=2 elapsed=52.5s
+[2026-08-26T19:49:26.276Z] [2/38] 65209736 רמת אפרים — starting live acquisition
+[2026-08-26T19:49:32.919Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:50:02.564Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:50:15.816Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:50:45.397Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:50:52.531Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר יורד (attempt 1)
+[2026-08-26T19:51:01.406Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר עולה (attempt 1)
+[2026-08-26T19:51:10.284Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר יורד (attempt 1)
+[2026-08-26T19:51:19.189Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר עולה (attempt 1)
+[2026-08-26T19:51:27.062Z] [2/38] 65209736 רמת אפרים — PARTIAL unique=2082 official=2266 delta=184 reqs=8 elapsed=120.8s
+[2026-08-26T19:51:28.278Z] [3/38] 65209703 עיר ימים — starting live acquisition
+[2026-08-26T19:51:34.740Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:52:04.365Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:52:17.637Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:52:47.197Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:52:53.268Z] [3/38] 65209703 עיר ימים — FAILED unique=1500 official=3060 delta=1560 reqs=5 elapsed=85s
+[2026-08-26T19:52:54.476Z] [4/38] 65209705 קריית נורדאו — starting live acquisition
+[2026-08-26T19:53:00.955Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:53:30.662Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:53:43.921Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:54:13.444Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:54:20.597Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר יורד (attempt 1)
+[2026-08-26T19:54:29.488Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר עולה (attempt 1)
+[2026-08-26T19:54:38.379Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר יורד (attempt 1)
+[2026-08-26T19:54:47.293Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר עולה (attempt 1)
+[2026-08-26T19:54:55.172Z] [4/38] 65209705 קריית נורדאו — PARTIAL unique=2265 official=3281 delta=1016 reqs=8 elapsed=120.7s
+[2026-08-26T19:54:56.377Z] [5/38] 65209711 עין התכלת — starting live acquisition
+[2026-08-26T19:55:02.830Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:55:32.478Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:55:38.516Z] [5/38] 65209711 עין התכלת — COMPLETE unique=998 official=998 delta=0 reqs=2 elapsed=42.1s
+[2026-08-26T19:55:39.722Z] [6/38] 65209717 מרכז העיר — starting live acquisition
+[2026-08-26T19:55:46.371Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:56:16.278Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:56:29.569Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:57:00.070Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:57:06.124Z] [6/38] 65209717 מרכז העיר — FAILED unique=1500 official=9972 delta=8472 reqs=5 elapsed=86.4s
+[2026-08-26T19:57:07.339Z] [7/38] 65209718 נווה איתמר — starting live acquisition
+[2026-08-26T19:57:13.901Z] [7/38] 65209718 נווה איתמר — COMPLETE unique=206 official=206 delta=0 reqs=1 elapsed=6.6s
+[2026-08-26T19:57:15.115Z] [8/38] 65209724 פרדס הגדוד — starting live acquisition
+[2026-08-26T19:57:21.789Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:57:52.388Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:58:05.638Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:58:36.420Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:58:42.494Z] [8/38] 65209724 פרדס הגדוד — COMPLETE unique=1560 official=1560 delta=0 reqs=4 elapsed=87.4s
+[2026-08-26T19:58:43.699Z] [9/38] 65209725 קרית צאנז — starting live acquisition
+[2026-08-26T19:58:50.211Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T19:59:20.828Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T19:59:26.869Z] [9/38] 65209725 קרית צאנז — COMPLETE unique=504 official=504 delta=0 reqs=2 elapsed=43.2s
+[2026-08-26T19:59:28.077Z] [10/38] 65209726 נאות הרצל — starting live acquisition
+[2026-08-26T19:59:34.562Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:00:04.949Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:00:18.191Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:00:48.551Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:00:54.626Z] [10/38] 65209726 נאות הרצל — COMPLETE unique=1868 official=1868 delta=0 reqs=4 elapsed=86.5s
+[2026-08-26T20:00:55.837Z] [11/38] 65209727 חוף הים והמלונות — starting live acquisition
+[2026-08-26T20:01:02.494Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:01:33.121Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:01:46.499Z] [11/38] 65209727 חוף הים והמלונות — FAILED unique=1000 official=2612 delta=1612 reqs=4 elapsed=50.7s
+[2026-08-26T20:01:47.705Z] [12/38] 65209730 נאות גנים - שיכון ות — starting live acquisition
+[2026-08-26T20:01:54.206Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:02:24.492Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:02:30.520Z] [12/38] 65209730 נאות גנים - שיכון ות — COMPLETE unique=951 official=951 delta=0 reqs=2 elapsed=42.8s
+[2026-08-26T20:02:31.722Z] [13/38] 65209683 קריית השרון — starting live acquisition
+[2026-08-26T20:02:38.320Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:03:09.659Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:03:22.938Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:03:53.695Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:04:00.890Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר יורד (attempt 1)
+[2026-08-26T20:04:09.839Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר עולה (attempt 1)
+[2026-08-26T20:04:19.009Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר יורד (attempt 1)
+[2026-08-26T20:04:28.000Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר עולה (attempt 1)
+[2026-08-26T20:04:35.912Z] [13/38] 65209683 קריית השרון — PARTIAL unique=2518 official=5640 delta=3122 reqs=8 elapsed=124.2s
+[2026-08-26T20:04:37.115Z] [14/38] 65209688 רמת יגאל ידין - דורה — starting live acquisition
+[2026-08-26T20:04:43.655Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:05:14.206Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:05:27.566Z] [14/38] 65209688 רמת יגאל ידין - דורה — COMPLETE unique=1376 official=1376 delta=0 reqs=3 elapsed=50.4s
+[2026-08-26T20:05:28.780Z] [15/38] 65209689 אזור תעשיה פנחס ספי — starting live acquisition
+[2026-08-26T20:05:35.361Z] [15/38] 65209689 אזור תעשיה פנחס ספי — FAILED unique=0 official=1021 delta=1021 reqs=2 elapsed=6.6s
+[2026-08-26T20:05:36.566Z] [16/38] 65210190 רמת פולג — starting live acquisition
+[2026-08-26T20:05:42.903Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:06:13.408Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:06:19.422Z] [16/38] 65210190 רמת פולג — COMPLETE unique=807 official=807 delta=0 reqs=2 elapsed=42.8s
+[2026-08-26T20:06:20.638Z] [17/38] 65210191 נאות גולדה — starting live acquisition
+[2026-08-26T20:06:27.172Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:06:57.537Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:07:03.570Z] [17/38] 65210191 נאות גולדה — COMPLETE unique=601 official=601 delta=0 reqs=2 elapsed=42.9s
+[2026-08-26T20:07:04.773Z] [18/38] 65210192 נאות שקד — starting live acquisition
+[2026-08-26T20:07:11.130Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:07:41.371Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:07:54.791Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:08:26.135Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:08:32.231Z] [18/38] 65210192 נאות שקד — COMPLETE unique=1973 official=1973 delta=0 reqs=4 elapsed=87.4s
+[2026-08-26T20:08:33.433Z] [19/38] 65210194 נווה אוז — starting live acquisition
+[2026-08-26T20:08:40.165Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:09:12.680Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:09:18.721Z] [19/38] 65210194 נווה אוז — COMPLETE unique=733 official=733 delta=0 reqs=2 elapsed=45.3s
+[2026-08-26T20:09:19.931Z] [20/38] 65210195 נוף הטיילת — starting live acquisition
+[2026-08-26T20:09:26.890Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:09:57.933Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:10:11.267Z] [20/38] 65210195 נוף הטיילת — COMPLETE unique=1276 official=1276 delta=0 reqs=3 elapsed=51.3s
+[2026-08-26T20:10:12.472Z] [21/38] 65210196 מחנה יעקב — starting live acquisition
+[2026-08-26T20:10:19.076Z] [21/38] 65210196 מחנה יעקב — FAILED unique=0 official=158 delta=158 reqs=2 elapsed=6.6s
+[2026-08-26T20:10:20.291Z] [22/38] 65210235 נאות מנחם בגין — starting live acquisition
+[2026-08-26T20:10:26.931Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:10:57.573Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:11:03.625Z] [22/38] 65210235 נאות מנחם בגין — COMPLETE unique=988 official=988 delta=0 reqs=2 elapsed=43.3s
+[2026-08-26T20:11:04.828Z] [23/38] 65210236 נוף גלים — starting live acquisition
+[2026-08-26T20:11:11.251Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:11:42.113Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:11:55.446Z] [23/38] 65210236 נוף גלים — COMPLETE unique=1213 official=1213 delta=0 reqs=3 elapsed=50.6s
+[2026-08-26T20:11:56.647Z] [24/38] 65210237 גלי הים — starting live acquisition
+[2026-08-26T20:12:03.305Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:12:35.383Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:12:41.451Z] [24/38] 65210237 גלי הים — COMPLETE unique=672 official=672 delta=0 reqs=2 elapsed=44.8s
+[2026-08-26T20:12:42.663Z] [25/38] 65210238 אגמים — starting live acquisition
+[2026-08-26T20:12:49.384Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:13:20.224Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:13:33.547Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:14:04.568Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:14:10.674Z] [25/38] 65210238 אגמים — COMPLETE unique=1804 official=1804 delta=0 reqs=4 elapsed=88s
+[2026-08-26T20:14:11.882Z] [26/38] 65210239 אגם 3 - בתכנון — starting live acquisition
+[2026-08-26T20:14:18.738Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:14:49.552Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:14:55.589Z] [26/38] 65210239 אגם 3 - בתכנון — COMPLETE unique=925 official=925 delta=0 reqs=2 elapsed=43.7s
+[2026-08-26T20:14:56.802Z] [27/38] 65210240 קריית יצחק רבין — starting live acquisition
+[2026-08-26T20:15:03.465Z] [27/38] 65210240 קריית יצחק רבין — FAILED unique=0 official=874 delta=874 reqs=2 elapsed=6.7s
+[2026-08-26T20:15:04.682Z] [28/38] 65210241 משכנות זבולון — starting live acquisition
+[2026-08-26T20:15:11.385Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:15:42.685Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:15:48.729Z] [28/38] 65210241 משכנות זבולון — COMPLETE unique=686 official=686 delta=0 reqs=2 elapsed=44s
+[2026-08-26T20:15:49.933Z] [29/38] 65210242 רמת חן — starting live acquisition
+[2026-08-26T20:15:56.666Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:16:28.441Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:16:34.486Z] [29/38] 65210242 רמת חן — COMPLETE unique=678 official=678 delta=0 reqs=2 elapsed=44.5s
+[2026-08-26T20:16:35.703Z] [30/38] 65210243 מע"ר - מרכז עירוני ר — starting live acquisition
+[2026-08-26T20:16:42.267Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:17:15.342Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:17:28.662Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:17:59.480Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:18:06.659Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר יורד (attempt 1)
+[2026-08-26T20:18:15.631Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר עולה (attempt 1)
+[2026-08-26T20:18:24.590Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר יורד (attempt 1)
+[2026-08-26T20:18:33.516Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר עולה (attempt 1)
+[2026-08-26T20:18:41.413Z] [30/38] 65210243 מע"ר - מרכז עירוני ר — PARTIAL unique=2329 official=3273 delta=944 reqs=8 elapsed=125.7s
+[2026-08-26T20:18:42.618Z] [31/38] 65210244 בן ציון — starting live acquisition
+[2026-08-26T20:18:49.224Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:19:19.270Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:19:25.296Z] [31/38] 65210244 בן ציון — FAILED unique=500 official=1136 delta=636 reqs=3 elapsed=42.7s
+[2026-08-26T20:19:26.498Z] [32/38] 65210245 אבו שדיד — starting live acquisition
+[2026-08-26T20:19:33.159Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:20:03.151Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:20:16.408Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:20:46.399Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:20:53.553Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר יורד (attempt 1)
+[2026-08-26T20:21:02.510Z]   OPTION_NOT_VISIBLE: מחיר העסקה - סדר עולה (attempt 1)
+[2026-08-26T20:21:11.419Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר יורד (attempt 1)
+[2026-08-26T20:21:20.348Z]   OPTION_NOT_VISIBLE: מס' חדרים - סדר עולה (attempt 1)
+[2026-08-26T20:21:28.315Z] [32/38] 65210245 אבו שדיד — PARTIAL unique=2292 official=3082 delta=790 reqs=8 elapsed=121.8s
+[2026-08-26T20:21:29.533Z] [33/38] 65210246 גבע — starting live acquisition
+[2026-08-26T20:21:36.190Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:22:06.475Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:22:19.744Z]   date_asc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:22:50.217Z]   date_asc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:22:56.295Z] [33/38] 65210246 גבע — COMPLETE unique=1550 official=1550 delta=0 reqs=4 elapsed=86.7s
+[2026-08-26T20:22:57.508Z] [34/38] 65210247 נווה שלום — starting live acquisition
+[2026-08-26T20:23:03.993Z] [34/38] 65210247 נווה שלום — COMPLETE unique=108 official=108 delta=0 reqs=1 elapsed=6.5s
+[2026-08-26T20:23:05.230Z] [35/38] 65210248 רסקו — RESUMED (PARTIAL, cached)
+[2026-08-26T20:23:05.231Z] [36/38] 65210752 מכנס — starting live acquisition
+[2026-08-26T20:23:11.694Z] [36/38] 65210752 מכנס — FAILED unique=0 official=2375 delta=2375 reqs=2 elapsed=6.5s
+[2026-08-26T20:23:12.910Z] [37/38] 65210387 קריית יהלום - פארק ת — starting live acquisition
+[2026-08-26T20:23:19.522Z]   date_desc_2: CLICK_BUDGET=53 rowsPerPage=10 (targeting fetch_number=2)
+[2026-08-26T20:23:49.871Z]   date_desc_2: FETCH_NUMBER_2_REACHED_AT_CLICK=50
+[2026-08-26T20:23:55.903Z] [37/38] 65210387 קריית יהלום - פארק ת — COMPLETE unique=609 official=609 delta=0 reqs=2 elapsed=43s
+[2026-08-26T20:23:57.124Z] [38/38] 65210388 אזור תעשיה קריית אל — RESUMED (COMPLETE, cached)
+[2026-08-26T20:23:57.514Z] === CITYWIDE RUN COMPLETE ===

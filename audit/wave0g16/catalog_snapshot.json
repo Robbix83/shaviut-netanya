@@ -1,0 +1,234 @@
+{
+  "fetchedAt": "wave0g16-phase2",
+  "count": 38,
+  "entities": [
+    {
+      "sourceId": "65209735",
+      "name": "גבעת האירוסים",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209736",
+      "name": "רמת אפרים",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209703",
+      "name": "עיר ימים",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209705",
+      "name": "קריית נורדאו",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209711",
+      "name": "עין התכלת",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209717",
+      "name": "מרכז העיר",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209718",
+      "name": "נווה איתמר",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209724",
+      "name": "פרדס הגדוד",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209725",
+      "name": "קרית צאנז",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209726",
+      "name": "נאות הרצל",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209727",
+      "name": "חוף הים והמלונות",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209730",
+      "name": "נאות גנים - שיכון ות",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209683",
+      "name": "קריית השרון",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209688",
+      "name": "רמת יגאל ידין - דורה",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65209689",
+      "name": "אזור תעשיה פנחס ספי",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210190",
+      "name": "רמת פולג",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210191",
+      "name": "נאות גולדה",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210192",
+      "name": "נאות שקד",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210194",
+      "name": "נווה אוז",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210195",
+      "name": "נוף הטיילת",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210196",
+      "name": "מחנה יעקב",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210235",
+      "name": "נאות מנחם בגין",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210236",
+      "name": "נוף גלים",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210237",
+      "name": "גלי הים",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210238",
+      "name": "אגמים",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210239",
+      "name": "אגם 3 - בתכנון",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210240",
+      "name": "קריית יצחק רבין",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210241",
+      "name": "משכנות זבולון",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210242",
+      "name": "רמת חן",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210243",
+      "name": "מע\"ר - מרכז עירוני ר",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210244",
+      "name": "בן ציון",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210245",
+      "name": "אבו שדיד",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210246",
+      "name": "גבע",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210247",
+      "name": "נווה שלום",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210248",
+      "name": "רסקו",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210752",
+      "name": "מכנס",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210387",
+      "name": "קריית יהלום - פארק ת",
+      "source": "nadlan",
+      "settlementId": "7400"
+    },
+    {
+      "sourceId": "65210388",
+      "name": "אזור תעשיה קריית אל",
+      "source": "nadlan",
+      "settlementId": "7400"
+    }
+  ]
+}

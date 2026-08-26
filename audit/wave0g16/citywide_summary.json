@@ -1,0 +1,169 @@
+{
+  "officialEntities": 38,
+  "completeEntities": 27,
+  "partialEntities": 11,
+  "failedEntities": 0,
+  "officialTopLevelRowsSum": 63704,
+  "shadowTopLevelUniqueSum": 49721,
+  "totalTopLevelDelta": 13983,
+  "rawPrevDealEvents": 22846,
+  "uniquePrevDealEvents": 17113,
+  "normalizationDropsSum": 0,
+  "totalShadowTransactionEventsTopLevelOnly": 49721,
+  "totalShadowTransactionEventsCombined": 66834,
+  "completenessDistribution": {
+    "at100": 27,
+    "from99to100": 1,
+    "from95to99": 1,
+    "below95": 9
+  },
+  "partialEntitiesDetail": [
+    {
+      "NAME": "קריית השרון",
+      "SOURCE_ID": "65209683",
+      "OFFICIAL_TOTAL": 5640,
+      "SHADOW_UNIQUE": 2518,
+      "DELTA": 3122,
+      "COVERAGE_PERCENT": "44.65",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "אזור תעשיה פנחס ספי",
+      "SOURCE_ID": "65209689",
+      "OFFICIAL_TOTAL": 1021,
+      "SHADOW_UNIQUE": 1000,
+      "DELTA": 21,
+      "COVERAGE_PERCENT": "97.94",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2"
+    },
+    {
+      "NAME": "עיר ימים",
+      "SOURCE_ID": "65209703",
+      "OFFICIAL_TOTAL": 3060,
+      "SHADOW_UNIQUE": 2325,
+      "DELTA": 735,
+      "COVERAGE_PERCENT": "75.98",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "קריית נורדאו",
+      "SOURCE_ID": "65209705",
+      "OFFICIAL_TOTAL": 3281,
+      "SHADOW_UNIQUE": 2265,
+      "DELTA": 1016,
+      "COVERAGE_PERCENT": "69.03",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "מרכז העיר",
+      "SOURCE_ID": "65209717",
+      "OFFICIAL_TOTAL": 9972,
+      "SHADOW_UNIQUE": 3282,
+      "DELTA": 6690,
+      "COVERAGE_PERCENT": "32.91",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "חוף הים והמלונות",
+      "SOURCE_ID": "65209727",
+      "OFFICIAL_TOTAL": 2612,
+      "SHADOW_UNIQUE": 2343,
+      "DELTA": 269,
+      "COVERAGE_PERCENT": "89.70",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "רמת אפרים",
+      "SOURCE_ID": "65209736",
+      "OFFICIAL_TOTAL": 2266,
+      "SHADOW_UNIQUE": 2082,
+      "DELTA": 184,
+      "COVERAGE_PERCENT": "91.88",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "מע\"ר - מרכז עירוני ר",
+      "SOURCE_ID": "65210243",
+      "OFFICIAL_TOTAL": 3273,
+      "SHADOW_UNIQUE": 2329,
+      "DELTA": 944,
+      "COVERAGE_PERCENT": "71.16",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "אבו שדיד",
+      "SOURCE_ID": "65210245",
+      "OFFICIAL_TOTAL": 3082,
+      "SHADOW_UNIQUE": 2292,
+      "DELTA": 790,
+      "COVERAGE_PERCENT": "74.37",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "רסקו",
+      "SOURCE_ID": "65210248",
+      "OFFICIAL_TOTAL": 2012,
+      "SHADOW_UNIQUE": 2010,
+      "DELTA": 2,
+      "COVERAGE_PERCENT": "99.90",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    },
+    {
+      "NAME": "מכנס",
+      "SOURCE_ID": "65210752",
+      "OFFICIAL_TOTAL": 2375,
+      "SHADOW_UNIQUE": 2165,
+      "DELTA": 210,
+      "COVERAGE_PERCENT": "91.16",
+      "SURFACES_EXHAUSTED": "date_desc_1|date_desc_2|date_asc_1|date_asc_2|price_desc_1|price_asc_1|rooms_desc_1|rooms_asc_1"
+    }
+  ],
+  "requestEfficiency": {
+    "totalNetworkRequests": 146,
+    "totalElapsedSeconds": 2758.3,
+    "avgRequestsPerEntity": 3.84,
+    "depthDistribution": {
+      "afterDesc1": 4,
+      "afterDesc2": 14,
+      "afterAsc1": 4,
+      "afterAsc2": 5,
+      "afterAlternate": 0,
+      "stillPartial": 11
+    }
+  },
+  "addressQuality": {
+    "totalUniqueRows": 49721,
+    "validAddressRows": 38608,
+    "streetZeroRows": 11113,
+    "missingHouseRows": 11113,
+    "validAddressRate": 0.7765,
+    "streetZeroRate": 0.2235,
+    "missingHouseRate": 0.2235
+  },
+  "propertySemantics": {
+    "rowsWithDealNature": 41016,
+    "distinctDealNatureValues": 42,
+    "nofeshRows": 166
+  },
+  "canonicalComparison": {
+    "canonicalRows": 12642,
+    "shadowTopLevelRows": 49721,
+    "shadowHistoricalPrevDeals": 17113,
+    "shadowRowsWithAnyCanonicalMatch": 9744,
+    "canonicalRowsWithAnyShadowMatch": 11044,
+    "shadowTopLevelOnly": 39977,
+    "canonicalOnly": 1598,
+    "shadowSideMatchRate": 0.196,
+    "canonicalSideMatchRate": 0.8736,
+    "neighborhoodLabelMismatchRows": 5977,
+    "dateRangeCheck": {
+      "canonicalMinDate": "1998-02-06",
+      "canonicalMaxDate": "2026-06-08",
+      "shadowMinDate": "1998-01-01",
+      "shadowMaxDate": "2026-07-08"
+    }
+  },
+  "ambiguousCollisionsTotal": 0,
+  "minusZeroRowsTotal": 446,
+  "minusZeroCollisionsTotal": 0
+}
