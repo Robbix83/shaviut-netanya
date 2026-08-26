@@ -6,6 +6,8 @@ import {
   getOfficialNetanyaEntities,
   buildNadlanNeighborhoodPageUrl,
   inferEntityCategoryHint,
+  parseNadlanEntityCoordinates,
+  getNadlanEntityCoordinates,
   type NadlanEntity,
 } from "../nadlanCatalog";
 
@@ -161,6 +163,45 @@ describe("TEST H — GovMap id/source is not used by the new discovery path", ()
   });
 });
 
+describe("TEST J — per-entity coordinate parsing (Wave 0G-11)", () => {
+  it("extracts real numeric x/y from an actual captured nadlan.gov.il response", () => {
+    const raw = JSON.parse(
+      readFileSync(path.join(__dirname, "..", "..", "audit", "wave0g6", "control-raw.json"), "utf8").replace(/^﻿/, ""),
+    );
+    expect(parseNadlanEntityCoordinates(raw)).toEqual({ x: 185657.03695409032, y: 690599.2005000003 });
+  });
+
+  it("extracts x/y when present alongside other fields", () => {
+    expect(parseNadlanEntityCoordinates(page({ x: 100, y: 200 } as any))).toEqual({ x: 100, y: 200 });
+  });
+
+  it("maps a missing or non-numeric x/y to null rather than throwing (coordinates are a display fallback, not an identity field)", () => {
+    expect(parseNadlanEntityCoordinates({})).toEqual({ x: null, y: null });
+    expect(parseNadlanEntityCoordinates({ x: "185657", y: null })).toEqual({ x: null, y: null });
+  });
+
+  it("throws EMPTY_PAGE on a non-object response (unlike x/y absence, a wholly invalid body is still fatal)", () => {
+    expect(() => parseNadlanEntityCoordinates(null)).toThrow(/EMPTY_PAGE/);
+    expect(() => parseNadlanEntityCoordinates("not json")).toThrow(/EMPTY_PAGE/);
+  });
+
+  it("getNadlanEntityCoordinates fetches the requested entity's OWN page, not a bootstrap entity's", async () => {
+    const calls: string[] = [];
+    const fakeFetch = (async (url: string) => {
+      calls.push(url);
+      return { ok: true, json: async () => ({ x: 42, y: 43 }) } as unknown as Response;
+    }) as typeof fetch;
+    const coords = await getNadlanEntityCoordinates("65210248", fakeFetch);
+    expect(coords).toEqual({ x: 42, y: 43 });
+    expect(calls).toEqual(["https://data.nadlan.gov.il/api/pages/neighborhood/buy/65210248.json"]);
+  });
+
+  it("propagates a clear error on a non-OK HTTP response", async () => {
+    const fakeFetch = (async () => ({ ok: false, status: 404 }) as unknown as Response) as typeof fetch;
+    await expect(getNadlanEntityCoordinates("65210195", fakeFetch)).rejects.toThrow(/FETCH_FAILED/);
+  });
+});
+
 describe("inferEntityCategoryHint — diagnostic-only, non-authoritative", () => {
   it("flags industrial zones by name pattern", () => {
     expect(inferEntityCategoryHint("אזור תעשיה קריית אל")).toBe("industrial");
@@ -225,25 +266,47 @@ describe("TEST E/F — shadow harvest script cannot write canonical data or Supa
   });
 });
 
-describe("TEST I — production harvest path is untouched by this wave's additive discovery module", () => {
-  it("scripts/harvest.ts does not import the new nadlanCatalog module (additive, not wired in, this wave)", () => {
+describe("TEST I — production harvest now uses the official catalog as its primary discovery source, layered over the original fallback (Wave 0G-11)", () => {
+  it("scripts/harvest.ts imports the layered discovery module, which itself uses the official nadlan catalog", () => {
     const harvestSrc = readFileSync(path.join(__dirname, "..", "..", "scripts", "harvest.ts"), "utf8");
-    expect(harvestSrc).not.toMatch(/nadlanCatalog/);
+    expect(harvestSrc).toMatch(/from\s+["']\.\.\/lib\/neighborhoodDiscovery["']/);
+    expect(harvestSrc).toMatch(/discoverNeighborhoodsImpl\(/);
+    const discoverySrc = readFileSync(path.join(__dirname, "..", "neighborhoodDiscovery.ts"), "utf8");
+    expect(discoverySrc).toMatch(/from\s+["']\.\/nadlanCatalog["']/);
+    expect(discoverySrc).toMatch(/getOfficialNetanyaEntities\(/);
   });
 
-  it("lib/nadlanCatalog.ts is not imported by any production (non-test, non-audit) application file", () => {
+  it("the original GovMap name-search is kept as a fallback source, not fully replaced (Wave 0G-6 did not prove the official catalog is exhaustive for every special-category entity)", () => {
+    const discoverySrc = readFileSync(path.join(__dirname, "..", "neighborhoodDiscovery.ts"), "utf8");
+    expect(discoverySrc).toMatch(/es\.govmap\.gov\.il/);
+    expect(discoverySrc).toMatch(/SEED_NAMES/);
+  });
+
+  it("neighborhoodDiscovery.ts does not itself write canonical data or Supabase — it only returns discovered entities for the caller to use", () => {
+    const discoverySrc = readFileSync(path.join(__dirname, "..", "neighborhoodDiscovery.ts"), "utf8");
+    expect(discoverySrc).not.toMatch(/from\s+["']@supabase\/supabase-js["']/);
+    expect(discoverySrc).not.toMatch(/createClient\s*\(/);
+    expect(discoverySrc).not.toMatch(/deals\.json/);
+  });
+
+  it("lib/nadlanCatalog.ts is not imported directly by any OTHER production application file — the layered discovery logic stays centralized in lib/neighborhoodDiscovery.ts, not scattered", () => {
     // A lightweight, dependency-free repo scan (pure fs, no shell/grep): any
     // .ts/.tsx file outside __tests__ under lib/app/components that IMPORTS
     // nadlanCatalog (an `import ... from ".../nadlanCatalog"` statement, not
     // merely a comment mentioning its name — lib/nadlanAcquisition.ts's own
     // header comment legitimately explains its relationship to nadlanCatalog.ts
-    // without importing it) would indicate this wave's additive module got
-    // silently wired into the live app/harvest path.
+    // without importing it) other than the one sanctioned caller
+    // (lib/neighborhoodDiscovery.ts) would indicate the module got wired into
+    // more than one place, diverging from the single discovery layer design.
     const fs = require("fs") as typeof import("fs");
     const repoRoot = path.join(__dirname, "..", "..");
     const dirsToScan = ["lib", "app", "components"];
     const offenders: string[] = [];
     const importPattern = /(?:from\s+["'][^"']*nadlanCatalog["']|require\(["'][^"']*nadlanCatalog["']\))/;
+    const allowedImporters = new Set([
+      path.join(repoRoot, "lib", "nadlanCatalog.ts"),
+      path.join(repoRoot, "lib", "neighborhoodDiscovery.ts"),
+    ]);
 
     function walk(dir: string) {
       let entries: import("fs").Dirent[];
@@ -253,7 +316,7 @@ describe("TEST I — production harvest path is untouched by this wave's additiv
         if (entry.isDirectory()) {
           if (entry.name === "__tests__" || entry.name === "node_modules") continue;
           walk(full);
-        } else if (/\.(ts|tsx)$/.test(entry.name) && full !== path.join(repoRoot, "lib", "nadlanCatalog.ts")) {
+        } else if (/\.(ts|tsx)$/.test(entry.name) && !allowedImporters.has(full)) {
           const content = fs.readFileSync(full, "utf8");
           if (importPattern.test(content)) offenders.push(path.relative(repoRoot, full));
         }

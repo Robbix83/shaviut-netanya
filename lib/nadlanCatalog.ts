@@ -138,6 +138,56 @@ export async function getOfficialNetanyaEntities(
   return parseNadlanCatalog(raw);
 }
 
+export interface NadlanEntityCoordinates {
+  x: number | null;
+  y: number | null;
+}
+
+/**
+ * Parses the geographic-center `x`/`y` fields carried by a neighborhood-page
+ * response (sibling fields to `otherNeighborhoods`, proven present in every
+ * captured response — see audit/wave0g6/control-raw.json). Unlike
+ * parseNadlanCatalog, a missing/non-numeric x or y is not fatal — it maps to
+ * `null`, since coordinates are a display/fallback convenience for
+ * normalize(), not an identity-bearing field.
+ */
+export function parseNadlanEntityCoordinates(raw: unknown): NadlanEntityCoordinates {
+  if (raw == null || typeof raw !== "object") {
+    throw new Error("EMPTY_PAGE: response body is not an object");
+  }
+  const page = raw as { x?: unknown; y?: unknown };
+  return {
+    x: typeof page.x === "number" ? page.x : null,
+    y: typeof page.y === "number" ? page.y : null,
+  };
+}
+
+/**
+ * Fetches a SINGLE entity's own neighborhood-page response (by its own
+ * sourceId, not the bootstrap id) and returns its geographic center. Reuses
+ * the same plain, unauthenticated GET proven safe in Wave 0G-6 — no
+ * reCAPTCHA, no browser automation required.
+ */
+export async function getNadlanEntityCoordinates(
+  sourceId: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<NadlanEntityCoordinates> {
+  const url = buildNadlanNeighborhoodPageUrl(sourceId);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+  if (!res.ok) {
+    throw new Error(`FETCH_FAILED: GET ${url} -> HTTP ${res.status}`);
+  }
+  const raw = await res.json();
+  return parseNadlanEntityCoordinates(raw);
+}
+
 /**
  * Best-effort, NAME-PATTERN-derived category hint for diagnostic/reporting use
  * only. nadlan's own catalog response carries no structured category/type

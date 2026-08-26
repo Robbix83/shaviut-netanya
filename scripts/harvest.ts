@@ -21,6 +21,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import zlib from "zlib";
 import type { Deal, Neighborhood } from "../lib/types";
+import { discoverNeighborhoods as discoverNeighborhoodsImpl } from "../lib/neighborhoodDiscovery";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { chromium: chromiumExtra } = require("playwright-extra");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -28,7 +29,6 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 chromiumExtra.use(StealthPlugin());
 
 const SETTLEMENT = "נתניה";
-const ES_BASE = "https://es.govmap.gov.il/TldSearch";
 const POLITE_DELAY_MS = 4000; // המתנה מנומסת בין שכונות/רחובות
 
 // קואורדינטות רחוב מ-street-index.json (נטען פעם אחת לפני האיסוף)
@@ -51,72 +51,25 @@ async function loadStreetCoords() {
   }
 }
 
-const HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-  Accept: "application/json, text/plain, */*",
-  Referer: "https://www.nadlan.gov.il/",
-  Origin: "https://www.nadlan.gov.il",
-};
-
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** מגלה את שכונות נתניה + מזהי UNIQ_ID + מרכזים גאוגרפיים (מקור ציבורי, ללא reCAPTCHA) */
+/**
+ * מגלה את שכונות נתניה + מזהי UNIQ_ID + מרכזים גאוגרפיים.
+ *
+ * Wave 0G-11: המימוש עבר ל-lib/neighborhoodDiscovery.ts, ששכבה 1 שלו היא
+ * הקטלוג הרשמי של nadlan.gov.il עצמו (proven Wave 0G-6/0G-7) במקום חיפוש-שם
+ * בלבד — השיטה הישנה החמיצה בשקט את הישות 65210195 ("נוף הטיילת", המזהה
+ * השני), שם נמצאות 7 העסקאות החסרות של עובד בן עמי 41
+ * (audit/wave0g4/CADASTRAL_ENTITY_RECONCILIATION.md). חיפוש-השם הישן נשמר
+ * כמקור גיבוי, לא הוחלף.
+ */
 async function discoverNeighborhoods(): Promise<Neighborhood[]> {
-  // DetailsByQuery על שם היישוב מחזיר שכבת שכונות; אפשר גם לעבור על אותיות א-ת.
-  // כאן מימוש פשוט: שאילתת "<שם שכונה> נתניה" לרשימת שכונות ידועה מראש, או הרחבה
-  // בעתיד דרך autocomplete. מחזיר מה שנמצא.
-  // 19 שכונות נתניה שאומתו מול ה-API (scripts/discover-neighborhoods.ts)
-  // 23 השכונות הרשמיות לפי עיריית נתניה + שכונות ידועות לפי ID
-  // https://www.netanya.muni.il/City/NB/Neighborhoods/Pages/default.aspx
-  const SEED_NAMES = [
-    "אגמים", "עין התכלת", "עיר ימים", "גלי ים", "גבעת האירוסים",
-    "קריית השרון", "קריית נורדאו", "קריית רבין", "קריית צאנז",
-    "אופק הים", "כוכב הצפון", "משכנות זבולון", "נאות גנים",
-    "נאות הרצל", "נאות שקד", "נווה איתמר", "נוף השרון", "נוף הטיילת",
-    "פרדס הגדוד", "רמת חן", "רמת אפרים",
-    // מרכז העיר: nadlan מכיר "מרכז העיר צפון" (לא "צפון-מזרח") ו"מרכז העיר דרום"
-    "מרכז העיר צפון", "מרכז העיר דרום",
-  ];
-
-  // שכונות שה-API לא מכיר לפי שם — נוסיף לפי ID ישירות מ-neighborhoods.json
+  // שכונות שה-API לא מכיר כלל — נוסיף לפי ID ישירות מ-neighborhoods.json
   const existingNeighborhoods: Neighborhood[] = (() => {
     try { return JSON.parse(require("fs").readFileSync(require("path").join(process.cwd(), "data", "neighborhoods.json"), "utf8")); }
     catch { return []; }
   })();
-  const out: Neighborhood[] = [];
-  for (const name of SEED_NAMES) {
-    const url = `${ES_BASE}/api/DetailsByQuery?query=${encodeURIComponent(name + " נתניה")}&lyrs=4&gid=nadlan`;
-    try {
-      const res = await fetch(url, { headers: HEADERS });
-      if (!res.ok) continue;
-      const ctype = res.headers.get("content-type") || "";
-      if (!ctype.includes("json")) continue;
-      const j: any = await res.json();
-      const hit = j?.data?.NEIGHBORHOOD?.[0];
-      if (hit?.ObjectID) {
-        out.push({
-          id: String(hit.ObjectID),
-          name,
-          settlement: SETTLEMENT,
-          x: hit.X ?? null,
-          y: hit.Y ?? null,
-        });
-      }
-    } catch {
-      /* דלג */
-    }
-    await sleep(800);
-  }
-
-  // מיזוג שכונות ידועות לפי ID (שה-API לא מכיר לפי שם)
-  for (const n of existingNeighborhoods) {
-    if (!out.find((o) => o.id === n.id)) {
-      out.push(n);
-    }
-  }
-
-  return out;
+  return discoverNeighborhoodsImpl({ existingNeighborhoods, onLog: (m) => console.log(m) });
 }
 
 /** מפענח את גוף /deal-data (מחרוזת base64+gzip) למבנה {data:{items:[...]}} */
