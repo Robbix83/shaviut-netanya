@@ -1,7 +1,20 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import path from "path";
-import { buildDirectNeighborhoodUrl, assertDirectIdAcquisitionIdentity } from "../nadlanAcquisition";
+import { buildDirectNeighborhoodUrl, assertDirectIdAcquisitionIdentity, decodeRequestEnvelope } from "../nadlanAcquisition";
+
+/** Builds a fake opaque `##` request body matching the real reverse+base64url
+ * envelope scheme (Wave 0G-5), so decodeRequestEnvelope() can be tested
+ * against a realistic shape without ever touching a real signed request. */
+function fakeOpaqueBody(claims: Record<string, unknown>): string {
+  const b64url = (s: string) => Buffer.from(s, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const header = b64url(JSON.stringify({ alg: "HS256" }));
+  const payload = b64url(JSON.stringify(claims));
+  const sig = "x".repeat(43); // signature segment is never decoded — arbitrary filler
+  const joined = `${header}.${payload}.${sig}`;
+  const reversed = joined.split("").reverse().join("");
+  return JSON.stringify({ "##": reversed });
+}
 
 /**
  * Wave 0G-8: direct-ID acquisition proof. Wave 0G-7 proved name-typed
@@ -207,5 +220,34 @@ describe("Phase 12 / TEST I — Wave 0G-7's catalog parser tests remain green", 
     const catalogSrc = readFileSync(path.join(__dirname, "..", "nadlanCatalog.ts"), "utf8");
     expect(catalogSrc).toMatch(/export function parseNadlanCatalog/);
     expect(catalogSrc).toMatch(/export async function getOfficialNetanyaEntities/);
+  });
+});
+
+describe("decodeRequestEnvelope — Wave 0G-12 (extracted from the previously-duplicated 0G-9/0G-10 inline decoders)", () => {
+  it("decodes base_id/base_name/fetch_number/type_order/domain from a realistic opaque envelope", () => {
+    const body = fakeOpaqueBody({
+      base_id: "65210195", base_name: "neighborhoodId", fetch_number: 2,
+      type_order: "dealDate_down", sk: { domain: "x", exp: 1 }, token: "uuid", exp: 123, domain: "www.nadlan.gov.il",
+    });
+    const env = decodeRequestEnvelope(body)!;
+    expect(env.base_id).toBe("65210195");
+    expect(env.base_name).toBe("neighborhoodId");
+    expect(env.fetch_number).toBe(2);
+    expect(env.type_order).toBe("dealDate_down");
+    expect(env.domain).toBe("www.nadlan.gov.il");
+  });
+
+  it("reports credential field NAMES only, never their values", () => {
+    const body = fakeOpaqueBody({ base_id: "1", sk: { secret: "SHOULD_NEVER_APPEAR" }, token: "SHOULD_NEVER_APPEAR_EITHER", exp: 999 });
+    const env = decodeRequestEnvelope(body)!;
+    expect(env.credentialFieldsPresent.sort()).toEqual(["exp", "sk", "token"]);
+    expect(JSON.stringify(env)).not.toMatch(/SHOULD_NEVER_APPEAR/);
+  });
+
+  it("returns null for missing, non-JSON, or malformed postData rather than throwing", () => {
+    expect(decodeRequestEnvelope(null)).toBeNull();
+    expect(decodeRequestEnvelope(undefined)).toBeNull();
+    expect(decodeRequestEnvelope("not json")).toBeNull();
+    expect(decodeRequestEnvelope(JSON.stringify({ notTheRightField: "x" }))).toBeNull();
   });
 });

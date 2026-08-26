@@ -19,9 +19,9 @@
  */
 import { promises as fs } from "fs";
 import path from "path";
-import zlib from "zlib";
 import type { Deal, Neighborhood } from "../lib/types";
 import { discoverNeighborhoods as discoverNeighborhoodsImpl } from "../lib/neighborhoodDiscovery";
+import { decodeDealData, normalizeDeal } from "../lib/dealNormalization";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { chromium: chromiumExtra } = require("playwright-extra");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -72,107 +72,13 @@ async function discoverNeighborhoods(): Promise<Neighborhood[]> {
   return discoverNeighborhoodsImpl({ existingNeighborhoods, onLog: (m) => console.log(m) });
 }
 
-/** מפענח את גוף /deal-data (מחרוזת base64+gzip) למבנה {data:{items:[...]}} */
-function decodeDealData(text: string): any {
-  try {
-    return JSON.parse(text);
-  } catch {
-    /* לא JSON גולמי — ננסה base64+gzip */
-  }
-  try {
-    const buf = Buffer.from(text.replace(/^"|"$/g, ""), "base64");
-    const unz = zlib.gunzipSync(buf).toString("utf8");
-    return JSON.parse(unz);
-  } catch {
-    return null;
-  }
-}
-
-/** מנקה מספר ממחרוזת ("3,251,000 ₪" → 3251000) */
-function num(v: any): number {
-  if (v == null) return NaN;
-  if (typeof v === "number") return v;
-  const cleaned = String(v).replace(/[^\d.]/g, "");
-  return cleaned ? parseFloat(cleaned) : NaN;
-}
-
-/** ממיר קומה עברית למספר: "שישית" → 6, "קרקע" → 0 */
-const HEBREW_FLOOR: Record<string, number> = {
-  מרתף: -1, מרתפית: -1, קרקע: 0, קרקעית: 0,
-  ראשונה: 1, ראשון: 1, שנייה: 2, שניה: 2, שני: 2,
-  שלישית: 3, שלישי: 3, רביעית: 4, רביעי: 4,
-  חמישית: 5, חמישי: 5, שישית: 6, שישי: 6,
-  שביעית: 7, שביעי: 7, שמינית: 8, שמיני: 8,
-  תשיעית: 9, תשיעי: 9, עשירית: 10, עשירי: 10,
-};
-function parseFloor(v: any): number | null {
-  if (v == null) return null;
-  if (typeof v === "number") return v;
-  const s = String(v).trim();
-  if (/^\d+$/.test(s)) return parseInt(s, 10);
-  return HEBREW_FLOOR[s] ?? null;
-}
-
-/** מפרסר "שם רחוב 12" → { street, houseNumber } */
-function parseAddress(addr: string | null): { street: string | null; houseNumber: string | null } {
-  if (!addr) return { street: null, houseNumber: null };
-  const m = addr.trim().match(/^(.+?)\s+(\d+[א-ת]?)$/);
-  if (m) return { street: m[1], houseNumber: m[2] };
-  return { street: addr.trim(), houseNumber: null };
-}
-
-/** מסווג סוג נכס מתוך תיאור העסקה (dealNature) */
-function classify(dealNature: string | null): "apartment" | "house" | "land" {
-  const s = (dealNature || "").trim();
-  if (/מגרש|קרקע|מקרקעין|חקלאי|נחלה/.test(s)) return "land";
-  if (/דיר[הת]/.test(s)) return "apartment"; // דירה בבית קומות, דירת גג, דירת גן — לפני בדיקת בית
-  if (/קוטג|צמוד|דו ?משפחת|וילה|חד ?משפחת/.test(s)) return "house";
-  return "apartment";
-}
-
-/** ממפה רשומת עסקה גולמית של נדל"ן ל-Deal מנורמל */
+/**
+ * מנרמל רשומת עסקה גולמית ל-Deal, תוך שימוש בקואורדינטות הרחוב שנטענו.
+ * Wave 0G-12: המימוש עצמו עבר ל-lib/dealNormalization.ts (משותף עם ה-shadow
+ * rebuild pilot) — זהו wrapper דק בלבד שמעביר את streetCoords של הקובץ הזה.
+ */
 function normalize(raw: any, n: Neighborhood): Deal | null {
-  const price = num(raw.dealAmount ?? raw.DEALAMOUNT ?? raw.price);
-  if (!price || !Number.isFinite(price)) return null;
-  const builtArea = num(raw.assetArea ?? raw.ASSETAREA ?? raw.dealNatureArea);
-  const plotArea = num(raw.plotArea ?? raw.landArea ?? raw.parcelArea ?? raw.gushArea);
-  const rooms = num(raw.roomNum ?? raw.assetRoomNum);
-  const dateRaw = raw.dealDate ?? raw.DEALDATETIME ?? raw.dealDateTime;
-  const dealDate = dateRaw ? new Date(dateRaw).toISOString().slice(0, 10) : "";
-  const propertyType = classify(raw.dealNature ?? null);
-
-  // לקרקע: השטח הוא שטח המגרש; לדירה/בית: שטח בנוי (+ מגרש אם קיים).
-  const isLand = propertyType === "land";
-  const areaSqm = isLand ? null : Number.isFinite(builtArea) && builtArea > 0 ? builtArea : null;
-  let plotSqm: number | null = Number.isFinite(plotArea) && plotArea > 0 ? plotArea : null;
-  if (isLand && plotSqm == null && Number.isFinite(builtArea) && builtArea > 0) plotSqm = builtArea;
-
-  // מחיר למ"ר: לקרקע לפי מגרש, אחרת לפי שטח בנוי
-  const ppsqmBase = isLand ? plotSqm : areaSqm;
-  const pricePerSqm = ppsqmBase && ppsqmBase > 0 ? Math.round(price / ppsqmBase) : null;
-
-  return {
-    id: `${n.id}-${raw.keyValue ?? raw.dealId ?? `${dealDate}-${price}-${builtArea || plotArea}`}`,
-    dealDate,
-    price,
-    propertyType,
-    rooms: !isLand && Number.isFinite(rooms) ? rooms : null,
-    areaSqm,
-    plotSqm,
-    floor: parseFloor(raw.floor ?? raw.floorNo ?? raw.FLOORNO),
-    yearBuilt: raw.yearBuilt != null ? Number(raw.yearBuilt) : raw.buildingYear != null ? Number(raw.buildingYear) : null,
-    dealNature: raw.dealNature ?? null,
-    // כתובת: השדה האמיתי הוא "address" בפורמט "שם רחוב מספר"
-    ...(() => { const p = parseAddress(raw.address ?? null); return { address: raw.address ?? null, street: p.street, houseNumber: p.houseNumber }; })(),
-    neighborhoodId: n.id,
-    neighborhood: n.name,
-    settlement: SETTLEMENT,
-    // קואורדינטות ברמת רחוב (אם ידועות) — חיוני לסינון בניין/רחוב בחישוב השווי
-    ...(raw.streetName && streetCoords[raw.streetName]
-      ? streetCoords[raw.streetName]
-      : { x: n.x, y: n.y }),
-    pricePerSqm,
-  };
+  return normalizeDeal(raw, n, streetCoords);
 }
 
 /** פותח דף חדש עם listener ל-deal-data — משמש לשתי שיטות השאיבה */

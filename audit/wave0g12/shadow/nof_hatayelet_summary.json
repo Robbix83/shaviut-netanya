@@ -1,0 +1,62 @@
+{
+  "sourceId": "65210195",
+  "label": "nof_hatayelet",
+  "entityName": "נוף הטיילת",
+  "firstContract": {
+    "sourceId": "65210195",
+    "totalRows": 1276,
+    "totalFetch": 3,
+    "totalPage": 128
+  },
+  "exchanges": [
+    {
+      "seq": 1,
+      "contract": {
+        "sourceId": "65210195",
+        "totalRows": 1276,
+        "totalFetch": 3,
+        "totalPage": 128
+      },
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "identityValid": true
+    },
+    {
+      "seq": 2,
+      "contract": {
+        "sourceId": "65210195",
+        "totalRows": 1276,
+        "totalFetch": 3,
+        "totalPage": 128
+      },
+      "itemCount": 500,
+      "fetchNumber": 2,
+      "typeOrder": "dealDate_down",
+      "identityValid": true
+    },
+    {
+      "seq": 3,
+      "contract": {
+        "sourceId": "65210195",
+        "totalRows": 1276,
+        "totalFetch": 3,
+        "totalPage": 128
+      },
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_up",
+      "identityValid": true
+    }
+  ],
+  "rawFetchedRows": 1500,
+  "dedup": {
+    "rawCount": 1500,
+    "uniqueCount": 1276,
+    "collisions": 224
+  },
+  "earliestDate": "1998-06-30",
+  "latestDate": "2026-05-16",
+  "networkRequests": 3,
+  "elapsedSeconds": 49
+}

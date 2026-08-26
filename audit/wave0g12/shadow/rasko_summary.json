@@ -1,0 +1,49 @@
+{
+  "sourceId": "65210248",
+  "label": "rasko",
+  "entityName": "רסקו",
+  "firstContract": {
+    "sourceId": "65210248",
+    "totalRows": 2012,
+    "totalFetch": 5,
+    "totalPage": 202
+  },
+  "exchanges": [
+    {
+      "seq": 1,
+      "contract": {
+        "sourceId": "65210248",
+        "totalRows": 2012,
+        "totalFetch": 5,
+        "totalPage": 202
+      },
+      "itemCount": 500,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "identityValid": true
+    },
+    {
+      "seq": 2,
+      "contract": {
+        "sourceId": "65210248",
+        "totalRows": 2012,
+        "totalFetch": 5,
+        "totalPage": 202
+      },
+      "itemCount": 500,
+      "fetchNumber": 2,
+      "typeOrder": "dealDate_down",
+      "identityValid": true
+    }
+  ],
+  "rawFetchedRows": 1000,
+  "dedup": {
+    "rawCount": 1000,
+    "uniqueCount": 1000,
+    "collisions": 0
+  },
+  "earliestDate": "2016-09-07",
+  "latestDate": "2026-06-15",
+  "networkRequests": 2,
+  "elapsedSeconds": 99
+}

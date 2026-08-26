@@ -1,0 +1,4 @@
+entity,source_id,official_total_rows,total_fetch,fetches_used,shadow_unique_rows,delta,complete,earliest,latest,valid_address_rate,raw_dealnature_rate,network_requests,elapsed_seconds
+Nof Hatayelet,65210195,1276,3,"1,2,ascending",1276,0,YES,1998-06-30,2026-05-16,93.1%,94.3%,3,49.0
+Rasko,65210248,2012,5,"1,2",1000,1012,NO (PARTIAL - login wall blocks fetch 3+, not yet proven safe),2016-09-07,2026-06-15,86.4%,80.8%,2,99.0
+Neve Shalom (Entity C),65210247,108,1,1,108,0,YES,1998-01-25,2025-11-11,85.2%,96.3%,1,7.4

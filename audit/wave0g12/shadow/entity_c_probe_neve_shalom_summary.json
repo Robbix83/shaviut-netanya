@@ -1,0 +1,36 @@
+{
+  "sourceId": "65210247",
+  "label": "entity_c_probe_neve_shalom",
+  "entityName": "נווה שלום",
+  "firstContract": {
+    "sourceId": "65210247",
+    "totalRows": 108,
+    "totalFetch": 1,
+    "totalPage": 11
+  },
+  "exchanges": [
+    {
+      "seq": 1,
+      "contract": {
+        "sourceId": "65210247",
+        "totalRows": 108,
+        "totalFetch": 1,
+        "totalPage": 11
+      },
+      "itemCount": 108,
+      "fetchNumber": 1,
+      "typeOrder": "dealDate_down",
+      "identityValid": true
+    }
+  ],
+  "rawFetchedRows": 108,
+  "dedup": {
+    "rawCount": 108,
+    "uniqueCount": 108,
+    "collisions": 0
+  },
+  "earliestDate": "1998-01-25",
+  "latestDate": "2025-11-11",
+  "networkRequests": 1,
+  "elapsedSeconds": 7.4
+}
