@@ -120,25 +120,33 @@ corrections):**
    separate times, reappeared each time" is not independently verified by
    the script; it is equally consistent with one persistent, never-actually-
    dismissed modal being detected 3 times.
-3. A supplementary attempt was made to test the row-1000 hypothesis on a
+3. A first supplementary attempt to test the row-1000 hypothesis on a
    SECOND, independent entity (נוף הטיילת, sourceId=65210195, total_rows=1276)
-   in a fresh script invocation. It did **not** cleanly replicate or refute
-   the hypothesis: the very first click attempt (before even the baseline
-   fetch_number=1 response had time to be confirmed) hit a *different*
-   modal — "Token verification failed" / "רענן דף" ("refresh page") — which
-   does not match the login-wall text pattern at all, followed on
-   subsequent attempts by modals that DID match. This looks like anti-bot
-   session/token strain from having already run 5 live automated browser
-   sessions against the same profile in quick succession that day, not a
-   clean depth-based test. Per this wave's "no endpoint hammering" rule,
-   further repeated live attempts were **not** pursued to chase a clean
-   replication.
+   hit a *different* modal on the very first click — "Token verification
+   failed" / "רענן דף" ("refresh page") — most likely anti-bot session/token
+   strain from having already run 5 live automated browser sessions against
+   the same profile in quick succession that day. That attempt was
+   inconclusive and is preserved as `fetch_depth_exchanges_nof_hatayelet.json`
+   (empty array).
+4. **UPDATE — clean confirmation obtained.** A second, separately-timed
+   retest on the same entity (`fetch_depth_exchanges_nof_hatayelet_retest.json`)
+   loaded normally: baseline fetch_number=1 (500 rows, 2014-09-23..2026-05-16)
+   and the proven fetch_number=1→2 transition (500 rows,
+   2006-12-26..2014-09-18) both completed cleanly, exactly as in Wave 0G-9.
+   Continuing the SAME real "הבא" clicks past that point hit the identical
+   login-wall modal (`לצפייה בנתונים נוספים` / `התחברות`) at click ~101 —
+   the same click depth, same modal text, same 3-consecutive-detection
+   pattern as רסקו.
 
-**Net honest conclusion:** the row-1000 login-wall observation is real and
-specific to at least one entity (רסקו) on one date, precisely located at the
-2-fetch boundary — but whether it is a universal, entity-independent
-anonymous-session cap, or something narrower (e.g. per-session request
-count, or unrelated to depth at all), is **UNKNOWN**, not proven either way.
+**Net conclusion (upgraded from the prior draft's "UNKNOWN"):** the
+row-1000 / 2-fetch-boundary login wall is now confirmed on **two
+independent entities** with different `total_rows` (1276 and 2012) at the
+**same click depth** (~101, i.e. ~1000 rows / 2 fetches loaded) — evidence
+this is a request-count- or rows-loaded-based anonymous-session gate, not
+an artifact of one entity or one degraded session. It remains unproven
+whether the gate is a hard, permanent 2-fetch cap for every anonymous
+session, or something that varies by account/IP/time — no third entity or
+extended-wait retest was performed, per the "no endpoint hammering" rule.
 
 ## Phase 4 — Optional final fetch boundary
 
@@ -550,10 +558,12 @@ CHECKPOINT_WRITES=0
   transactions per neighborhood have been silently invisible to every
   measurement taken so far, including this wave's own Phase 2/3 row counts
   (which, like all prior waves, count top-level rows only).
-- Fetch_number depth beyond 2 was not proven for רסקו in this wave — a
+- Fetch_number depth beyond 2 was not proven for either tested entity — a
   genuine, reproducible, site-native login wall blocked further anonymous
-  UI-driven continuation at ~page 101/202. This was discovered and reported
-  honestly rather than bypassed; no authentication was attempted.
+  UI-driven continuation at click ~101 (≈row 1000, exactly the 2-fetch
+  boundary) for both רסקו and, on a clean retest, נוף הטיילת too. This was
+  discovered and reported honestly rather than bypassed; no authentication
+  was attempted.
 - Phase 9-11's zero-collision result for `parcelNum + dealDate + dealAmount`
   is proven only across ~1,362 real transactions spanning two neighborhoods
   (נוף הטיילת and רסקו) — not proven citywide, and Phase 12 shows the
@@ -569,9 +579,50 @@ CHECKPOINT_WRITES=0
   independently verified afterward at exactly 500 rows each (Phase 6's
   null-rate table is not built on a truncated sample), but the script has no
   built-in guard against a future run silently capturing a partial page.
-- A supplementary live attempt to test whether the Phase 3 login wall
+- A first supplementary live attempt to test whether the Phase 3 login wall
   triggers at the same row-1000 depth for a second, independent entity was
-  inconclusive — it hit a different, session/token-shaped modal instead of a
-  clean replication, most likely due to running 5 live automated browser
-  sessions against the same profile in quick succession. No further live
-  attempts were made, per this wave's "no endpoint hammering" rule.
+  inconclusive (session/token-shaped modal, likely from running 5 live
+  automated browser sessions against the same profile in quick succession).
+  A second, separately-timed retest cleanly confirmed the same wall on that
+  second entity at the same click depth — see the Addendum below.
+
+## Addendum — post-wave follow-up (informal, per user direction to continue
+without the full phase/ECC template)
+
+**1. Login-wall universality — now confirmed on two independent entities.**
+The clean retest (`audit/wave0g10/fetch_depth_exchanges_nof_hatayelet_retest.json`)
+loaded fetch_number 1 and 2 normally for נוף הטיילת (matching Wave 0G-9's
+figures exactly), then hit the identical `לצפייה בנתונים נוספים` /
+`התחברות` modal at click ~101 — same depth, same text, same 3-detection
+pattern as רסקו. This is now evidence of a request-count- or rows-loaded-
+based anonymous-session gate (not a one-entity or one-degraded-session
+artifact), though still not proven as a universal, permanent 2-fetch cap
+for every anonymous session (no third entity, no extended-wait retest, no
+different IP/account tested).
+
+**2. Ben Ami 41 — checked whether Phase 7's `prevDeals` discovery explains
+the missing transactions. It does NOT.** Using the concrete facts from
+Wave 0G-4 (`audit/wave0g4/CADASTRAL_ENTITY_RECONCILIATION.md`): the 7 known
+Ben Ami 41 transactions belong to `neighborhoodId=65210195` (`נוף הטיילת`)
+— the exact entity already captured in this wave's own raw sample — with
+`parcelNum` values `8252-156-54` through `8252-156-60`. All 7 were found
+as **plain top-level rows** in `audit/wave0g10/raw_items_sample_nof_hatayelet.json`,
+each with `prevDeals: []` (no nested history — first/only sale). All 7 were
+re-confirmed **still absent** from `data/deals.json` today (spot-checked by
+date+price against all 12,642 canonical rows). One data-drift note: parcelNum
+`8252-156-54`'s `dealNature` now reads `ללא תיכנון` on the live site,
+vs. `דירת נופש` when Wave 0G-4 first captured it.
+
+**Conclusion:** the Ben Ami 41 gap is NOT an instance of this wave's
+prevDeals-nesting risk. It remains exactly what Wave 0G-4 already diagnosed:
+a pure **discovery-scope gap** — `discoverNeighborhoods()` in
+`scripts/harvest.ts` never enumerated `neighborhoodId=65210195` in the first
+place (it keeps only the first geocoding hit per seed name, which resolved
+to a different stored id, `66239231`, for the same neighborhood name). The
+proven fix (`lib/nadlanCatalog.ts` + `lib/nadlanAcquisition.ts`, from Waves
+0G-7/0G-8) is available but unapplied — applying it means a canonical
+rebuild, which remains out of scope without explicit authorization.
+
+No canonical writes, no Supabase writes, no deployment, no schema changes
+were made in this addendum. `data/deals.json` SHA-256 reconfirmed unchanged:
+`18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f`.
