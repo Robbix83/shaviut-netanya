@@ -1,0 +1,8 @@
+sort_label,type_order,fetch_number,rows,already_known,new_rows,cumulative_unique,delta_to_2012,wave,notes
+DESC (baseline),dealDate_down,"1,2",1000,n/a,1000,1000,1012,0G-12/13,Stored output re-used
+ASC,dealDate_up,"1,2",1000,n/a,0 (zero overlap with DESC),2000,12,0G-13,New live capture
+Price desc,dealAmount_down,1,500,498,2,2002,10,0G-14,New live capture
+Rooms desc,roomNum_down,1,500,not separately isolated (combined dedup),3 additional (5 total combined with price),2005,7,0G-14,New live capture
+Price asc,dealAmount_up,1,500,500,0,2005,7,0G-15,New live capture; 0 new rows, fully overlapping prior surfaces
+Rooms asc,roomNum_up,1,500,495,5,2010,2,0G-15,New live capture; all 6 sort options found by Wave 0G-14's UI scan now tested
+NO_FURTHER_KNOWN_SURFACE,n/a,n/a,n/a,n/a,n/a,n/a,n/a,0G-15,All 6 sort options found by a heuristic DOM scan have been tested; this is not proof the scan was exhaustive (ECC finding) -- no further surface is currently KNOWN, not provably closed
