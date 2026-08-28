@@ -1,0 +1,73 @@
+{
+  "mixedBatches": 7,
+  "rawRows": 1467,
+  "classA_parent": 686,
+  "classB_zero": 21,
+  "classC_foreign": 760,
+  "classD_other": 0,
+  "perStreet": [
+    {
+      "streetId": "74000865",
+      "streetName": "הרב שמואל הרטום",
+      "rawRows": 481,
+      "classA_parent": 134,
+      "classB_zero": 0,
+      "classC_foreign": 347,
+      "classD_other": 0
+    },
+    {
+      "streetId": "74001235",
+      "streetName": "הרב נרייה",
+      "rawRows": 17,
+      "classA_parent": 16,
+      "classB_zero": 1,
+      "classC_foreign": 0,
+      "classD_other": 0
+    },
+    {
+      "streetId": "74000826",
+      "streetName": "הפארק",
+      "rawRows": 217,
+      "classA_parent": 46,
+      "classB_zero": 0,
+      "classC_foreign": 171,
+      "classD_other": 0
+    },
+    {
+      "streetId": "74000153",
+      "streetName": "אריאל שרון",
+      "rawRows": 5,
+      "classA_parent": 0,
+      "classB_zero": 0,
+      "classC_foreign": 5,
+      "classD_other": 0
+    },
+    {
+      "streetId": "74001232",
+      "streetName": "בני רייך",
+      "rawRows": 91,
+      "classA_parent": 79,
+      "classB_zero": 12,
+      "classC_foreign": 0,
+      "classD_other": 0
+    },
+    {
+      "streetId": "74001260",
+      "streetName": "טום לנטוס",
+      "rawRows": 419,
+      "classA_parent": 411,
+      "classB_zero": 8,
+      "classC_foreign": 0,
+      "classD_other": 0
+    },
+    {
+      "streetId": "74000607",
+      "streetName": "האר\"י",
+      "rawRows": 237,
+      "classA_parent": 0,
+      "classB_zero": 0,
+      "classC_foreign": 237,
+      "classD_other": 0
+    }
+  ]
+}

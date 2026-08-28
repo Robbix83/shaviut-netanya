@@ -33,12 +33,25 @@ import { promises as fs } from "fs";
 import path from "path";
 import { pathToFileURL } from "url";
 import { getOfficialEntityStreets, type NadlanStreet } from "../lib/nadlanCatalog";
-import { assertDirectIdAcquisitionIdentity, decodeRequestEnvelope } from "../lib/nadlanAcquisition";
+import { decodeRequestEnvelope } from "../lib/nadlanAcquisition";
 import { decodeDealData } from "../lib/dealNormalization";
 import { toShadowDeal, parsePaginationContract, assertSafeShadowOutputPath, type ShadowDeal, type PaginationContract } from "../lib/shadowRebuild";
+import { classifyRowForAcceptance, classifyBatchForAcceptance, classifyBatchStatus, type RowAcceptanceCounts } from "../lib/streetRowAcceptance";
 import { extractPrevDealEvents, type RawPrevDealEvent } from "./audit-wave0g16-citywide-shadow";
 import type { Neighborhood } from "../lib/types";
 
+// Wave 0G-20 deliberately does NOT bump this: audit-wave0g18-aggregate.ts
+// and audit-wave0g19-replay.ts both import this constant and compare it
+// against the 70 already-committed street result files' own
+// runContractVersion field — bumping it would break both of those
+// already-working, already-committed scripts' ability to reprocess the
+// existing artifacts. Resume-safety for the ONE status this wave actually
+// changes (the old FAILED_IDENTITY, replaced by FAILED_NO_TRUSTED_ROWS) is
+// unaffected either way: FAILED_* statuses were never in RESUMABLE_STATUSES
+// to begin with, so they were always re-fetched fresh regardless of version
+// string. The formerly-clean SUCCESS_ROWS/SUCCESS_EMPTY/
+// PARTIAL_MORE_FETCHES_INDICATED results remain valid under the new logic
+// unchanged (they were already 100% all-parent batches).
 export const RUN_CONTRACT_VERSION = "wave0g18-v1";
 export const PARENT_SOURCE_ID = "65209683"; // קריית השרון
 const SHADOW_DIR_REL = "audit/wave0g18/shadow";
@@ -53,11 +66,12 @@ const INTER_STREET_DELAY_MS = 1200;
 const POST_NAV_SETTLE_MS = 6000;
 
 export type StreetStatus =
-  | "SUCCESS_ROWS"
+  | "SUCCESS_ROWS" // all rows in the batch were explicit parent-id matches (formerly the ONLY success shape)
+  | "SUCCESS_MIXED_PARTIAL" // Wave 0G-20 NEW: batch had SOME accepted parent rows AND some rejected (zero/foreign/missing/malformed) rows — never silently reported as SUCCESS_ROWS
   | "SUCCESS_EMPTY"
   | "PARTIAL_MORE_FETCHES_INDICATED"
   | "FAILED_NETWORK"
-  | "FAILED_IDENTITY"
+  | "FAILED_NO_TRUSTED_ROWS" // Wave 0G-20: replaces the old whole-batch FAILED_IDENTITY — the batch had rows, but NONE were an explicit parent-id match (all zero/foreign/missing/malformed)
   | "FAILED_NORMALIZATION"
   | "FAILED_OTHER";
 
@@ -77,6 +91,10 @@ export interface StreetResult {
   rowsMatchingRequestedStreet: number;
   rowsOtherStreetSameEntity: number;
   rowsOtherEntity: number;
+  // Wave 0G-20: per-row identity accounting for THIS street's batch. Always
+  // populated when rowsReturned>0 (null for a pre-classification failure
+  // like a network/envelope error, where classification never ran).
+  rowAcceptanceCounts: RowAcceptanceCounts | null;
   earliestDate: string | null;
   latestDate: string | null;
   networkRequests: number;
@@ -90,7 +108,7 @@ export interface StreetResult {
   prevDealNormalizationDrops: number;
 }
 
-const RESUMABLE_STATUSES: StreetStatus[] = ["SUCCESS_ROWS", "SUCCESS_EMPTY", "PARTIAL_MORE_FETCHES_INDICATED"];
+const RESUMABLE_STATUSES: StreetStatus[] = ["SUCCESS_ROWS", "SUCCESS_MIXED_PARTIAL", "SUCCESS_EMPTY", "PARTIAL_MORE_FETCHES_INDICATED"];
 
 function log(msg: string) {
   console.log(`[${new Date().toISOString()}] ${msg}`);
@@ -158,9 +176,9 @@ export function classifyStreetExchange(
   envelope: ReturnType<typeof decodeRequestEnvelope>,
   respItems: any[],
   decoded: any,
-): { status: StreetStatus; failureReason: string | null; fetchNumberUsed: number | null; rows: ShadowDeal[]; normalizationDrops: number; contract: PaginationContract; rowsMatchingRequestedStreet: number; rowsOtherStreetSameEntity: number; rowsOtherEntity: number; prevDealEvents: RawPrevDealEvent[]; prevDealNormalizationDrops: number } {
+): { status: StreetStatus; failureReason: string | null; fetchNumberUsed: number | null; rows: ShadowDeal[]; normalizationDrops: number; contract: PaginationContract; rowsMatchingRequestedStreet: number; rowsOtherStreetSameEntity: number; rowsOtherEntity: number; rowAcceptanceCounts: RowAcceptanceCounts | null; prevDealEvents: RawPrevDealEvent[]; prevDealNormalizationDrops: number } {
   const contract = parsePaginationContract(decoded, parentSourceId);
-  const empty = { rows: [] as ShadowDeal[], normalizationDrops: 0, rowsMatchingRequestedStreet: 0, rowsOtherStreetSameEntity: 0, rowsOtherEntity: 0, prevDealEvents: [] as RawPrevDealEvent[], prevDealNormalizationDrops: 0 };
+  const empty = { rows: [] as ShadowDeal[], normalizationDrops: 0, rowsMatchingRequestedStreet: 0, rowsOtherStreetSameEntity: 0, rowsOtherEntity: 0, rowAcceptanceCounts: null as RowAcceptanceCounts | null, prevDealEvents: [] as RawPrevDealEvent[], prevDealNormalizationDrops: 0 };
 
   if (!envelope) {
     return { status: "FAILED_OTHER", failureReason: "UNDECODABLE_ENVELOPE", fetchNumberUsed: null, contract, ...empty };
@@ -179,50 +197,78 @@ export function classifyStreetExchange(
   if (envelope.fetch_number != null && envelope.fetch_number !== 1) {
     return { status: "FAILED_OTHER", failureReason: `UNEXPECTED_FETCH_NUMBER: ${envelope.fetch_number} (this wave requests fetch_number=1 only)`, fetchNumberUsed: envelope.fetch_number, contract, ...empty };
   }
-
-  const identity = assertDirectIdAcquisitionIdentity(respItems, parentSourceId);
-  if (!identity.valid) {
-    if (identity.error === "EMPTY_RESULT") {
-      return { status: "SUCCESS_EMPTY", failureReason: null, fetchNumberUsed: 1, contract, ...empty };
-    }
-    // ID_MISMATCH or MISSING_IDENTITY: wrong-parent-entity contamination —
-    // fail this street closed (Phase 8 requirement), never silently filter.
-    // ECC code-reviewer finding: use identity's own matching/total counts,
-    // not respItems.length — a MIXED batch (some correct, some wrong) would
-    // otherwise overcount every row as other-entity, distorting Phase 8
-    // metrics even though the pass/fail decision itself is unaffected.
-    const otherEntityCount = identity.totalCount - identity.matchingCount;
-    return { status: "FAILED_IDENTITY", failureReason: `IDENTITY_FAIL: ${identity.error}`, fetchNumberUsed: 1, contract, ...empty, rowsOtherEntity: otherEntityCount };
+  if (respItems.length === 0) {
+    return { status: "SUCCESS_EMPTY", failureReason: null, fetchNumberUsed: 1, contract, ...empty };
   }
 
-  const shadowRows = respItems.map((r: any) => toShadowDeal(r, neighborhood, parentSourceId)).filter((d: ShadowDeal | null): d is ShadowDeal => d !== null);
-  const normalizationDrops = respItems.length - shadowRows.length;
-  if (respItems.length > 0 && shadowRows.length === 0) {
-    return { status: "FAILED_NORMALIZATION", failureReason: `ALL_ROWS_DROPPED_BY_NORMALIZATION: ${respItems.length} raw rows, 0 survived`, fetchNumberUsed: 1, contract, ...empty, normalizationDrops };
+  // Wave 0G-20: PER-ROW identity acceptance, replacing the old whole-batch
+  // all-or-nothing check (assertDirectIdAcquisitionIdentity). One
+  // conflicting row no longer discards the entire street — every row's own
+  // neighborhoodId decides its own outcome. Throws (fail-closed) if the
+  // accounting invariant is ever violated — see lib/streetRowAcceptance.ts.
+  const rowAcceptanceCounts = classifyBatchForAcceptance(respItems, parentSourceId);
+  const identityBatchStatus = classifyBatchStatus(rowAcceptanceCounts);
+  const rowsOtherEntity = rowAcceptanceCounts.rejectedForeign;
+
+  if (identityBatchStatus === "FAILED_NO_TRUSTED_ROWS") {
+    // The batch had rows, but none were an explicit parent-id match — no
+    // trusted data to keep. Zero-id and foreign rows stay rejected,
+    // unconditionally, exactly as before (Wave 0G-19's unresolved zero-id
+    // policy is NOT adopted here).
+    return {
+      status: "FAILED_NO_TRUSTED_ROWS",
+      failureReason: `NO_TRUSTED_ROWS: 0/${rowAcceptanceCounts.rawRows} rows matched requested sourceId=${parentSourceId} (zero=${rowAcceptanceCounts.rejectedZero} foreign=${rowAcceptanceCounts.rejectedForeign} missing=${rowAcceptanceCounts.rejectedMissing} malformed=${rowAcceptanceCounts.rejectedMalformed})`,
+      fetchNumberUsed: 1, contract, ...empty, rowsOtherEntity, rowAcceptanceCounts,
+    };
+  }
+
+  // Keep ONLY the accepted (explicit-parent-match) raw rows for
+  // normalization — rejected rows never reach toShadowDeal, never reach
+  // prevDeals extraction, never reach the augmentation union. ECC finding
+  // (specialist, silent-failure-hunter): call the SAME classifier used for
+  // rowAcceptanceCounts above, rather than a hand-duplicated inline check —
+  // the two were behaviorally identical today, but nothing enforced that.
+  const acceptedRawItems = respItems.filter((r: any) => classifyRowForAcceptance(r, parentSourceId) === "ACCEPT_PARENT");
+  const shadowRows = acceptedRawItems.map((r: any) => toShadowDeal(r, neighborhood, parentSourceId)).filter((d: ShadowDeal | null): d is ShadowDeal => d !== null);
+  const normalizationDrops = acceptedRawItems.length - shadowRows.length;
+  if (acceptedRawItems.length > 0 && shadowRows.length === 0) {
+    return { status: "FAILED_NORMALIZATION", failureReason: `ALL_ACCEPTED_ROWS_DROPPED_BY_NORMALIZATION: ${acceptedRawItems.length} accepted rows, 0 survived`, fetchNumberUsed: 1, contract, ...empty, rowsOtherEntity, rowAcceptanceCounts, normalizationDrops };
   }
 
   const onStreet = shadowRows.filter((r) => r.street === street.name || (r.address ?? "").includes(street.name));
   const rowsMatchingRequestedStreet = onStreet.length;
   const rowsOtherStreetSameEntity = shadowRows.length - onStreet.length;
 
-  // prevDeals (Phase 16) — reuses Wave 0G-16's already-tested extraction
-  // (only dealDate+dealAmount ever proven present on these nested events).
+  // prevDeals (Phase 16, Wave 0G-18) — reuses Wave 0G-16's already-tested
+  // extraction. Scoped to accepted rows only — a rejected (zero/foreign)
+  // row's prevDeals are never extracted, consistent with rejecting the
+  // whole row, not just its top-level identity.
   let prevDealEvents: RawPrevDealEvent[] = [];
   let prevDealNormalizationDrops = 0;
-  for (const raw of respItems) {
+  for (const raw of acceptedRawItems) {
     const { events, drops } = extractPrevDealEvents(raw, parentSourceId);
     prevDealEvents.push(...events);
     prevDealNormalizationDrops += drops;
   }
 
-  const status: StreetStatus = contract.totalFetch != null && contract.totalFetch > 1
-    ? "PARTIAL_MORE_FETCHES_INDICATED"
-    : shadowRows.length === 0 ? "SUCCESS_EMPTY" : "SUCCESS_ROWS";
-  const failureReason = status === "PARTIAL_MORE_FETCHES_INDICATED"
-    ? `total_fetch=${contract.totalFetch} exceeds 1 — fetch-1 rows kept, deeper fetch NOT attempted this wave`
-    : null;
+  // Status resolution: identity-mixing takes priority for surfacing (Wave
+  // 0G-20's own requirement — a mixed batch must never report as a clean
+  // all-parent success), independent of the orthogonal pagination-depth
+  // signal, which remains visible via totalFetchIfExposed regardless.
+  let status: StreetStatus;
+  let failureReason: string | null;
+  if (identityBatchStatus === "SUCCESS_MIXED_PARTIAL") {
+    status = "SUCCESS_MIXED_PARTIAL";
+    failureReason = `MIXED_BATCH: ${rowAcceptanceCounts.acceptedParent}/${rowAcceptanceCounts.rawRows} rows accepted (parent match); rejected zero=${rowAcceptanceCounts.rejectedZero} foreign=${rowAcceptanceCounts.rejectedForeign} missing=${rowAcceptanceCounts.rejectedMissing} malformed=${rowAcceptanceCounts.rejectedMalformed}`;
+  } else if (contract.totalFetch != null && contract.totalFetch > 1) {
+    status = "PARTIAL_MORE_FETCHES_INDICATED";
+    failureReason = `total_fetch=${contract.totalFetch} exceeds 1 — fetch-1 rows kept, deeper fetch NOT attempted this wave`;
+  } else {
+    status = shadowRows.length === 0 ? "SUCCESS_EMPTY" : "SUCCESS_ROWS";
+    failureReason = null;
+  }
 
-  return { status, failureReason, fetchNumberUsed: 1, rows: shadowRows, normalizationDrops, contract, rowsMatchingRequestedStreet, rowsOtherStreetSameEntity, rowsOtherEntity: 0, prevDealEvents, prevDealNormalizationDrops };
+  return { status, failureReason, fetchNumberUsed: 1, rows: shadowRows, normalizationDrops, contract, rowsMatchingRequestedStreet, rowsOtherStreetSameEntity, rowsOtherEntity, rowAcceptanceCounts, prevDealEvents, prevDealNormalizationDrops };
 }
 
 async function processStreet(page: any, street: NadlanStreet, neighborhood: Neighborhood): Promise<StreetResult> {
@@ -297,7 +343,7 @@ async function processStreet(page: any, street: NadlanStreet, neighborhood: Neig
       status: "FAILED_NETWORK",
       failureReason: navFailureReason ?? "NO_DEAL_DATA_RESPONSE_CAPTURED (ambiguous: transient failure vs. genuinely empty street cannot be distinguished when no response arrives at all — Wave 0G-17 disclosed limitation, unchanged this wave)",
       fetchNumberUsed: null, rowsReturned: 0, totalRowsIfExposed: null, totalFetchIfExposed: null,
-      normalizedRows: 0, normalizationDrops: 0, rowsMatchingRequestedStreet: 0, rowsOtherStreetSameEntity: 0, rowsOtherEntity: 0,
+      normalizedRows: 0, normalizationDrops: 0, rowsMatchingRequestedStreet: 0, rowsOtherStreetSameEntity: 0, rowsOtherEntity: 0, rowAcceptanceCounts: null,
       earliestDate: null, latestDate: null, networkRequests, retries, elapsedSeconds: Number(((Date.now() - t0) / 1000).toFixed(1)),
       finishedAt: new Date().toISOString(), rows: [], prevDealEvents: [], prevDealNormalizationDrops: 0,
     };
@@ -313,6 +359,7 @@ async function processStreet(page: any, street: NadlanStreet, neighborhood: Neig
     rowsReturned: items.length, totalRowsIfExposed: classified.contract.totalRows, totalFetchIfExposed: classified.contract.totalFetch,
     normalizedRows: classified.rows.length, normalizationDrops: classified.normalizationDrops,
     rowsMatchingRequestedStreet: classified.rowsMatchingRequestedStreet, rowsOtherStreetSameEntity: classified.rowsOtherStreetSameEntity, rowsOtherEntity: classified.rowsOtherEntity,
+    rowAcceptanceCounts: classified.rowAcceptanceCounts,
     earliestDate: dates[0] ?? null, latestDate: dates[dates.length - 1] ?? null,
     networkRequests, retries, elapsedSeconds: Number(((Date.now() - t0) / 1000).toFixed(1)),
     finishedAt: new Date().toISOString(), rows: classified.rows,
@@ -372,7 +419,7 @@ async function main() {
           streetId: street.streetId, streetName: street.name, parentSourceId: PARENT_SOURCE_ID, runContractVersion: RUN_CONTRACT_VERSION,
           status: "FAILED_OTHER", failureReason: `UNCAUGHT_ERROR: ${(e as Error).message}`,
           fetchNumberUsed: null, rowsReturned: 0, totalRowsIfExposed: null, totalFetchIfExposed: null,
-          normalizedRows: 0, normalizationDrops: 0, rowsMatchingRequestedStreet: 0, rowsOtherStreetSameEntity: 0, rowsOtherEntity: 0,
+          normalizedRows: 0, normalizationDrops: 0, rowsMatchingRequestedStreet: 0, rowsOtherStreetSameEntity: 0, rowsOtherEntity: 0, rowAcceptanceCounts: null,
           earliestDate: null, latestDate: null, networkRequests: 0, retries: 0, elapsedSeconds: 0,
           finishedAt: new Date().toISOString(), rows: [], prevDealEvents: [], prevDealNormalizationDrops: 0,
         };

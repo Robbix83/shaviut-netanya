@@ -1,0 +1,88 @@
+{
+  "oldAcceptedUnique": 4831,
+  "rawClassATotal": 686,
+  "rawClassAVerified": 624,
+  "rawClassAUnverifiedResidual": 62,
+  "duplicateVsOldUnion": 346,
+  "duplicateWithinRecovered": 0,
+  "genuinelyNewClassA": 278,
+  "newAcceptedUnique": 5109,
+  "officialTotal": 5640,
+  "newDelta": 531,
+  "newCoverage": 90.58510638297872,
+  "ambiguousCollisions": 0,
+  "perStreetRecovery": [
+    {
+      "streetId": "74001260",
+      "name": "טום לנטוס",
+      "rawParentRows": 411,
+      "newRows": 163,
+      "zeroRejected": 8,
+      "foreignRejected": 0,
+      "verified": true,
+      "finalBatchStatus": "SUCCESS_MIXED_PARTIAL (verified live)"
+    },
+    {
+      "streetId": "74000865",
+      "name": "הרב שמואל הרטום",
+      "rawParentRows": 134,
+      "newRows": 52,
+      "zeroRejected": 0,
+      "foreignRejected": 347,
+      "verified": true,
+      "finalBatchStatus": "SUCCESS_MIXED_PARTIAL (verified live)"
+    },
+    {
+      "streetId": "74001232",
+      "name": "בני רייך",
+      "rawParentRows": 79,
+      "newRows": 63,
+      "zeroRejected": 12,
+      "foreignRejected": 0,
+      "verified": true,
+      "finalBatchStatus": "SUCCESS_MIXED_PARTIAL (verified live)"
+    },
+    {
+      "streetId": "74000826",
+      "name": "הפארק",
+      "rawParentRows": 46,
+      "newRows": null,
+      "zeroRejected": 0,
+      "foreignRejected": 171,
+      "verified": false,
+      "finalBatchStatus": "LIKELY SUCCESS_MIXED_PARTIAL (unverified — no row-level data)"
+    },
+    {
+      "streetId": "74001235",
+      "name": "הרב נרייה",
+      "rawParentRows": 16,
+      "newRows": null,
+      "zeroRejected": 1,
+      "foreignRejected": 0,
+      "verified": false,
+      "finalBatchStatus": "LIKELY SUCCESS_MIXED_PARTIAL (unverified — no row-level data)"
+    },
+    {
+      "streetId": "74000153",
+      "name": "אריאל שרון",
+      "rawParentRows": 0,
+      "newRows": 0,
+      "zeroRejected": 0,
+      "foreignRejected": 5,
+      "verified": false,
+      "finalBatchStatus": "FAILED_NO_TRUSTED_ROWS (0 parent rows even under new logic)"
+    },
+    {
+      "streetId": "74000607",
+      "name": "האר\"י",
+      "rawParentRows": 0,
+      "newRows": 0,
+      "zeroRejected": 0,
+      "foreignRejected": 237,
+      "verified": false,
+      "finalBatchStatus": "FAILED_NO_TRUSTED_ROWS (0 parent rows even under new logic)"
+    }
+  ],
+  "zeroRowsStillRejected": 21,
+  "foreignRowsStillRejected": 760
+}

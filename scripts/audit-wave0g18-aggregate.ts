@@ -203,7 +203,14 @@ async function main() {
     if (!byStatus.has(r.status)) byStatus.set(r.status, []);
     byStatus.get(r.status)!.push(r);
   }
-  const successStatuses: StreetStatus[] = ["SUCCESS_ROWS", "SUCCESS_EMPTY", "PARTIAL_MORE_FETCHES_INDICATED"];
+  // Wave 0G-20 finding (ECC planner): "SUCCESS_MIXED_PARTIAL" (the new
+  // per-row-acceptance status — scripts/audit-wave0g18-street-runner.ts)
+  // was missing here. Without it, any FUTURE re-run of THIS aggregator
+  // against runner output using the new per-row logic would silently
+  // exclude every mixed-partial street's recovered rows from the union and
+  // misclassify it as FAILED — exactly the rows Wave 0G-20 exists to
+  // recover. Fail-closed (no data corruption), but a real, avoidable loss.
+  const successStatuses: StreetStatus[] = ["SUCCESS_ROWS", "SUCCESS_MIXED_PARTIAL", "SUCCESS_EMPTY", "PARTIAL_MORE_FETCHES_INDICATED"];
   const failedResults = streetResults.filter((r) => !successStatuses.includes(r.status));
   const partialMoreFetch = byStatus.get("PARTIAL_MORE_FETCHES_INDICATED") ?? [];
   const emptyResults = byStatus.get("SUCCESS_EMPTY") ?? [];

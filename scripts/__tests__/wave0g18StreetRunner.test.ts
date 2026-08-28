@@ -79,19 +79,23 @@ describe("E/F — cross-surface duplicate collapse is delegated to dedupByTransa
   });
 });
 
-describe("H — wrong parent identity fails the street closed", () => {
-  it("marks a batch with a different neighborhoodId as FAILED_IDENTITY, not silently filtered", () => {
+describe("H — wrong parent identity (Wave 0G-20: PER-ROW acceptance, superseding Wave 0G-18's whole-batch rejection)", () => {
+  it("a foreign-only batch (no parent rows at all) fails as FAILED_NO_TRUSTED_ROWS, not silently filtered — updated from Wave 0G-18's FAILED_IDENTITY, same safety property (0 rows accepted)", () => {
     const items = [rawItem({ neighborhoodId: "99999999" })];
     const result = classifyStreetExchange(STREET, PARENT_SOURCE_ID, NEIGHBORHOOD, envelope(), items, decodedResponse(items));
-    expect(result.status).toBe("FAILED_IDENTITY");
+    expect(result.status).toBe("FAILED_NO_TRUSTED_ROWS");
     expect(result.rowsOtherEntity).toBe(1);
     expect(result.rows).toHaveLength(0);
   });
 
-  it("marks a MIXED batch (some correct, some wrong entity) as FAILED_IDENTITY too — not 'mostly fine'", () => {
+  it("Wave 0G-20 CHANGE: a MIXED batch (some correct, some wrong entity) now accepts the valid parent row and rejects the foreign one — status SUCCESS_MIXED_PARTIAL, never a clean SUCCESS_ROWS and never a whole-batch failure that would discard the valid row too", () => {
     const items = [rawItem(), rawItem({ neighborhoodId: "99999999", parcelNum: "9-9-9" })];
     const result = classifyStreetExchange(STREET, PARENT_SOURCE_ID, NEIGHBORHOOD, envelope(), items, decodedResponse(items));
-    expect(result.status).toBe("FAILED_IDENTITY");
+    expect(result.status).toBe("SUCCESS_MIXED_PARTIAL");
+    expect(result.rows).toHaveLength(1); // the valid parent row is preserved, not discarded
+    expect(result.rows[0].parcelNum).toBe("8252-100-1");
+    expect(result.rowsOtherEntity).toBe(1); // the foreign row is rejected, not silently accepted
+    expect(result.rowAcceptanceCounts).toMatchObject({ rawRows: 2, acceptedParent: 1, rejectedForeign: 1 });
   });
 });
 
@@ -108,7 +112,7 @@ describe("I — normalization drops are surfaced, not invisible", () => {
     const items = [rawItem({ dealAmount: null }), rawItem({ dealAmount: 0, parcelNum: "8252-100-4" })];
     const result = classifyStreetExchange(STREET, PARENT_SOURCE_ID, NEIGHBORHOOD, envelope(), items, decodedResponse(items));
     expect(result.status).toBe("FAILED_NORMALIZATION");
-    expect(result.failureReason).toMatch(/ALL_ROWS_DROPPED_BY_NORMALIZATION/);
+    expect(result.failureReason).toMatch(/ALL_ACCEPTED_ROWS_DROPPED_BY_NORMALIZATION/);
   });
 });
 
@@ -149,9 +153,10 @@ describe("K — resume contract mismatch refuses a stale result (source-level gu
     expect(src).toMatch(/parsed\.streetId\s*!==\s*streetId\)\s*return null/);
   });
 
-  it("FAILED_* statuses are never resumed — RESUMABLE_STATUSES lists exactly the 3 terminal-success statuses, no FAILED_* variant", () => {
+  it("FAILED_* statuses are never resumed — RESUMABLE_STATUSES lists exactly the 4 terminal-success statuses (Wave 0G-20 added SUCCESS_MIXED_PARTIAL), no FAILED_* variant", () => {
     const decl = src.match(/const RESUMABLE_STATUSES:.*?\];/s)?.[0] ?? "";
     expect(decl).toMatch(/"SUCCESS_ROWS"/);
+    expect(decl).toMatch(/"SUCCESS_MIXED_PARTIAL"/);
     expect(decl).toMatch(/"SUCCESS_EMPTY"/);
     expect(decl).toMatch(/"PARTIAL_MORE_FETCHES_INDICATED"/);
     expect(decl).not.toMatch(/FAILED_/);

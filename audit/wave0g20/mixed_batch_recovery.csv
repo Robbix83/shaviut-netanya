@@ -1,0 +1,8 @@
+STREET_ID,STREET_NAME,PARENT_ROWS_RAW,PARENT_ROWS_NEW,ZERO_REJECTED,FOREIGN_REJECTED,FINAL_BATCH_STATUS
+74001260,"טום לנטוס",411,163,8,0,"SUCCESS_MIXED_PARTIAL (verified live)"
+74000865,"הרב שמואל הרטום",134,52,0,347,"SUCCESS_MIXED_PARTIAL (verified live)"
+74001232,"בני רייך",79,63,12,0,"SUCCESS_MIXED_PARTIAL (verified live)"
+74000826,"הפארק",46,UNVERIFIED,0,171,"LIKELY SUCCESS_MIXED_PARTIAL (unverified — no row-level data)"
+74001235,"הרב נרייה",16,UNVERIFIED,1,0,"LIKELY SUCCESS_MIXED_PARTIAL (unverified — no row-level data)"
+74000153,"אריאל שרון",0,0,0,5,"FAILED_NO_TRUSTED_ROWS (0 parent rows even under new logic)"
+74000607,"האר"י",0,0,0,237,"FAILED_NO_TRUSTED_ROWS (0 parent rows even under new logic)"
