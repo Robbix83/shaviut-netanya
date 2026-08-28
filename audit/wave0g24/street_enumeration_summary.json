@@ -1,0 +1,56 @@
+{
+  "results": [
+    {
+      "name": "אזור תעשיה פנחס ספי",
+      "sourceId": "65209689",
+      "streetCount": 30
+    },
+    {
+      "name": "עיר ימים",
+      "sourceId": "65209703",
+      "streetCount": 22
+    },
+    {
+      "name": "קריית נורדאו",
+      "sourceId": "65209705",
+      "streetCount": 41
+    },
+    {
+      "name": "מרכז העיר",
+      "sourceId": "65209717",
+      "streetCount": 69
+    },
+    {
+      "name": "חוף הים והמלונות",
+      "sourceId": "65209727",
+      "streetCount": 19
+    },
+    {
+      "name": "רמת אפרים",
+      "sourceId": "65209736",
+      "streetCount": 46
+    },
+    {
+      "name": "מע\"ר - מרכז עירוני ר",
+      "sourceId": "65210243",
+      "streetCount": 72
+    },
+    {
+      "name": "אבו שדיד",
+      "sourceId": "65210245",
+      "streetCount": 26
+    },
+    {
+      "name": "רסקו",
+      "sourceId": "65210248",
+      "streetCount": 26
+    },
+    {
+      "name": "מכנס",
+      "sourceId": "65210752",
+      "streetCount": 23
+    }
+  ],
+  "totalStreets": 374,
+  "distinctStreetIds": 338
+}
