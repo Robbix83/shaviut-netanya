@@ -1,0 +1,153 @@
+{
+  "augmentedUniqueOld": 4831,
+  "zeroRowsCandidates": 20,
+  "zeroRowsTrueDuplicates": 0,
+  "zeroRowsGenuinelyNew": 20,
+  "replayAugmentedUnique": 4851,
+  "officialTotalRows": 5640,
+  "replayDelta": 789,
+  "replayCoverage": 86.01063829787235,
+  "unresolvedZeroIdRowsNotReprobed": 1,
+  "newRowsAccepted": [
+    {
+      "parcelNum": "9904-76-9",
+      "dealDate": "2026-06-10",
+      "price": 2480000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-2",
+      "dealDate": "2026-02-05",
+      "price": 3900000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-14",
+      "dealDate": "2025-12-03",
+      "price": 2600000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-43",
+      "dealDate": "2025-09-10",
+      "price": 2825000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-3",
+      "dealDate": "2025-07-16",
+      "price": 3970000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-50",
+      "dealDate": "2025-03-12",
+      "price": 2900000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-46",
+      "dealDate": "2024-12-22",
+      "price": 3000000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-40",
+      "dealDate": "2024-11-28",
+      "price": 2790000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-48",
+      "dealDate": "2024-11-20",
+      "price": 2800000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-4",
+      "dealDate": "2024-11-12",
+      "price": 3860000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-51",
+      "dealDate": "2024-10-07",
+      "price": 2750000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-0",
+      "dealDate": "2016-09-12",
+      "price": 36279000,
+      "street": "בני רייך",
+      "houseNumber": "4"
+    },
+    {
+      "parcelNum": "9904-76-121",
+      "dealDate": "2025-04-30",
+      "price": 2920000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-77",
+      "dealDate": "2024-11-12",
+      "price": 2730000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-69",
+      "dealDate": "2020-09-30",
+      "price": 2340000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-71",
+      "dealDate": "2020-06-15",
+      "price": 2300000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-72",
+      "dealDate": "2018-02-14",
+      "price": 1586000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-94",
+      "dealDate": "2017-12-03",
+      "price": 1560000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-95",
+      "dealDate": "2017-11-29",
+      "price": 1583000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    },
+    {
+      "parcelNum": "9904-76-120",
+      "dealDate": "2017-10-02",
+      "price": 1574000,
+      "street": "טום לנטוס",
+      "houseNumber": "71"
+    }
+  ]
+}
