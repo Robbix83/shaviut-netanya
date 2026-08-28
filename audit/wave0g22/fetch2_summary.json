@@ -1,0 +1,75 @@
+{
+  "street": {
+    "id": "74000875",
+    "name": "אברהם שפיגלמן",
+    "officialTotalRows": 533,
+    "totalFetch": 2
+  },
+  "fetch1": {
+    "rows": 500,
+    "parent": 500,
+    "zero": 0,
+    "foreign": 0,
+    "other": 0,
+    "earliestDate": "2003-08-05",
+    "latestDate": "2026-06-29"
+  },
+  "fetch2": {
+    "legitimatelyTriggered": true,
+    "triggerMechanism": "UI_CONTROL",
+    "rowsReturned": 33,
+    "parent": 33,
+    "zero": 0,
+    "foreign": 0,
+    "other": 0,
+    "earliestDate": "1998-11-02",
+    "latestDate": "2002-12-31",
+    "semantics": "OLDER_CONTINUATION (fetch2's latest date is strictly older than fetch1's earliest date)",
+    "normalizedRows": 33,
+    "normalizationDrops": 0
+  },
+  "streetReconciliation": {
+    "fetch1Raw": 500,
+    "fetch2Raw": 33,
+    "fetch2AcceptedRaw": 33,
+    "trueDuplicates": 0,
+    "ambiguousCollisions": 0,
+    "unique": 533,
+    "official": 533,
+    "delta": 0,
+    "completeness": "PROVEN"
+  },
+  "kiryatImpact": {
+    "oldUnique": 5145,
+    "fetch2ParentRows": 33,
+    "duplicateVsCurrentKiryat": 33,
+    "genuinelyNewToKiryat": 0,
+    "newUnique": 5145,
+    "officialTotal": 5640,
+    "newDelta": 495,
+    "newCoveragePercent": 91.22340425531915
+  },
+  "transactionSafety": {
+    "ambiguousCollisionsStreet": 0,
+    "ambiguousCollisionsKiryat": 0,
+    "distinctKeysAcrossInputs": 5145
+  },
+  "prevDeals": {
+    "fetch2RowsWithPrevDeals": 1,
+    "rawFetch2PrevDeals": 1,
+    "uniqueFetch2PrevDeals": 1,
+    "newHistoricalEventsVsExistingTier": 0
+  },
+  "verdicts": {
+    "streetFetch2Contract": "PROVEN",
+    "fetch2YieldedAcceptedRows": true,
+    "spiegelmanStreetCompleteness": "PROVEN",
+    "streetFetch2Generalization": "ONE_STREET_PROVEN",
+    "isFetch2WorthScaling": "NO",
+    "remainingKnownOpportunities": {
+      "zeroIdMaxRaw": 21,
+      "foreignIdRows": "unresolved/unsafe",
+      "noStreetSourceGaps": "unresolved"
+    }
+  }
+}
