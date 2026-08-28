@@ -1,0 +1,235 @@
+{
+  "finalUnique": 5145,
+  "officialTotal": 5640,
+  "delta": 495,
+  "entityBaselineUnique": 2518,
+  "streetAcceptedUnique": 4705,
+  "entityStreetOverlap": 2078,
+  "entityOnly": {
+    "count": 440,
+    "pct": 8.551992225461614,
+    "validAddressRate": 37.04545454545455,
+    "streetZeroRate": 62.95454545454545,
+    "missingHouseRate": 62.95454545454545,
+    "earliest": "1998-05-11",
+    "latest": "2026-06-21"
+  },
+  "streetOnly": {
+    "count": 2627,
+    "pct": 51.05928085519922,
+    "validAddressRate": 100,
+    "streetZeroRate": 0,
+    "missingHouseRate": 0,
+    "earliest": "2006-12-20",
+    "latest": "2021-04-12"
+  },
+  "both": {
+    "count": 2078,
+    "pct": 40.38872691933916,
+    "validAddressRate": 100,
+    "streetZeroRate": 0,
+    "missingHouseRate": 0,
+    "earliest": "1998-11-02",
+    "latest": "2026-06-29"
+  },
+  "streetZeroRows": 277,
+  "missingStreetRows": 0,
+  "missingHouseRows": 277,
+  "entityOnlyStreetZero": 277,
+  "entityOnlyMissingStreet": 0,
+  "streetOnlyStreetZero": 0,
+  "rowsWithStreet": 4868,
+  "onManifest": 4793,
+  "notOnManifest": 75,
+  "distinctNonManifestStreets": 3,
+  "nonManifestTop": [
+    {
+      "name": "ליבר זאב",
+      "count": 31,
+      "sources": [
+        "BOTH",
+        "STREET_ONLY"
+      ]
+    },
+    {
+      "name": "שפיגלמן אברהם",
+      "count": 28,
+      "sources": [
+        "BOTH",
+        "STREET_ONLY"
+      ]
+    },
+    {
+      "name": "הרב משה צבי נרייה",
+      "count": 16,
+      "sources": [
+        "BOTH",
+        "STREET_ONLY"
+      ]
+    }
+  ],
+  "streetTotalRowsSum": 5487,
+  "observedParentRows": 4672,
+  "observedForeignRows": 518,
+  "observedZeroRows": 21,
+  "completeStreets": 69,
+  "partialStreets": 1,
+  "unresolvedStreets": 0,
+  "maxKnownStreetPaginationOpportunity": 1,
+  "foreignRawRows": 760,
+  "distinctForeignEntityIds": 5,
+  "foreignGroups": [
+    {
+      "entityId": "65210241",
+      "entityName": "משכנות זבולון",
+      "rowCount": 347,
+      "distinctStreets": [
+        "הרב שמואל הרטום"
+      ]
+    },
+    {
+      "entityId": "65210240",
+      "entityName": "קריית יצחק רבין",
+      "rowCount": 171,
+      "distinctStreets": [
+        "הפארק"
+      ]
+    },
+    {
+      "entityId": "65210388",
+      "entityName": "אזור תעשיה קריית אל",
+      "rowCount": null,
+      "distinctStreets": [
+        "אריאל שרון"
+      ]
+    },
+    {
+      "entityId": "65210244",
+      "entityName": "בן ציון",
+      "rowCount": null,
+      "distinctStreets": [
+        "האר\"י"
+      ]
+    },
+    {
+      "entityId": "65210242",
+      "entityName": "רמת חן",
+      "rowCount": null,
+      "distinctStreets": [
+        "האר\"י"
+      ]
+    }
+  ],
+  "foreignDuplicateAccepted": 0,
+  "foreignNotInAcceptedUnion": 518,
+  "foreignNormalizationFailed": 0,
+  "foreignRowLevelKnownCount": 518,
+  "zeroRawRows": 21,
+  "zeroDuplicateAccepted": 0,
+  "zeroNotInAcceptedUnion": 21,
+  "zeroNormalizationFailed": 0,
+  "suspectDateIntervals": [],
+  "dealNatureTop": [
+    {
+      "dealNature": "דירה בבית קומות",
+      "count": 4334,
+      "entity": 198,
+      "street": 2403,
+      "both": 1733,
+      "entityShare": 0.04568527918781726
+    },
+    {
+      "dealNature": "דירה",
+      "count": 241,
+      "entity": 0,
+      "street": 190,
+      "both": 51,
+      "entityShare": 0
+    },
+    {
+      "dealNature": "∅",
+      "count": 151,
+      "entity": 30,
+      "street": 1,
+      "both": 120,
+      "entityShare": 0.1986754966887417
+    },
+    {
+      "dealNature": "קרקע למגורים",
+      "count": 124,
+      "entity": 83,
+      "street": 0,
+      "both": 41,
+      "entityShare": 0.6693548387096774
+    },
+    {
+      "dealNature": "ללא תיכנון",
+      "count": 86,
+      "entity": 84,
+      "street": 0,
+      "both": 2,
+      "entityShare": 0.9767441860465116
+    },
+    {
+      "dealNature": "משרד",
+      "count": 47,
+      "entity": 4,
+      "street": 0,
+      "both": 43,
+      "entityShare": 0.0851063829787234
+    },
+    {
+      "dealNature": "דירת גן",
+      "count": 31,
+      "entity": 2,
+      "street": 14,
+      "both": 15,
+      "entityShare": 0.06451612903225806
+    },
+    {
+      "dealNature": "קוטג' דו משפחתי",
+      "count": 25,
+      "entity": 3,
+      "street": 9,
+      "both": 13,
+      "entityShare": 0.12
+    },
+    {
+      "dealNature": "מסחרי + משרדים",
+      "count": 20,
+      "entity": 15,
+      "street": 0,
+      "both": 5,
+      "entityShare": 0.75
+    },
+    {
+      "dealNature": "חנות",
+      "count": 19,
+      "entity": 2,
+      "street": 0,
+      "both": 17,
+      "entityShare": 0.10526315789473684
+    }
+  ],
+  "rowsWithDealNature": 4994,
+  "distinctDealNature": 26,
+  "parcelEntity": {
+    "minusZero": 6,
+    "missing": 0,
+    "total": 440
+  },
+  "parcelStreet": {
+    "minusZero": 1,
+    "missing": 0,
+    "total": 2627
+  },
+  "parcelBoth": {
+    "minusZero": 19,
+    "missing": 0,
+    "total": 2078
+  },
+  "crossStreetDuplicationRate": 0,
+  "provenExplainedDelta": 0,
+  "plausiblyExplainedDeltaMax": 1,
+  "unexplainedDelta": 495
+}
