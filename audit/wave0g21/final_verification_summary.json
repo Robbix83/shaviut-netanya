@@ -1,0 +1,41 @@
+{
+  "currentAcceptedUniqueBefore": 5109,
+  "officialTotal": 5640,
+  "perStreet": [
+    {
+      "streetId": "74000826",
+      "name": "הפארק",
+      "rawRows": 217,
+      "parentRows": 46,
+      "zeroRows": 0,
+      "foreignRows": 171,
+      "otherRows": 0,
+      "batchStatus": "SUCCESS_MIXED_PARTIAL",
+      "newRows": 26,
+      "duplicateRows": 20
+    },
+    {
+      "streetId": "74001235",
+      "name": "הרב נרייה",
+      "rawRows": 17,
+      "parentRows": 16,
+      "zeroRows": 1,
+      "foreignRows": 0,
+      "otherRows": 0,
+      "batchStatus": "SUCCESS_MIXED_PARTIAL",
+      "newRows": 10,
+      "duplicateRows": 6
+    }
+  ],
+  "trueDuplicates": 26,
+  "ambiguousCollisions": 0,
+  "parkVsNeriaStreetVsStreetDuplicates": 0,
+  "totalGenuinelyNew": 36,
+  "newAcceptedUnique": 5145,
+  "newDelta": 495,
+  "newCoveragePercent": 91.22340425531915,
+  "explicitParentAccepted": 62,
+  "zeroAccepted": 0,
+  "foreignAccepted": 0,
+  "perRowIdentityPolicyUnchanged": true
+}
