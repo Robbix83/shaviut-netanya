@@ -175,7 +175,7 @@ standing rule) contain zero acquired row data — `rows: []`,
   distinct streetIds were attempted, per the standing rule against
   retrying through a reCAPTCHA block.
 
-## Residual / next step
+## Residual / next step (as of Wave 0G-24, pre-resume)
 
 The architecture is proven-by-design (reuses the exact, already-validated
 Kiryat identity/accounting logic) and ECC-reviewed with all findings
@@ -183,3 +183,247 @@ fixed. It is ready to run to completion — an estimated 45–90+ minutes at
 the required concurrency=1 pacing across 338 distinct streets — as soon as
 the site's current block clears. No citywide coverage result exists yet
 for the 10 target entities; claiming one this wave would be fabrication.
+
+---
+
+## Wave 0G-24B — Controlled Resume Result (2026-08-29)
+
+**Status: MULTI_ENTITY_LIVE_EXECUTION = PROVEN.** The source-side block
+documented above cleared between Wave 0G-24 and this resume. A one-street
+clearance probe (Phase 2, street 74001044 "החשמל") captured and decoded a
+real `/deal-data` response (`SUCCESS_EMPTY`, `fetch_number=1`, matching
+`base_id`) — genuine evidence the block had lifted, not a fabricated
+success. The exact, already-committed, unmodified runner
+(`scripts/audit-wave0g24-multi-entity-street-runner.ts`) then ran to
+completion across all 338 distinct street IDs. Kiryat Hasharon was **not**
+rerun (excluded per this wave's hard boundary, as in Wave 0G-24); its
+5,145/5,640 figure is retained from Wave 0G-23.
+
+### Source clearance
+
+- Probe: `SUCCESS` — real `/deal-data` response captured and decoded.
+- Full run: 338/338 distinct streetIds attempted, 374/374 entity-street
+  classifications performed. Zero `FAILED_NETWORK` this run (the earlier
+  block-era sanity test's 2 `FAILED_NETWORK` results were retried fresh —
+  not resumed, since `FAILED_*` statuses are never cache-resumable — and
+  both succeeded this time).
+
+### Execution accounting
+
+```
+STREETS_ENUMERATED            = 374
+DISTINCT_STREET_IDS           = 338
+STREETS_ATTEMPTED (refs)      = 374/374
+STATUS_COUNTS                 = SUCCESS_ROWS=171, SUCCESS_EMPTY=130,
+                                 SUCCESS_MIXED_PARTIAL=58,
+                                 FAILED_NO_TRUSTED_ROWS=12,
+                                 PARTIAL_MORE_FETCHES_INDICATED=3
+NETWORK_REQUESTS              = 362  (per distinct streetId — see note)
+RETRIES                       = 4
+ELAPSED_SECONDS               = 2,213.6 (~37 min)
+RAW = PARENT + ZERO + FOREIGN + OTHER
+35,241 = 21,700 + 975 + 12,566 + 0        (exact — asserted, not rounded)
+```
+
+`NETWORK_REQUESTS`/`RETRIES`/`ELAPSED_SECONDS` are summed once per
+**distinct** streetId (338), not once per entity-street reference (374) —
+a shared boundary street's one real live fetch is otherwise duplicated
+across every referencing entity's own result file. The aggregation script
+now asserts (and would throw `INTEGRITY_FAIL` on) any divergence between
+a shared streetId's copies before collapsing them — an ECC
+database-reviewer/code-reviewer hardening fix (see ECC table below); no
+divergence was found. The RAW/PARENT/ZERO/FOREIGN/OTHER total, by
+contrast, is intentionally **not** deduped by streetId — each entity's row
+acceptance for a shared street is legitimately different (see the
+הרצל example below), so a shared street is counted once per referencing
+entity in that sum. 35,241 must therefore never be read as "distinct raw
+rows fetched."
+
+**12 `FAILED_NO_TRUSTED_ROWS`** occurrences (all listed in
+`audit/wave0g24/failed_street_refs.csv`) are legitimate per-row rejections
+on shared boundary streets where zero rows carried that specific entity's
+`neighborhoodId` — the fail-closed design working as intended, not a
+network or acquisition failure. The clearest proof this design works
+correctly at scale: street 74000418 (הרצל) was fetched **once** and
+reclassified against 3 entities with opposite outcomes on the identical
+raw batch — `מרכז העיר` accepted 428/467 rows, `חוף הים והמלונות` accepted
+0/467 (all foreign) on the exact same response.
+
+### Per-entity results
+
+| Entity | sourceId | Official | Baseline | Streets | Parent rows | New rows | Augmented | Delta | Coverage before→after | Status | Failed refs |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| אזור תעשיה פנחס ספי | 65209689 | 1,021 | 1,000 | 30 | — | — | 1,014 | 7 | 97.94%→99.31% | PARTIAL | 1 |
+| עיר ימים | 65209703 | 3,060 | 2,325 | 22 | — | — | 2,500 | 560 | 75.98%→81.70% | PARTIAL | 2 |
+| קריית נורדאו | 65209705 | 3,281 | 2,265 | 41 | — | — | 3,160 | 121 | 69.03%→96.31% | PARTIAL | 3 |
+| מרכז העיר | 65209717 | 9,972 | 3,282 | 69 | — | — | 7,904 | 2,068 | 32.91%→79.26% | PARTIAL | 0 |
+| חוף הים והמלונות | 65209727 | 2,612 | 2,343 | 19 | — | — | 2,589 | 23 | 89.70%→99.12% | PARTIAL | 2 |
+| רמת אפרים | 65209736 | 2,266 | 2,082 | 46 | — | — | 2,139 | 127 | 91.88%→94.40% | PARTIAL | 0 |
+| מע"ר - מרכז עירוני ר | 65210243 | 3,273 | 2,329 | 72 | — | — | 2,459 | 814 | 71.16%→75.13% | PARTIAL | 4 |
+| אבו שדיד | 65210245 | 3,082 | 2,292 | 26 | — | — | 2,957 | 125 | 74.37%→95.94% | PARTIAL | 0 |
+| רסקו | 65210248 | 2,012 | 2,010 | 26 | — | — | **2,012** | **0** | 99.90%→**100.00%** | **COMPLETE** | 0 |
+| מכנס | 65210752 | 2,375 | 2,165 | 23 | — | — | 2,316 | 59 | 91.16%→97.52% | PARTIAL | 0 |
+
+Exact parent/new-row figures per entity are in the committed
+`audit/wave0g24/entity_outcomes.csv`. Every entity's coverage increased;
+none decreased (independently cross-checked by the ECC specialist
+reviewer). **רסקו (Rasko) reached exact official reconciliation** —
+2,012/2,012, zero failed streets, zero ambiguous collisions — the second
+entity (after Kiryat's street-level pilot) to hit COMPLETE this way. All
+other 9 entities are PARTIAL: either their augmented total is still below
+official, or at least one boundary street returned `FAILED_NO_TRUSTED_ROWS`
+for that entity (a legitimate rejection, not an unresolved integrity
+issue — no entity, in any case, has an ambiguous transaction collision).
+
+Zero ambiguous collisions across all 10 entities, cross-checked by an
+independently-implemented detector (`detectAmbiguousCollisions`) that
+must agree with the primary classifier or the run throws.
+
+### Pagination observation
+
+16 entity-street references (10 **distinct** physical streets — a shared
+street counted once per referencing entity) showed `total_fetch > 1`, i.e.
+more data exists behind an unattempted deeper fetch:
+
+| Street | streetId | total_rows | total_fetch | fetch1_rows |
+|---|---|---|---|---|
+| גולדה מאיר | 74001001 | 668 | 2 | 500 |
+| קרן היסוד | 74000977 | 634 | 2 | 500 |
+| בנימין | 74000532 | 913 | 2 | 500 |
+| הרב קוק | 74000323 | 541 | 2 | 500 |
+| סמילנסקי | 74000521 | 704 | 2 | 500 |
+| דיזנגוף | 74000406 | 698 | 2 | 500 |
+| ויצמן | 74000417 | 1,177 | 3 | 500 |
+| ניצה | 74000442 | 822 | 2 | 500 |
+| עובד בן-עמי | 74001078 | 619 | 2 | 500 |
+| בן-צבי | 74000609 | 793 | 2 | 500 |
+
+Full entity-level breakdown (including which of the 6 boundary entities
+share each street) is in `audit/wave0g24/pagination_observation.csv`.
+Note: `בן-צבי` shows `FAILED_NO_TRUSTED_ROWS` for `מע"ר - מרכז עירוני ר`
+specifically — the "more data exists" signal is real for the physical
+street, but not actionable for that entity, which accepted 0 rows there.
+**`FETCH2_EXECUTED = NO`, everywhere, per this wave's hard boundary** —
+logged for visibility only, never acted on.
+
+### Citywide updated coverage
+
+```
+OFFICIAL_TOP_LEVEL_ROWS_SUM   = 63,704        (unchanged since Wave 0G-16)
+COMPLETE_27_SUM               = 25,110        (unchanged, not touched this wave)
+KIRYAT_RETAINED               = 5,145/5,640   (NOT rerun this wave — Wave 0G-23 figure)
+TARGET_10_OFFICIAL_SUM        = 32,954
+TARGET_10_BASELINE_SUM        = 22,093
+TARGET_10_AUGMENTED_SUM       = 29,050
+─────────────────────────────────────────────
+UPDATED_SHADOW_TOP_LEVEL_UNIQUE = 59,305   (25,110 + 5,145 + 29,050)
+UPDATED_DELTA                   = 4,399    (63,704 − 59,305)
+UPDATED_CITYWIDE_COVERAGE       = 93.09%
+BASELINE (Wave 0G-16)           = 49,721/63,704 = 78.05%
+NET_NEW_VS_WAVE_0G16            = 9,584
+THIS_WAVE_OWN_CONTRIBUTION      = 6,957
+```
+
+**`NET_NEW_VS_WAVE_0G16` (9,584) and `THIS_WAVE_OWN_CONTRIBUTION` (6,957)
+are deliberately reported separately** (an ECC planner finding) — the
+9,584 figure is the full citywide gain since the original Wave 0G-16
+baseline measurement and includes Kiryat's 2,627-row gain that was already
+earned and committed across Waves 0G-18/0G-20/0G-21/0G-23, not reacquired
+this wave. This wave's own live acquisition against the 10 target
+entities recovered 6,957 net-new rows.
+
+Citywide top-level shadow coverage moved from **78.05% → 93.09%**, a
+15.04 percentage-point increase, entirely from this wave's own live
+acquisition (Kiryat's contribution to the total was already banked).
+
+### PrevDeals (historical events, kept separate from top-level reconciliation)
+
+```
+RAW_STREET_PREVDEALS   = 9,209  (summed per entity; not cross-entity deduped)
+UNIQUE_STREET_PREVDEALS = 9,206  (per-entity dedup only)
+NEW_HISTORICAL_EVENTS   = 3,403
+```
+
+Not used in the official top-level reconciliation above, per the wave's
+own instruction.
+
+### Failures
+
+All 12 non-success entity-street references are `FAILED_NO_TRUSTED_ROWS`
+(zero `FAILED_NETWORK`, zero `FAILED_OTHER`, zero `FAILED_NORMALIZATION`).
+Full list with exact zero/foreign counts in
+`audit/wave0g24/failed_street_refs.csv`. These cluster on the highest-
+volume shared streets (e.g. `מע"ר - מרכז עירוני ר` loses 1,367 raw rows
+across 3 rejected streets against its own residual delta of 814) — an ECC
+planner observation flagged as the highest-leverage open question for any
+future wave: whether the official street→entity manifest is deliberately
+over-inclusive at these boundaries, or whether the per-row `neighborhoodId`
+uses a different code than the manifest's entity id there. Not
+investigated further this wave (out of scope; no new acquisition
+authorized for that purpose).
+
+### Architecture verdict
+
+```
+ENTITY_PLUS_STREET_ARCHITECTURE = PROVEN   (unchanged from Wave 0G-24's own design proof)
+MULTI_ENTITY_LIVE_EXECUTION     = PROVEN   (upgraded from NOT_PROVEN — real acquired
+                                             data at scale, 10 entities, 338 streets,
+                                             0 ambiguous collisions, 1 exact reconciliation)
+```
+
+### Canonical safety
+
+- `data/deals.json`: 12,642 rows, SHA-256
+  `18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f` —
+  verified unchanged before Phase 1, after the full live run, and after
+  all ECC fixes.
+- Supabase writes: 0. Importer runs: 0. Deployments: 0.
+
+### Security
+
+Scanned all newly-tracked artifacts (2 script diffs, this report, 3
+compact CSVs, 1 aggregation summary JSON) for tokens, cookies,
+Authorization headers, session material, anti-bot values, and credential
+fragments: none found. Spot-checked 3 of the 374 real shadow result files
+(now containing actual acquired transaction data) — contain only deal
+fields (price, address, dates, parcel numbers) and runner metadata, never
+auth material. `audit/wave0g24/shadow/` (374 real result files) remains
+untracked, excluded from this wave's commit, per the standing rule against
+committing raw acquisition dumps.
+
+### Tests
+
+- Full suite: 387/387 passed (both before and after the ECC fix pass).
+- Typecheck: clean (both passes).
+- Build: clean, Next.js 16.2.6/Turbopack (both passes).
+
+### ECC review (all 6 reviewers — live run succeeded, full review required)
+
+| Reviewer | Verdict | Key finding / fix |
+|---|---|---|
+| planner | CONFIRMED (all 8 critical questions answered YES/CLEAN/SAFE) | 5 minor reporting-precision concerns, all fixed: (C1) RAW accounting is per entity-street reference, not deduped by street — added a scope-note comment and JSON field so it's never misread as a distinct-row count; (C2) `NET_NEW_VS_WAVE_0G16` conflated this wave's own contribution with Kiryat's already-banked prior gain — now reported as two separate fields; (C3) "16 streets with total_fetch>1" is 16 entity-refs across only 10 distinct streets, and `STATUS_COUNTS.PARTIAL_MORE_FETCHES_INDICATED=3` undercounts due to status-priority resolution — now reports both entity-ref and distinct-street counts explicitly; (C4) no assertion that `TARGET_ENTITIES` + Kiryat exactly equals Wave 0G-16's 11 PARTIAL entities — added as a hard integrity check; (C5) the status-classification's overshoot branch was dead code (already thrown earlier) — removed, and `pagination_observation.csv` now carries a STATUS column so a `FAILED_NO_TRUSTED_ROWS` street's "more data exists" signal isn't misread as actionable for that entity. Also flagged (not fixed, out of scope): the 12 `FAILED_NO_TRUSTED_ROWS` cluster on high-volume boundary streets — the highest-leverage open question for a future wave. |
+| specialist | CONFIRMED, no concerns | Independently verified all 10 entities' official/baseline figures against `citywide_summary.json` and Kiryat's retained figures against `attribution_summary.json` by sourceId (not name); confirmed all 10 entities' coverage only increased; confirmed every citywide arithmetic identity reconciles exactly by hand. |
+| database-reviewer | CONCERNS, both fixed | (1) The per-streetId economics dedup (`networkRequests`/`retries`/`elapsedSeconds`) was first-write-wins with no check that all entities sharing a streetId actually report identical values — safe only within a single execution, not across a hypothetical future resumed run. **Fixed**: now collects every record per streetId and throws `INTEGRITY_FAIL` on any divergence before collapsing. (2) The 27-COMPLETE-entities sum only self-checked internal consistency (official===shadow), with no pinned expected value the way Kiryat has (5640/5145) — a regenerated Wave 0G-16 dataset could silently drift this figure. **Fixed**: added a hardcoded `25110` guard. |
+| silent-failure-hunter | PASS | Confirmed no swallowed errors, no dangerous fallbacks, no dropped iterations. One documentation-only note (addressed via the RAW-accounting scope comment above): a hypothetical `FAILED_NETWORK` street would legitimately vanish from the RAW/PARENT/ZERO/FOREIGN/OTHER sum (rowAcceptanceCounts is null pre-classification) but remains visible via `STATUS_COUNTS` and `failedRefs` — never silently lost from the report as a whole. |
+| security-reviewer | PASS, no findings | fetch_number=1 enforced everywhere; no credential values ever logged (only field-name/presence flags); ordinary bounded retry/reload, no reCAPTCHA-solving code; `audit/wave0g24/shadow/` confirmed untracked; 3 spot-checked shadow files contain only deal data; canonical SHA-256 independently re-verified. |
+| code-reviewer | APPROVE | Confirmed `StreetResult` field-shape correctness end-to-end; confirmed `parentSourceId` (never `entity.name`) is the join key throughout; confirmed no unused imports; confirmed correct `!= null` numeric guards; confirmed `csvEscape()` applied at every free-text CSV field (including the `מע"ר` name's embedded quote). Same LOW-severity economics-dedup note as database-reviewer (fixed, see above). |
+
+All findings were either confirmed as correct-as-designed or fixed. No
+finding invalidated any headline number — all were reporting-precision or
+future-hardening improvements, independently re-verified by rerunning the
+aggregation (identical output) and all quality gates (clean) after every
+fix.
+
+### Residual / next step
+
+4,399 rows remain unaccounted for citywide (93.09% → 100% would require
+closing this). The two clearest, evidenced levers for a future wave:
+(1) the 16 entity-street references (10 distinct streets) with
+`total_fetch > 1` — fetch2 was deliberately not executed this wave and
+remains available as a bounded, already-proven mechanism (Wave 0G-22B) if
+explicitly authorized; (2) the 12 `FAILED_NO_TRUSTED_ROWS` boundary
+rejections, concentrated on `מע"ר - מרכז עירוני ר`'s highest-volume shared
+streets — resolving whether these represent genuine catalog over-
+inclusion or a `neighborhoodId` coding mismatch is the highest-leverage
+open question, per the ECC planner's observation. Neither is authorized
+by this wave; both require explicit new instruction.

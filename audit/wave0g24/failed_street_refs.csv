@@ -1,0 +1,13 @@
+ENTITY,STREET_NAME,STREET_ID,STATUS,FAILURE_REASON
+אזור תעשיה פנחס ספי,בן-גוריון,74000996,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65209689 (zero=195 foreign=45 missing=0 malformed=0)
+עיר ימים,בן-גוריון,74000996,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65209703 (zero=195 foreign=45 missing=0 malformed=0)
+עיר ימים,הלילך,74000991,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/70 rows matched requested sourceId=65209703 (zero=0 foreign=70 missing=0 malformed=0)
+קריית נורדאו,שלום עליכם,74000946,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/140 rows matched requested sourceId=65209705 (zero=0 foreign=140 missing=0 malformed=0)
+קריית נורדאו,בן-גוריון,74000996,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65209705 (zero=195 foreign=45 missing=0 malformed=0)
+קריית נורדאו,דב גרונר,74000533,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/52 rows matched requested sourceId=65209705 (zero=0 foreign=52 missing=0 malformed=0)
+חוף הים והמלונות,"בן-אב""י",74000504,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/335 rows matched requested sourceId=65209727 (zero=0 foreign=335 missing=0 malformed=0)
+חוף הים והמלונות,הרצל,74000418,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/467 rows matched requested sourceId=65209727 (zero=0 foreign=467 missing=0 malformed=0)
+"מע""ר - מרכז עירוני ר",בן-צבי,74000609,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/500 rows matched requested sourceId=65210243 (zero=0 foreign=500 missing=0 malformed=0)
+"מע""ר - מרכז עירוני ר",פתח תקווה,74000627,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/445 rows matched requested sourceId=65210243 (zero=0 foreign=445 missing=0 malformed=0)
+"מע""ר - מרכז עירוני ר",בן-גוריון,74000996,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65210243 (zero=195 foreign=45 missing=0 malformed=0)
+"מע""ר - מרכז עירוני ר",ז'בוטינסקי,74000512,FAILED_NO_TRUSTED_ROWS,NO_TRUSTED_ROWS: 0/422 rows matched requested sourceId=65210243 (zero=0 foreign=422 missing=0 malformed=0)

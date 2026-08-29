@@ -46,7 +46,7 @@ const RETRY_BACKOFF_MS = [2000, 5000];
 const INTER_STREET_DELAY_MS = 1200;
 const POST_NAV_SETTLE_MS = 6000;
 
-const TARGET_ENTITIES: { name: string; sourceId: string; officialTotal: number; baselineUnique: number }[] = [
+export const TARGET_ENTITIES: { name: string; sourceId: string; officialTotal: number; baselineUnique: number }[] = [
   { name: "אזור תעשיה פנחס ספי", sourceId: "65209689", officialTotal: 1021, baselineUnique: 1000 }, // ECC finding: matches audit/wave0g16/citywide_summary.json's canonical NAME exactly
   { name: "עיר ימים", sourceId: "65209703", officialTotal: 3060, baselineUnique: 2325 },
   { name: "קריית נורדאו", sourceId: "65209705", officialTotal: 3281, baselineUnique: 2265 },

@@ -1,0 +1,493 @@
+{
+  "streetsEnumerated": 374,
+  "distinctStreetIds": 338,
+  "streetsAttemptedEntityRefs": 374,
+  "statusCounts": {
+    "SUCCESS_EMPTY": 130,
+    "SUCCESS_ROWS": 171,
+    "FAILED_NO_TRUSTED_ROWS": 12,
+    "SUCCESS_MIXED_PARTIAL": 58,
+    "PARTIAL_MORE_FETCHES_INDICATED": 3
+  },
+  "networkRequests": 362,
+  "retries": 4,
+  "elapsedSeconds": 2213.6000000000054,
+  "rowAccountingScopeNote": "sumRawAcceptance is per (entity,street) REFERENCE (374), not deduped per distinct streetId — a shared boundary street is counted once per referencing entity since row acceptance is legitimately entity-relative. Do not read rawRows as a distinct-physical-row count.",
+  "rowAccounting": {
+    "rawRows": 35241,
+    "acceptedParent": 21700,
+    "rejectedZero": 975,
+    "rejectedForeign": 12566,
+    "rejectedMissing": 0,
+    "rejectedMalformed": 0
+  },
+  "citywide": {
+    "officialTopLevelRowsSum": 63704,
+    "complete27Sum": 25110,
+    "kiryatRetained": {
+      "unique": 5145,
+      "official": 5640,
+      "rerunThisWave": false
+    },
+    "target10OfficialSum": 32954,
+    "target10BaselineSum": 22093,
+    "target10AugmentedSum": 29050,
+    "updatedShadowTopLevelUnique": 59305,
+    "updatedDelta": 4399,
+    "updatedCoveragePct": 93.09462514127841,
+    "netNewVsWave0G16": 9584,
+    "thisWaveOwnContribution": 6957,
+    "baselineWave0G16": {
+      "unique": 49721,
+      "coveragePct": 78.05004395328395
+    }
+  },
+  "entityResults": [
+    {
+      "name": "אזור תעשיה פנחס ספי",
+      "sourceId": "65209689",
+      "officialTotal": 1021,
+      "baselineUnique": 1000,
+      "streetCount": 30,
+      "parentRows": 253,
+      "newRows": 14,
+      "augmentedUnique": 1014,
+      "delta": 7,
+      "coverageBefore": 97.94319294809011,
+      "coverageAfter": 99.31439764936337,
+      "status": "PARTIAL",
+      "streetsFailed": 1,
+      "trueDuplicateEntityVsStreet": 239,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 84,
+      "uniqueStreetPrevDealEvents": 84,
+      "newHistoricalPrevDeals": 0
+    },
+    {
+      "name": "עיר ימים",
+      "sourceId": "65209703",
+      "officialTotal": 3060,
+      "baselineUnique": 2325,
+      "streetCount": 22,
+      "parentRows": 1730,
+      "newRows": 175,
+      "augmentedUnique": 2500,
+      "delta": 560,
+      "coverageBefore": 75.98039215686273,
+      "coverageAfter": 81.69934640522875,
+      "status": "PARTIAL",
+      "streetsFailed": 2,
+      "trueDuplicateEntityVsStreet": 1555,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 797,
+      "uniqueStreetPrevDealEvents": 797,
+      "newHistoricalPrevDeals": 81
+    },
+    {
+      "name": "קריית נורדאו",
+      "sourceId": "65209705",
+      "officialTotal": 3281,
+      "baselineUnique": 2265,
+      "streetCount": 41,
+      "parentRows": 2899,
+      "newRows": 895,
+      "augmentedUnique": 3160,
+      "delta": 121,
+      "coverageBefore": 69.03383114903993,
+      "coverageAfter": 96.3120999695215,
+      "status": "PARTIAL",
+      "streetsFailed": 3,
+      "trueDuplicateEntityVsStreet": 2004,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 1391,
+      "uniqueStreetPrevDealEvents": 1391,
+      "newHistoricalPrevDeals": 591
+    },
+    {
+      "name": "מרכז העיר",
+      "sourceId": "65209717",
+      "officialTotal": 9972,
+      "baselineUnique": 3282,
+      "streetCount": 69,
+      "parentRows": 7044,
+      "newRows": 4622,
+      "augmentedUnique": 7904,
+      "delta": 2068,
+      "coverageBefore": 32.912154031287606,
+      "coverageAfter": 79.26193341355795,
+      "status": "PARTIAL",
+      "streetsFailed": 0,
+      "trueDuplicateEntityVsStreet": 2422,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 2814,
+      "uniqueStreetPrevDealEvents": 2813,
+      "newHistoricalPrevDeals": 2037
+    },
+    {
+      "name": "חוף הים והמלונות",
+      "sourceId": "65209727",
+      "officialTotal": 2612,
+      "baselineUnique": 2343,
+      "streetCount": 19,
+      "parentRows": 1946,
+      "newRows": 246,
+      "augmentedUnique": 2589,
+      "delta": 23,
+      "coverageBefore": 89.70137825421133,
+      "coverageAfter": 99.11944869831547,
+      "status": "PARTIAL",
+      "streetsFailed": 2,
+      "trueDuplicateEntityVsStreet": 1700,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 798,
+      "uniqueStreetPrevDealEvents": 798,
+      "newHistoricalPrevDeals": 132
+    },
+    {
+      "name": "רמת אפרים",
+      "sourceId": "65209736",
+      "officialTotal": 2266,
+      "baselineUnique": 2082,
+      "streetCount": 46,
+      "parentRows": 1339,
+      "newRows": 57,
+      "augmentedUnique": 2139,
+      "delta": 127,
+      "coverageBefore": 91.87996469549867,
+      "coverageAfter": 94.3954104148279,
+      "status": "PARTIAL",
+      "streetsFailed": 0,
+      "trueDuplicateEntityVsStreet": 1282,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 460,
+      "uniqueStreetPrevDealEvents": 460,
+      "newHistoricalPrevDeals": 53
+    },
+    {
+      "name": "מע\"ר - מרכז עירוני ר",
+      "sourceId": "65210243",
+      "officialTotal": 3273,
+      "baselineUnique": 2329,
+      "streetCount": 72,
+      "parentRows": 782,
+      "newRows": 130,
+      "augmentedUnique": 2459,
+      "delta": 814,
+      "coverageBefore": 71.15795905896731,
+      "coverageAfter": 75.12985029025359,
+      "status": "PARTIAL",
+      "streetsFailed": 4,
+      "trueDuplicateEntityVsStreet": 652,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 177,
+      "uniqueStreetPrevDealEvents": 177,
+      "newHistoricalPrevDeals": 33
+    },
+    {
+      "name": "אבו שדיד",
+      "sourceId": "65210245",
+      "officialTotal": 3082,
+      "baselineUnique": 2292,
+      "streetCount": 26,
+      "parentRows": 2407,
+      "newRows": 665,
+      "augmentedUnique": 2957,
+      "delta": 125,
+      "coverageBefore": 74.36729396495781,
+      "coverageAfter": 95.94419208306294,
+      "status": "PARTIAL",
+      "streetsFailed": 0,
+      "trueDuplicateEntityVsStreet": 1742,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 1235,
+      "uniqueStreetPrevDealEvents": 1234,
+      "newHistoricalPrevDeals": 398
+    },
+    {
+      "name": "רסקו",
+      "sourceId": "65210248",
+      "officialTotal": 2012,
+      "baselineUnique": 2010,
+      "streetCount": 26,
+      "parentRows": 1681,
+      "newRows": 2,
+      "augmentedUnique": 2012,
+      "delta": 0,
+      "coverageBefore": 99.90059642147118,
+      "coverageAfter": 100,
+      "status": "COMPLETE",
+      "streetsFailed": 0,
+      "trueDuplicateEntityVsStreet": 1679,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 656,
+      "uniqueStreetPrevDealEvents": 655,
+      "newHistoricalPrevDeals": 2
+    },
+    {
+      "name": "מכנס",
+      "sourceId": "65210752",
+      "officialTotal": 2375,
+      "baselineUnique": 2165,
+      "streetCount": 23,
+      "parentRows": 1619,
+      "newRows": 151,
+      "augmentedUnique": 2316,
+      "delta": 59,
+      "coverageBefore": 91.15789473684211,
+      "coverageAfter": 97.51578947368421,
+      "status": "PARTIAL",
+      "streetsFailed": 0,
+      "trueDuplicateEntityVsStreet": 1468,
+      "trueDuplicateStreetVsStreet": 0,
+      "ambiguousCollisions": 0,
+      "rawStreetPrevDealEvents": 797,
+      "uniqueStreetPrevDealEvents": 797,
+      "newHistoricalPrevDeals": 76
+    }
+  ],
+  "pagination": {
+    "entityRefCount": 16,
+    "distinctStreetCount": 10,
+    "candidates": [
+      {
+        "entity": "קריית נורדאו",
+        "streetName": "גולדה מאיר",
+        "streetId": "74001001",
+        "totalRows": 668,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "קריית נורדאו",
+        "streetName": "קרן היסוד",
+        "streetId": "74000977",
+        "totalRows": 634,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "PARTIAL_MORE_FETCHES_INDICATED"
+      },
+      {
+        "entity": "מרכז העיר",
+        "streetName": "בנימין",
+        "streetId": "74000532",
+        "totalRows": 913,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מרכז העיר",
+        "streetName": "הרב קוק",
+        "streetId": "74000323",
+        "totalRows": 541,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מרכז העיר",
+        "streetName": "סמילנסקי",
+        "streetId": "74000521",
+        "totalRows": 704,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מרכז העיר",
+        "streetName": "דיזנגוף",
+        "streetId": "74000406",
+        "totalRows": 698,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "PARTIAL_MORE_FETCHES_INDICATED"
+      },
+      {
+        "entity": "מרכז העיר",
+        "streetName": "ויצמן",
+        "streetId": "74000417",
+        "totalRows": 1177,
+        "totalFetch": 3,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "חוף הים והמלונות",
+        "streetName": "ניצה",
+        "streetId": "74000442",
+        "totalRows": 822,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "PARTIAL_MORE_FETCHES_INDICATED"
+      },
+      {
+        "entity": "חוף הים והמלונות",
+        "streetName": "עובד בן-עמי",
+        "streetId": "74001078",
+        "totalRows": 619,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מע\"ר - מרכז עירוני ר",
+        "streetName": "בנימין",
+        "streetId": "74000532",
+        "totalRows": 913,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מע\"ר - מרכז עירוני ר",
+        "streetName": "בן-צבי",
+        "streetId": "74000609",
+        "totalRows": 793,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "FAILED_NO_TRUSTED_ROWS"
+      },
+      {
+        "entity": "אבו שדיד",
+        "streetName": "בנימין",
+        "streetId": "74000532",
+        "totalRows": 913,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "אבו שדיד",
+        "streetName": "סמילנסקי",
+        "streetId": "74000521",
+        "totalRows": 704,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "רסקו",
+        "streetName": "ויצמן",
+        "streetId": "74000417",
+        "totalRows": 1177,
+        "totalFetch": 3,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מכנס",
+        "streetName": "הרב קוק",
+        "streetId": "74000323",
+        "totalRows": 541,
+        "totalFetch": 2,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      },
+      {
+        "entity": "מכנס",
+        "streetName": "ויצמן",
+        "streetId": "74000417",
+        "totalRows": 1177,
+        "totalFetch": 3,
+        "fetch1Rows": 500,
+        "status": "SUCCESS_MIXED_PARTIAL"
+      }
+    ]
+  },
+  "failedRefs": [
+    {
+      "entity": "אזור תעשיה פנחס ספי",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65209689 (zero=195 foreign=45 missing=0 malformed=0)"
+    },
+    {
+      "entity": "עיר ימים",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65209703 (zero=195 foreign=45 missing=0 malformed=0)"
+    },
+    {
+      "entity": "עיר ימים",
+      "streetName": "הלילך",
+      "streetId": "74000991",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/70 rows matched requested sourceId=65209703 (zero=0 foreign=70 missing=0 malformed=0)"
+    },
+    {
+      "entity": "קריית נורדאו",
+      "streetName": "שלום עליכם",
+      "streetId": "74000946",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/140 rows matched requested sourceId=65209705 (zero=0 foreign=140 missing=0 malformed=0)"
+    },
+    {
+      "entity": "קריית נורדאו",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65209705 (zero=195 foreign=45 missing=0 malformed=0)"
+    },
+    {
+      "entity": "קריית נורדאו",
+      "streetName": "דב גרונר",
+      "streetId": "74000533",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/52 rows matched requested sourceId=65209705 (zero=0 foreign=52 missing=0 malformed=0)"
+    },
+    {
+      "entity": "חוף הים והמלונות",
+      "streetName": "בן-אב\"י",
+      "streetId": "74000504",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/335 rows matched requested sourceId=65209727 (zero=0 foreign=335 missing=0 malformed=0)"
+    },
+    {
+      "entity": "חוף הים והמלונות",
+      "streetName": "הרצל",
+      "streetId": "74000418",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/467 rows matched requested sourceId=65209727 (zero=0 foreign=467 missing=0 malformed=0)"
+    },
+    {
+      "entity": "מע\"ר - מרכז עירוני ר",
+      "streetName": "בן-צבי",
+      "streetId": "74000609",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/500 rows matched requested sourceId=65210243 (zero=0 foreign=500 missing=0 malformed=0)"
+    },
+    {
+      "entity": "מע\"ר - מרכז עירוני ר",
+      "streetName": "פתח תקווה",
+      "streetId": "74000627",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/445 rows matched requested sourceId=65210243 (zero=0 foreign=445 missing=0 malformed=0)"
+    },
+    {
+      "entity": "מע\"ר - מרכז עירוני ר",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/240 rows matched requested sourceId=65210243 (zero=195 foreign=45 missing=0 malformed=0)"
+    },
+    {
+      "entity": "מע\"ר - מרכז עירוני ר",
+      "streetName": "ז'בוטינסקי",
+      "streetId": "74000512",
+      "status": "FAILED_NO_TRUSTED_ROWS",
+      "failureReason": "NO_TRUSTED_ROWS: 0/422 rows matched requested sourceId=65210243 (zero=0 foreign=422 missing=0 malformed=0)"
+    }
+  ]
+}
