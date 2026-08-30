@@ -27,6 +27,9 @@ yarn-error.log*
 /data/*.json
 !/data/.gitkeep
 
+# Supabase production row-content backups (real data dumps, never source)
+/audit/launch/backups/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

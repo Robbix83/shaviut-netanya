@@ -1,99 +1,165 @@
 # Wednesday Launch Sprint — L1: Supabase V2 Preview Import
 
-**Verdict: PARTIAL (blocked at the operator boundary before any write).**
-Phase 1 (baseline) passed cleanly. Every subsequent phase requires a live
-connection to the production Supabase project, and **no such connection
-is available in this environment** — this is reported honestly rather
-than fabricated, exactly per this engagement's standing rule against
-inventing results when blocked.
+**Verdict: PARTIAL.** Connectivity is now proven (the operator added
+`NEXT_PUBLIC_SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` to `.env.local`
+directly — no value was ever seen, requested, or printed by this session).
+A read-only pre-import backup of all three production tables was taken and
+independently verified. The mission is still blocked before any write,
+now at a different, more precise point than the previous attempt: **this
+session's REST-only Supabase client has no DDL execution capability**, so
+the two isolated preview tables (`neighborhoods_v2_preview`,
+`deals_v2_preview`) could not be created. Zero production impact.
 
-## Phase 1 — Baseline (PASS)
-
-```
-STARTING_HEAD = b84d27e74be9c676146780d93c3416a2e8334f49
-```
-Confirmed L0 commit present (`b84d27e`). Legacy canonical unchanged:
-```
-LEGACY_ROWS = 12,642
-LEGACY_SHA  = 18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f
-```
-V2 candidate unchanged:
-```
-V2_ROWS = 59,305
-V2_SHA  = 8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0
-```
-Both digests match exactly what L0 produced. No STOP condition triggered
-at this phase.
-
-## Phase 2 onward — BLOCKED
-
-Checked, in order, every way this session could reach the production
-Supabase project:
-
-1. **Environment variables** — `.env.example` documents
-   `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as the
-   variables `lib/store.ts`'s `SupabaseStore` requires. Neither is
-   present in `.env.local` (confirmed by name-only grep — no values were
-   ever inspected or would be printed). `.env.local` sets
-   `DATA_SOURCE=local` — this machine is currently configured for the
-   local file-based store, not Supabase, for any purpose.
-2. **Supabase CLI** — not installed (`which supabase` found nothing); no
-   `~/.supabase` global config; the repo's own `supabase/` directory
-   contains only two static SQL files (`schema.sql`, `bootstrap_v1.sql`)
-   used historically to set up the database by hand via Supabase
-   Studio's SQL editor — there is no linked CLI project, no migration
-   history, nothing scriptable from here.
-3. **MCP Supabase connector** — a `supabase` entry exists in this user's
-   global `~/.claude/mcp-configs/mcp-servers.json`, but it is an
-   unconfigured template: `--project-ref=YOUR_PROJECT_REF` is the literal
-   placeholder text, never filled in. It is not connected to this
-   session — confirmed via `ToolSearch`, which surfaced no Supabase-
-   capable tool at all (only an unrelated website-builder D1/SQLite MCP).
-
-**Conclusion: this session has zero ability to read, back up, or write
-to the production Supabase project.** Every phase from 2 onward (read
-current state, backup, preview-table creation, import, reconciliation,
-digest checks, read-path tests, valuation smoke, RLS/grants
-verification, performance checks) is **NOT_ATTEMPTED** — not failed, not
-partially done, not worked around. No row was read from or written to
-any live database this session. No credential value was ever seen,
-requested, or printed.
-
-## What's needed to unblock L1
-
-One of the following, at the operator's discretion — none of which this
-session can do on its own:
-
-1. **Add the two missing variables to `.env.local` directly** (on this
-   machine, not pasted into this chat) — `NEXT_PUBLIC_SUPABASE_URL` and
-   `SUPABASE_SERVICE_ROLE_KEY`, sourced from the Supabase project's own
-   dashboard (Settings → API). This session will never ask for or handle
-   the raw values; once present in the environment, the existing
-   `@supabase/supabase-js` client (already a dependency) can connect
-   without any code change.
-2. **Configure the MCP Supabase connector** — replace
-   `YOUR_PROJECT_REF` in `~/.claude/mcp-configs/mcp-servers.json` with
-   the real project reference and complete whatever auth flow that MCP
-   server requires (typically an interactive login, not a pasted key) —
-   then reconnect the MCP server to this session.
-3. **Run the import from a different, already-connected environment** —
-   if credentials exist elsewhere (e.g., a deploy pipeline, another
-   machine), the deterministic `data/v2-candidate/deals-v2.json` +
-   `neighborhoods-v2.json` (SHA-pinned in the committed
-   `data/v2-candidate/manifest.json`) can be handed to that environment
-   directly; this report's Phase 4-9 plan (preview-table names, RLS/grant
-   requirements, digest-check method) still applies verbatim there.
-
-No further action was taken this session. No preview tables were
-created. No backup was attempted (nothing to back up from — Phase 3
-correctly never ran). Production is untouched, exactly as it was before
-this sprint began.
-
-## Canonical / production safety (unaffected)
+## Resume baseline (confirmed)
 
 ```
-ORIGINAL_TABLES_CHANGED = NO (not reachable, not attempted)
-LEADS_CHANGED           = NO (not reachable, not attempted)
+Previous L1 report commit = c713cdf
+V2 candidate: ROWS=59305, SHA256=8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0
+Legacy canonical: ROWS=12642, SHA256=18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f
+```
+Both digests re-verified unchanged at the end of this session.
+
+## Phase 0 — Safe env check (PASS)
+
+```
+NEXT_PUBLIC_SUPABASE_URL_PRESENT=YES
+SUPABASE_SERVICE_ROLE_KEY_PRESENT=YES
+DATA_SOURCE=local
+```
+Checked by parsing `.env.local` for variable NAMES only; no value was ever
+read into a variable that gets logged, and no value appears anywhere in
+this repository, this report, or any console output produced this session.
+
+## Phase 1 — Connection probe (PASS)
+
+A minimal read-only probe (`.from("deals").select("id", {count:"exact",
+head:true})` — the same head-count idiom already used in
+`lib/store.ts:250`) against the production `deals` table returned:
+
+```
+SUPABASE_CONNECTION=PASS
+PROJECT_REACHABLE=YES
+CURRENT_DEALS_ROW_COUNT=12642
+```
+
+12,642 matches the known legacy row count exactly, confirming this is
+genuinely the expected production project, not an empty or wrong one.
+
+## Phase 2 — Read current Supabase state (DONE, with a capability finding)
+
+Row counts confirmed via read-only queries:
+```
+deals:         12,642 rows (19 columns incl. "houseNumber")
+neighborhoods: 21 rows (5 columns)
+leads:         0 rows
+```
+
+**Capability probe result — this is the key finding of this session.**
+`@supabase/supabase-js` talks to Supabase exclusively through PostgREST
+(the REST Data API), which by design cannot execute DDL. Three ways this
+session could still reach DDL were checked, and all three are closed:
+
+1. `information_schema.tables` / `pg_catalog.pg_policies` via `.schema(...)`
+   → `PGRST106` (schema not exposed to the Data API).
+2. An `exec_sql`-style RPC function → `PGRST202` (no such function exists;
+   none is defined anywhere in `supabase/schema.sql` or
+   `supabase/bootstrap_v1.sql`).
+3. A direct Postgres connection string (`DATABASE_URL`/similar) → not
+   present in `.env.local`; no `pg` npm package is a dependency (only
+   `@supabase/supabase-js` ^2.48.1, itself REST-only).
+
+**Conclusion: this session can read and (once tables exist) write rows via
+REST, but cannot create the preview tables itself.** This is a hard
+capability boundary, not a missing-credential problem — adding more
+env vars of the same kind already present would not unblock it.
+
+A real schema-drift finding surfaced during this probe: the live `deals`
+table has 19 columns (including `"houseNumber"`), while the older,
+committed `supabase/schema.sql` only declares 18. `supabase/bootstrap_v1.sql`
+(already committed, from an earlier wave) already documents the correct
+19-column shape and explicitly calls out this exact drift in its own
+comments — confirmed as the authoritative reference used below, not a new
+discovery requiring any code change.
+
+## Backup (DONE and independently verified)
+
+`scripts/l1-backup-production.ts` (new, committed) performs a read-only
+logical backup of all three production tables via paginated REST reads.
+This is a row-content backup, not a physical `pg_dump` — no direct
+Postgres connection is available to do the latter.
+
+An ECC silent-failure-hunter review of the first run found a real gap: row
+counts from pagination alone are not proof of completeness — a server-side
+page-size cap could return a short page mid-table and look identical to
+"reached the end." Fixed by adding an independent `count:"exact",
+head:true` check per table *before* paginating, with a hard
+`BACKUP_COUNT_MISMATCH` throw (refuses to write a partial backup) if the
+two disagree. Re-run after the fix:
+
+```
+NEIGHBORHOODS_BACKUP_ROWS=21    SHA256=659d312e86ba405bce6bb56ac174845652cfd661937b48e1c8c8c68479dbed7f
+DEALS_BACKUP_ROWS=12642         SHA256=8914299bec21e24a003b1fbf549bb49adf7f78f54f83915baa7ac0409677166b
+LEADS_BACKUP_ROWS=0             SHA256=4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945
+```
+Identical to the pre-fix run — the original backup was in fact complete,
+now with proof instead of an unverified assumption. Output lives in
+`audit/launch/backups/` (now `.gitignore`'d — see Security below) and was
+never staged or committed.
+
+## Preview table creation (BLOCKED — the actual stopping point)
+
+Since this session cannot execute DDL, it prepared
+`supabase/l1_preview_tables.sql` (new, committed) — reviewed SQL for the
+operator to run manually in Supabase Studio's SQL editor. It creates
+`neighborhoods_v2_preview` and `deals_v2_preview` only; it never touches
+`deals`/`neighborhoods`/`leads`.
+
+An ECC database-reviewer + planner pass caught a real correctness issue in
+the first draft: `bootstrap_v1.sql` documents that this project has
+**"Automatically expose new tables" = OFF**, meaning `service_role`'s
+RLS-bypass does **not** by itself grant table privileges on a
+newly-created table — without explicit `GRANT`s, the eventual import
+would have failed with a permissions error on the very first insert, even
+though this same service-role key already reads/writes production tables
+fine. Fixed by mirroring `bootstrap_v1.sql`'s exact access-control block
+(`REVOKE ALL` then explicit `GRANT SELECT, INSERT, UPDATE` to
+`service_role` — no `DELETE`, matching the production
+`SERVICE_ROLE_DELETE=NO` posture; `REVOKE ALL` from `anon`/`authenticated`)
+for both new tables.
+
+```
+NEIGHBORHOODS_V2_PREVIEW_ROWS=NOT_CREATED
+DEALS_V2_PREVIEW_ROWS=NOT_CREATED
+```
+
+## Phases 5–18 (import, reconciliation, digest, read-path, valuation
+smoke, RLS re-verification, performance) — NOT_ATTEMPTED
+
+All correctly gated behind preview-table creation; none were attempted.
+
+## What's needed to unblock the rest of L1
+
+One of, at the operator's discretion:
+
+1. **Run `supabase/l1_preview_tables.sql` in Supabase Studio's SQL
+   editor** — the fastest path. Once the two tables exist with the
+   grants applied, a resumed session can import via the same
+   `@supabase/supabase-js` REST client already proven to work.
+2. **Add a direct Postgres connection string** (e.g. `DATABASE_URL`) to
+   `.env.local` and add the `pg` package as a dependency — would let a
+   future session run DDL itself via a real SQL client, no manual Studio
+   step needed for this or future waves.
+3. **Configure a Supabase Management API token** (a different credential
+   class from the service-role key) — would allow DDL via Supabase's
+   HTTP Management API instead.
+
+Option 1 requires no new credential of any kind and is the smallest step.
+
+## Production safety (unaffected)
+
+```
+ORIGINAL_TABLES_CHANGED = NO
+LEADS_CHANGED           = NO
 PRODUCTION_ENV_CHANGED  = NO
 PRODUCTION_DEPLOYED     = NO
 LEGACY data/deals.json  = unchanged (SHA verified above)
@@ -101,16 +167,54 @@ LEGACY data/deals.json  = unchanged (SHA verified above)
 
 ## Tests / quality gates
 
-No code was changed this phase (the blocker was discovered before any
-implementation work began), so no new test run was needed. The full
-suite, typecheck, and build were already verified clean at the end of
-L0 (`b84d27e`) and remain applicable — not re-run here since nothing in
-the repository changed.
+```
+npx tsc --noEmit   -> clean
+npx vitest run     -> 32 files, 392 tests, all passing (unchanged count from L0)
+npm run build      -> compiled successfully, 25 routes generated
+```
+Re-run after applying every ECC fix below, not just once at the start.
 
 ## Security
 
-No credential value was printed, logged, requested, or stored anywhere
-in this session or this report — only variable NAMES were checked for
-presence/absence. No tracked artifact from this phase contains any
-secret material (this report is the only new file, and it is
-credential-free by construction).
+- No credential value was ever printed, logged, or written to any file
+  this session — only variable NAMES were checked for presence.
+- `audit/launch/backups/` (containing real production row data) is now
+  added to `.gitignore` (previously it was untracked-but-not-ignored — a
+  real accidental-`git add -A` risk an ECC security-reviewer and
+  code-reviewer both flagged independently). Confirmed via `git status`
+  that it no longer appears at all.
+- `supabase/l1_preview_tables.sql` is static DDL with no interpolation —
+  no injection surface.
+- `SECRET_EXPOSURE = NO` (ECC security-reviewer verdict).
+
+## ECC review (6 reviewers dispatched, findings applied)
+
+- **planner** — confirmed stopping at the DDL wall is correct (no
+  realistic path missed); flagged the false "never committed" claim in
+  the backup script's original comment and the missing
+  `service_role` GRANTs in the SQL draft; flagged this report as stale —
+  all three fixed/rewritten.
+- **database-reviewer** — verified column types/nullability, FK ordering,
+  indexes, and RLS posture in `l1_preview_tables.sql` against
+  `lib/types.ts` and `bootstrap_v1.sql`; SQL confirmed safe to hand to the
+  operator after the grants fix.
+- **silent-failure-hunter** — found the backup script's pagination
+  termination had no independent proof of completeness; fixed with a
+  count cross-check.
+- **security-reviewer** — verified no secret exposure anywhere; recommended
+  the `.gitignore` addition, applied.
+- **code-reviewer** — confirmed the false "excluded from version control"
+  comment was not actually enforced anywhere on disk; flagged a redundant
+  `existsSync` check (removed); everything else clean.
+- **specialist** — not separately dispatched this pass; the other five
+  reviewers' scope fully covered this session's actual (narrow) change
+  surface — two new scripts and a report, no import logic was written
+  since Phase 4 never unblocked.
+
+## Commit
+
+New files this session: `scripts/l1-backup-production.ts`,
+`supabase/l1_preview_tables.sql`, `.gitignore` (one new line), this report.
+Never committed: `audit/launch/backups/*.json` (real production data
+dumps), any credential, the 59,305-row V2 candidate file (already
+established as local-only in L0).
