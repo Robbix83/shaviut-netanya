@@ -1,0 +1,129 @@
+{
+  "unresolvedPool": 481,
+  "selectedStreets": [
+    {
+      "streetId": "74000627",
+      "streetName": "פתח תקווה",
+      "unresolved": 143
+    },
+    {
+      "streetId": "74000946",
+      "streetName": "שלום עליכם",
+      "unresolved": 140
+    }
+  ],
+  "phase4And5": [
+    {
+      "streetId": "74000627",
+      "streetName": "פתח תקווה",
+      "requestingEntity": "מע\"ר - מרכז עירוני ר",
+      "rawRows": 445,
+      "requestingParentRows": 0,
+      "foreignOfficialRows": 445,
+      "zeroRows": 0,
+      "unknownRows": 0
+    },
+    {
+      "streetId": "74000946",
+      "streetName": "שלום עליכם",
+      "requestingEntity": "קריית נורדאו",
+      "rawRows": 140,
+      "requestingParentRows": 0,
+      "foreignOfficialRows": 140,
+      "zeroRows": 0,
+      "unknownRows": 0
+    }
+  ],
+  "destinationImpact": [
+    {
+      "entity": "רמת אפרים",
+      "sourceId": "65209736",
+      "status": "PARTIAL",
+      "currentSafeUnique": 2139,
+      "officialTotal": 2266,
+      "currentDelta": 127,
+      "simulatedRoutedNew": 0,
+      "simulatedNewUnique": 2139,
+      "simulatedNewDelta": 127,
+      "normalizationDrops": 0
+    },
+    {
+      "entity": "מרכז העיר",
+      "sourceId": "65209717",
+      "status": "PARTIAL",
+      "currentSafeUnique": 7904,
+      "officialTotal": 9972,
+      "currentDelta": 2068,
+      "simulatedRoutedNew": 0,
+      "simulatedNewUnique": 7904,
+      "simulatedNewDelta": 2068,
+      "normalizationDrops": 0
+    },
+    {
+      "entity": "גבע",
+      "sourceId": "65210246",
+      "status": "COMPLETE",
+      "currentSafeUnique": 1550,
+      "officialTotal": 1550,
+      "currentDelta": 0,
+      "simulatedRoutedNew": 0,
+      "simulatedNewUnique": 1550,
+      "simulatedNewDelta": 0,
+      "normalizationDrops": 0
+    },
+    {
+      "entity": "אגמים",
+      "sourceId": "65210238",
+      "status": "COMPLETE",
+      "currentSafeUnique": 1804,
+      "officialTotal": 1804,
+      "currentDelta": 0,
+      "simulatedRoutedNew": 0,
+      "simulatedNewUnique": 1804,
+      "simulatedNewDelta": 0,
+      "normalizationDrops": 0
+    }
+  ],
+  "citywideMatch": {
+    "totalForeignRaw": 585,
+    "totalDuplicateOfDestination": 585,
+    "totalGenuinelyNew": 0,
+    "ambiguousCollisionsKeyLevelOnly": 0,
+    "ambiguousCollisionsCaveat": "Only transactionKey (parcelNum+date+price) equality was checked. Non-key field agreement (floor/area/rooms) was NOT independently re-verified this wave — unlike classifyTransactionGroups's rowsAgree check used elsewhere in this engagement. Re-verifying would require re-fetching the raw rows (deleted; this wave's 2-request budget is spent)."
+  },
+  "crossSurfaceValidation": {
+    "crossSurfaceExamples": 283,
+    "sameSurfaceReconfirmed": 302,
+    "note": "Only the non-target destinations (גבע, אגמים — matched against their bare, never-augmented Wave 0G-16 baseline) count as genuine cross-surface confirmation. The target destinations (מרכז העיר, רמת אפרים) matched against a corpus that already includes THIS SAME street's own prior result — a re-confirmation, not independent evidence."
+  },
+  "negativeControls": {
+    "zeroRows": 0,
+    "zeroRouted": 0,
+    "foreignAssignedToRequestingEntity": 0
+  },
+  "simulation": {
+    "simulationOnly": true,
+    "currentCitywideUnique": 59305,
+    "simulatedNewCitywideUnique": 59305,
+    "officialTotal": 63704,
+    "simulatedDelta": 4399,
+    "simulatedCoverage": 93.09462514127841
+  },
+  "partialVsComplete": {
+    "newToPartial": 0,
+    "newToComplete": 0,
+    "completeContradictions": 0
+  },
+  "architecture": {
+    "citywideStreetRouting": "PROMISING",
+    "routingRuleEvidence": "STRONG_ON_SAFETY_UNTESTED_ON_NOVEL_CASE",
+    "routingRuleCaveat": "All 3 live-verified cases to date (across this wave and Wave 0G-25) were 100% pre-existing duplicates — the rule has never been exercised on a row genuinely absent everywhere, so its behavior on a truly novel/contested assignment remains unproven, only its non-misrouting safety is proven.",
+    "bestNextStep": "A"
+  },
+  "reproducibilityNote": "The 2 live-fetched raw JSON dumps this wave's headline figures (585 raw rows, 0 genuinely new) were computed from have been deleted per the project's standing rule against committing raw acquisition dumps. This wave's 2-live-request budget is exhausted, so the underlying raw data cannot be regenerated without new authorization. Only the aggregate counts in this summary and the compact CSVs are reproducible from committed artifacts; the per-row detail is not. Flagged per ECC planner review as a process point for future waves: consider persisting a key-only (transactionKey + destination neighborhoodId, no other fields) CSV before deleting a raw dump, to preserve reviewability without violating the no-raw-dumps rule.",
+  "policy": {
+    "requestingEntityPolicyChanged": false,
+    "zeroIdPolicyChanged": false,
+    "foreignIdValidationLoosened": false
+  }
+}
