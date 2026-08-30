@@ -1,0 +1,22 @@
+REQUESTED_ENTITY,STREET,STREET_ID,RAW_ROWS,NEIGHBORHOOD_ID,ROW_COUNT,OFFICIAL_ENTITY_NAME,VERIFICATION
+"מע""ר - מרכז עירוני ר",בן-צבי,74000609,500,65209688,52,רמת יגאל ידין - דורה,LIVE_VERIFIED_2_REQUESTS
+"מע""ר - מרכז עירוני ר",בן-צבי,74000609,500,65210192,158,נאות שקד,LIVE_VERIFIED_2_REQUESTS
+"מע""ר - מרכז עירוני ר",בן-צבי,74000609,500,65210194,13,נווה אוז,LIVE_VERIFIED_2_REQUESTS
+"מע""ר - מרכז עירוני ר",בן-צבי,74000609,500,65210238,258,אגמים,LIVE_VERIFIED_2_REQUESTS
+"מע""ר - מרכז עירוני ר",בן-צבי,74000609,500,65210242,19,רמת חן,LIVE_VERIFIED_2_REQUESTS
+אזור תעשיה פנחס ספי,בן-גוריון,74000996,240,(within target manifest),5,חוף הים והמלונות,OFFLINE_FROM_WAVE0G24B_RESULTS
+אזור תעשיה פנחס ספי,בן-גוריון,74000996,240,UNKNOWN_OUTSIDE_10_TARGETS,40,UNRESOLVED,NOT_LIVE_VERIFIED
+עיר ימים,הלילך,74000991,70,UNKNOWN_OUTSIDE_10_TARGETS,70,UNRESOLVED,NOT_LIVE_VERIFIED
+קריית נורדאו,שלום עליכם,74000946,140,UNKNOWN_OUTSIDE_10_TARGETS,140,UNRESOLVED,NOT_LIVE_VERIFIED
+קריית נורדאו,דב גרונר,74000533,52,(within target manifest),52,רמת אפרים,OFFLINE_FROM_WAVE0G24B_RESULTS
+חוף הים והמלונות,"בן-אב""י",74000504,335,(within target manifest),97,"מע""ר - מרכז עירוני ר",OFFLINE_FROM_WAVE0G24B_RESULTS
+חוף הים והמלונות,"בן-אב""י",74000504,335,(within target manifest),177,אבו שדיד,OFFLINE_FROM_WAVE0G24B_RESULTS
+חוף הים והמלונות,"בן-אב""י",74000504,335,UNKNOWN_OUTSIDE_10_TARGETS,61,UNRESOLVED,NOT_LIVE_VERIFIED
+חוף הים והמלונות,הרצל,74000418,467,(within target manifest),428,מרכז העיר,OFFLINE_FROM_WAVE0G24B_RESULTS
+חוף הים והמלונות,הרצל,74000418,467,(within target manifest),12,רמת אפרים,OFFLINE_FROM_WAVE0G24B_RESULTS
+חוף הים והמלונות,הרצל,74000418,467,UNKNOWN_OUTSIDE_10_TARGETS,27,UNRESOLVED,NOT_LIVE_VERIFIED
+"מע""ר - מרכז עירוני ר",פתח תקווה,74000627,445,(within target manifest),24,מרכז העיר,OFFLINE_FROM_WAVE0G24B_RESULTS
+"מע""ר - מרכז עירוני ר",פתח תקווה,74000627,445,(within target manifest),278,רמת אפרים,OFFLINE_FROM_WAVE0G24B_RESULTS
+"מע""ר - מרכז עירוני ר",פתח תקווה,74000627,445,UNKNOWN_OUTSIDE_10_TARGETS,143,UNRESOLVED,NOT_LIVE_VERIFIED
+"מע""ר - מרכז עירוני ר",ז'בוטינסקי,74000512,422,(within target manifest),217,חוף הים והמלונות,OFFLINE_FROM_WAVE0G24B_RESULTS
+"מע""ר - מרכז עירוני ר",ז'בוטינסקי,74000512,422,(within target manifest),205,אבו שדיד,OFFLINE_FROM_WAVE0G24B_RESULTS

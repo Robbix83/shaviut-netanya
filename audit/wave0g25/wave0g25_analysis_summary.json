@@ -1,0 +1,700 @@
+{
+  "failedRefCount": 12,
+  "phase2": [
+    {
+      "entity": "65209689",
+      "entityName": "אזור תעשיה פנחס ספי",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "rawRows": 240,
+      "parentRows": 0,
+      "zeroRows": 195,
+      "foreignRows": 45,
+      "otherRows": 0,
+      "totalRowsIfKnown": 240,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209703",
+      "entityName": "עיר ימים",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "rawRows": 240,
+      "parentRows": 0,
+      "zeroRows": 195,
+      "foreignRows": 45,
+      "otherRows": 0,
+      "totalRowsIfKnown": 240,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209703",
+      "entityName": "עיר ימים",
+      "streetName": "הלילך",
+      "streetId": "74000991",
+      "rawRows": 70,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 70,
+      "otherRows": 0,
+      "totalRowsIfKnown": 70,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209705",
+      "entityName": "קריית נורדאו",
+      "streetName": "שלום עליכם",
+      "streetId": "74000946",
+      "rawRows": 140,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 140,
+      "otherRows": 0,
+      "totalRowsIfKnown": 140,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209705",
+      "entityName": "קריית נורדאו",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "rawRows": 240,
+      "parentRows": 0,
+      "zeroRows": 195,
+      "foreignRows": 45,
+      "otherRows": 0,
+      "totalRowsIfKnown": 240,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209705",
+      "entityName": "קריית נורדאו",
+      "streetName": "דב גרונר",
+      "streetId": "74000533",
+      "rawRows": 52,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 52,
+      "otherRows": 0,
+      "totalRowsIfKnown": 52,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209727",
+      "entityName": "חוף הים והמלונות",
+      "streetName": "בן-אב\"י",
+      "streetId": "74000504",
+      "rawRows": 335,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 335,
+      "otherRows": 0,
+      "totalRowsIfKnown": 335,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65209727",
+      "entityName": "חוף הים והמלונות",
+      "streetName": "הרצל",
+      "streetId": "74000418",
+      "rawRows": 467,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 467,
+      "otherRows": 0,
+      "totalRowsIfKnown": 467,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65210243",
+      "entityName": "מע\"ר - מרכז עירוני ר",
+      "streetName": "בן-צבי",
+      "streetId": "74000609",
+      "rawRows": 500,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 500,
+      "otherRows": 0,
+      "totalRowsIfKnown": 793,
+      "totalFetchIfKnown": 2
+    },
+    {
+      "entity": "65210243",
+      "entityName": "מע\"ר - מרכז עירוני ר",
+      "streetName": "פתח תקווה",
+      "streetId": "74000627",
+      "rawRows": 445,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 445,
+      "otherRows": 0,
+      "totalRowsIfKnown": 445,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65210243",
+      "entityName": "מע\"ר - מרכז עירוני ר",
+      "streetName": "בן-גוריון",
+      "streetId": "74000996",
+      "rawRows": 240,
+      "parentRows": 0,
+      "zeroRows": 195,
+      "foreignRows": 45,
+      "otherRows": 0,
+      "totalRowsIfKnown": 240,
+      "totalFetchIfKnown": 1
+    },
+    {
+      "entity": "65210243",
+      "entityName": "מע\"ר - מרכז עירוני ר",
+      "streetName": "ז'בוטינסקי",
+      "streetId": "74000512",
+      "rawRows": 422,
+      "parentRows": 0,
+      "zeroRows": 0,
+      "foreignRows": 422,
+      "otherRows": 0,
+      "totalRowsIfKnown": 422,
+      "totalFetchIfKnown": 1
+    }
+  ],
+  "distinctFailedStreetIds": 9,
+  "sharedCount": 6,
+  "phase3": [
+    {
+      "streetId": "74000996",
+      "streetName": "בן-גוריון",
+      "manifestEntityIds": [
+        "65209689",
+        "65209703",
+        "65209705",
+        "65209727",
+        "65210243"
+      ],
+      "manifestEntityNames": [
+        "אזור תעשיה פנחס ספי",
+        "עיר ימים",
+        "קריית נורדאו",
+        "חוף הים והמלונות",
+        "מע\"ר - מרכז עירוני ר"
+      ]
+    },
+    {
+      "streetId": "74000991",
+      "streetName": "הלילך",
+      "manifestEntityIds": [
+        "65209703"
+      ],
+      "manifestEntityNames": [
+        "עיר ימים"
+      ]
+    },
+    {
+      "streetId": "74000946",
+      "streetName": "שלום עליכם",
+      "manifestEntityIds": [
+        "65209705"
+      ],
+      "manifestEntityNames": [
+        "קריית נורדאו"
+      ]
+    },
+    {
+      "streetId": "74000533",
+      "streetName": "דב גרונר",
+      "manifestEntityIds": [
+        "65209705",
+        "65209736"
+      ],
+      "manifestEntityNames": [
+        "קריית נורדאו",
+        "רמת אפרים"
+      ]
+    },
+    {
+      "streetId": "74000504",
+      "streetName": "בן-אב\"י",
+      "manifestEntityIds": [
+        "65209727",
+        "65210243",
+        "65210245"
+      ],
+      "manifestEntityNames": [
+        "חוף הים והמלונות",
+        "מע\"ר - מרכז עירוני ר",
+        "אבו שדיד"
+      ]
+    },
+    {
+      "streetId": "74000418",
+      "streetName": "הרצל",
+      "manifestEntityIds": [
+        "65209717",
+        "65209727",
+        "65209736"
+      ],
+      "manifestEntityNames": [
+        "מרכז העיר",
+        "חוף הים והמלונות",
+        "רמת אפרים"
+      ]
+    },
+    {
+      "streetId": "74000609",
+      "streetName": "בן-צבי",
+      "manifestEntityIds": [
+        "65210243"
+      ],
+      "manifestEntityNames": [
+        "מע\"ר - מרכז עירוני ר"
+      ]
+    },
+    {
+      "streetId": "74000627",
+      "streetName": "פתח תקווה",
+      "manifestEntityIds": [
+        "65209717",
+        "65209736",
+        "65210243"
+      ],
+      "manifestEntityNames": [
+        "מרכז העיר",
+        "רמת אפרים",
+        "מע\"ר - מרכז עירוני ר"
+      ]
+    },
+    {
+      "streetId": "74000512",
+      "streetName": "ז'בוטינסקי",
+      "manifestEntityIds": [
+        "65209727",
+        "65210243",
+        "65210245"
+      ],
+      "manifestEntityNames": [
+        "חוף הים והמלונות",
+        "מע\"ר - מרכז עירוני ר",
+        "אבו שדיד"
+      ]
+    }
+  ],
+  "phase6": [
+    {
+      "streetId": "74000996",
+      "streetName": "בן-גוריון",
+      "requestedEntity": "אזור תעשיה פנחס ספי",
+      "requestedEntitySourceId": "65209689",
+      "dominantReturnedEntity": "חוף הים והמלונות",
+      "dominantShare": "2.1%",
+      "allReturnedEntities": "אזור תעשיה פנחס ספי:FAILED_NO_TRUSTED_ROWS:accepted=0 | עיר ימים:FAILED_NO_TRUSTED_ROWS:accepted=0 | קריית נורדאו:FAILED_NO_TRUSTED_ROWS:accepted=0 | חוף הים והמלונות:SUCCESS_MIXED_PARTIAL:accepted=5 | מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000996",
+      "streetName": "בן-גוריון",
+      "requestedEntity": "עיר ימים",
+      "requestedEntitySourceId": "65209703",
+      "dominantReturnedEntity": "חוף הים והמלונות",
+      "dominantShare": "2.1%",
+      "allReturnedEntities": "אזור תעשיה פנחס ספי:FAILED_NO_TRUSTED_ROWS:accepted=0 | עיר ימים:FAILED_NO_TRUSTED_ROWS:accepted=0 | קריית נורדאו:FAILED_NO_TRUSTED_ROWS:accepted=0 | חוף הים והמלונות:SUCCESS_MIXED_PARTIAL:accepted=5 | מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000996",
+      "streetName": "בן-גוריון",
+      "requestedEntity": "קריית נורדאו",
+      "requestedEntitySourceId": "65209705",
+      "dominantReturnedEntity": "חוף הים והמלונות",
+      "dominantShare": "2.1%",
+      "allReturnedEntities": "אזור תעשיה פנחס ספי:FAILED_NO_TRUSTED_ROWS:accepted=0 | עיר ימים:FAILED_NO_TRUSTED_ROWS:accepted=0 | קריית נורדאו:FAILED_NO_TRUSTED_ROWS:accepted=0 | חוף הים והמלונות:SUCCESS_MIXED_PARTIAL:accepted=5 | מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000996",
+      "streetName": "בן-גוריון",
+      "requestedEntity": "מע\"ר - מרכז עירוני ר",
+      "requestedEntitySourceId": "65210243",
+      "dominantReturnedEntity": "חוף הים והמלונות",
+      "dominantShare": "2.1%",
+      "allReturnedEntities": "אזור תעשיה פנחס ספי:FAILED_NO_TRUSTED_ROWS:accepted=0 | עיר ימים:FAILED_NO_TRUSTED_ROWS:accepted=0 | קריית נורדאו:FAILED_NO_TRUSTED_ROWS:accepted=0 | חוף הים והמלונות:SUCCESS_MIXED_PARTIAL:accepted=5 | מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000991",
+      "streetName": "הלילך",
+      "requestedEntity": "עיר ימים",
+      "requestedEntitySourceId": "65209703",
+      "dominantReturnedEntity": "UNKNOWN_OUTSIDE_10_TARGETS",
+      "dominantShare": "N/A",
+      "allReturnedEntities": "עיר ימים:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "N/A",
+      "resolvedOffline": false,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000946",
+      "streetName": "שלום עליכם",
+      "requestedEntity": "קריית נורדאו",
+      "requestedEntitySourceId": "65209705",
+      "dominantReturnedEntity": "UNKNOWN_OUTSIDE_10_TARGETS",
+      "dominantShare": "N/A",
+      "allReturnedEntities": "קריית נורדאו:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "N/A",
+      "resolvedOffline": false,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000533",
+      "streetName": "דב גרונר",
+      "requestedEntity": "קריית נורדאו",
+      "requestedEntitySourceId": "65209705",
+      "dominantReturnedEntity": "רמת אפרים",
+      "dominantShare": "100.0%",
+      "allReturnedEntities": "קריית נורדאו:FAILED_NO_TRUSTED_ROWS:accepted=0 | רמת אפרים:SUCCESS_ROWS:accepted=52",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000504",
+      "streetName": "בן-אב\"י",
+      "requestedEntity": "חוף הים והמלונות",
+      "requestedEntitySourceId": "65209727",
+      "dominantReturnedEntity": "אבו שדיד",
+      "dominantShare": "52.8%",
+      "allReturnedEntities": "חוף הים והמלונות:FAILED_NO_TRUSTED_ROWS:accepted=0 | מע\"ר - מרכז עירוני ר:SUCCESS_MIXED_PARTIAL:accepted=97 | אבו שדיד:SUCCESS_MIXED_PARTIAL:accepted=177",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000418",
+      "streetName": "הרצל",
+      "requestedEntity": "חוף הים והמלונות",
+      "requestedEntitySourceId": "65209727",
+      "dominantReturnedEntity": "מרכז העיר",
+      "dominantShare": "91.6%",
+      "allReturnedEntities": "מרכז העיר:SUCCESS_MIXED_PARTIAL:accepted=428 | חוף הים והמלונות:FAILED_NO_TRUSTED_ROWS:accepted=0 | רמת אפרים:SUCCESS_MIXED_PARTIAL:accepted=12",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000609",
+      "streetName": "בן-צבי",
+      "requestedEntity": "מע\"ר - מרכז עירוני ר",
+      "requestedEntitySourceId": "65210243",
+      "dominantReturnedEntity": "UNKNOWN_OUTSIDE_10_TARGETS",
+      "dominantShare": "N/A",
+      "allReturnedEntities": "מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "N/A",
+      "resolvedOffline": false,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000627",
+      "streetName": "פתח תקווה",
+      "requestedEntity": "מע\"ר - מרכז עירוני ר",
+      "requestedEntitySourceId": "65210243",
+      "dominantReturnedEntity": "רמת אפרים",
+      "dominantShare": "62.5%",
+      "allReturnedEntities": "מרכז העיר:SUCCESS_MIXED_PARTIAL:accepted=24 | רמת אפרים:SUCCESS_MIXED_PARTIAL:accepted=278 | מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": false
+    },
+    {
+      "streetId": "74000512",
+      "streetName": "ז'בוטינסקי",
+      "requestedEntity": "מע\"ר - מרכז עירוני ר",
+      "requestedEntitySourceId": "65210243",
+      "dominantReturnedEntity": "חוף הים והמלונות",
+      "dominantShare": "51.4%",
+      "allReturnedEntities": "חוף הים והמלונות:SUCCESS_MIXED_PARTIAL:accepted=217 | מע\"ר - מרכז עירוני ר:FAILED_NO_TRUSTED_ROWS:accepted=0 | אבו שדיד:SUCCESS_MIXED_PARTIAL:accepted=205",
+      "dominantAlsoListsStreet": "YES",
+      "resolvedOffline": true,
+      "isExactTie": false,
+      "isNearTie": true
+    }
+  ],
+  "streetBreakdown": [
+    {
+      "streetId": "74000996",
+      "streetName": "בן-גוריון",
+      "raw": 240,
+      "zero": 195,
+      "targetAccepted": [
+        {
+          "entity": "חוף הים והמלונות",
+          "accepted": 5
+        }
+      ],
+      "sumTargetAccepted": 5,
+      "unexplained": 40
+    },
+    {
+      "streetId": "74000991",
+      "streetName": "הלילך",
+      "raw": 70,
+      "zero": 0,
+      "targetAccepted": [],
+      "sumTargetAccepted": 0,
+      "unexplained": 70
+    },
+    {
+      "streetId": "74000946",
+      "streetName": "שלום עליכם",
+      "raw": 140,
+      "zero": 0,
+      "targetAccepted": [],
+      "sumTargetAccepted": 0,
+      "unexplained": 140
+    },
+    {
+      "streetId": "74000533",
+      "streetName": "דב גרונר",
+      "raw": 52,
+      "zero": 0,
+      "targetAccepted": [
+        {
+          "entity": "רמת אפרים",
+          "accepted": 52
+        }
+      ],
+      "sumTargetAccepted": 52,
+      "unexplained": 0
+    },
+    {
+      "streetId": "74000504",
+      "streetName": "בן-אב\"י",
+      "raw": 335,
+      "zero": 0,
+      "targetAccepted": [
+        {
+          "entity": "מע\"ר - מרכז עירוני ר",
+          "accepted": 97
+        },
+        {
+          "entity": "אבו שדיד",
+          "accepted": 177
+        }
+      ],
+      "sumTargetAccepted": 274,
+      "unexplained": 61
+    },
+    {
+      "streetId": "74000418",
+      "streetName": "הרצל",
+      "raw": 467,
+      "zero": 0,
+      "targetAccepted": [
+        {
+          "entity": "מרכז העיר",
+          "accepted": 428
+        },
+        {
+          "entity": "רמת אפרים",
+          "accepted": 12
+        }
+      ],
+      "sumTargetAccepted": 440,
+      "unexplained": 27
+    },
+    {
+      "streetId": "74000609",
+      "streetName": "בן-צבי",
+      "raw": 500,
+      "zero": 0,
+      "targetAccepted": [],
+      "sumTargetAccepted": 0,
+      "unexplained": 500
+    },
+    {
+      "streetId": "74000627",
+      "streetName": "פתח תקווה",
+      "raw": 445,
+      "zero": 0,
+      "targetAccepted": [
+        {
+          "entity": "מרכז העיר",
+          "accepted": 24
+        },
+        {
+          "entity": "רמת אפרים",
+          "accepted": 278
+        }
+      ],
+      "sumTargetAccepted": 302,
+      "unexplained": 143
+    },
+    {
+      "streetId": "74000512",
+      "streetName": "ז'בוטינסקי",
+      "raw": 422,
+      "zero": 0,
+      "targetAccepted": [
+        {
+          "entity": "חוף הים והמלונות",
+          "accepted": 217
+        },
+        {
+          "entity": "אבו שדיד",
+          "accepted": 205
+        }
+      ],
+      "sumTargetAccepted": 422,
+      "unexplained": 0
+    }
+  ],
+  "resolvedOfflineCount": 9,
+  "unresolvedOfflineCount": 3,
+  "acceptedUnionKeysReconstructed": 29050,
+  "benTsviVerified": {
+    "streetId": "74000609",
+    "streetName": "בן-צבי",
+    "requestedBy": "מע\"ר - מרכז עירוני ר",
+    "rawRows": 500,
+    "neighborhoodIdDistribution": [
+      {
+        "neighborhoodId": "65209688",
+        "name": "רמת יגאל ידין - דורה",
+        "rows": 52,
+        "entityStatus": "COMPLETE (Wave 0G-16)"
+      },
+      {
+        "neighborhoodId": "65210192",
+        "name": "נאות שקד",
+        "rows": 158,
+        "entityStatus": "COMPLETE (Wave 0G-16)"
+      },
+      {
+        "neighborhoodId": "65210194",
+        "name": "נווה אוז",
+        "rows": 13,
+        "entityStatus": "COMPLETE (Wave 0G-16)"
+      },
+      {
+        "neighborhoodId": "65210238",
+        "name": "אגמים",
+        "rows": 258,
+        "entityStatus": "COMPLETE (Wave 0G-16)"
+      },
+      {
+        "neighborhoodId": "65210242",
+        "name": "רמת חן",
+        "rows": 19,
+        "entityStatus": "COMPLETE (Wave 0G-16)"
+      }
+    ],
+    "duplicateOfAcceptedCitywide": 500,
+    "notPresentInAcceptedCitywide": 0,
+    "verificationMethod": "hand-rolled key (parcelNum|hasDate-flag|dealAmount≡price), applied identically to both sides, consistent with but not literally lib/shadowRebuild.ts's transactionKey()",
+    "conclusion": "100% of this street's 500 raw rows are pre-existing, already-captured, already-COMPLETE transactions under 5 DIFFERENT official entities, none of which is מע\"ר. Zero rows are missing citywide; zero recovery opportunity for מע\"ר from this street specifically."
+  },
+  "entityImpact": [
+    {
+      "entity": "אזור תעשיה פנחס ספי",
+      "sourceId": "65209689",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 0,
+      "ofWhichAlreadyPresent": 0,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "עיר ימים",
+      "sourceId": "65209703",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 0,
+      "ofWhichAlreadyPresent": 0,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "קריית נורדאו",
+      "sourceId": "65209705",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 0,
+      "ofWhichAlreadyPresent": 0,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "מרכז העיר",
+      "sourceId": "65209717",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 452,
+      "ofWhichAlreadyPresent": 452,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "חוף הים והמלונות",
+      "sourceId": "65209727",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 222,
+      "ofWhichAlreadyPresent": 222,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "רמת אפרים",
+      "sourceId": "65209736",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 342,
+      "ofWhichAlreadyPresent": 342,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "מע\"ר - מרכז עירוני ר",
+      "sourceId": "65210243",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 97,
+      "ofWhichAlreadyPresent": 97,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "אבו שדיד",
+      "sourceId": "65210245",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 382,
+      "ofWhichAlreadyPresent": 382,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "רסקו",
+      "sourceId": "65210248",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 0,
+      "ofWhichAlreadyPresent": 0,
+      "ofWhichNotPresent": 0
+    },
+    {
+      "entity": "מכנס",
+      "sourceId": "65210752",
+      "foreignRowsFromFailedRefsBelongingToThisEntity": 0,
+      "ofWhichAlreadyPresent": 0,
+      "ofWhichNotPresent": 0
+    }
+  ],
+  "phase18": {
+    "boundaryFailedRefRawRowsPerRef": 3391,
+    "boundaryFailedRawRowsPerDistinctStreet": 2671,
+    "totalZero": 195,
+    "totalTargetAccepted": 1495,
+    "verifiedAlreadyCaptured": 500,
+    "genuinelyUnresolved": 481
+  },
+  "maar": {
+    "failedRefs": 4,
+    "rawRows": 1607,
+    "delta": 814,
+    "plausiblyRelevant": 0,
+    "provenRecoveryOpportunity": 0
+  }
+}
