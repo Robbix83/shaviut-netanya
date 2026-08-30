@@ -1,0 +1,30 @@
+{
+  "candidateVersion": "v2-l0-2026-08-30",
+  "rowCount": 59305,
+  "sha256": "8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0",
+  "officialTotalRows": 63704,
+  "knownDelta": 4399,
+  "coverage": 93.0946,
+  "entityCount": 38,
+  "prevDealsIncluded": false,
+  "status": "LAUNCH_CANDIDATE",
+  "sourceEvidence": {
+    "headCommit": "86edc05f80900f8ae9a95f7d459f4949e3da0eda",
+    "contributingWaves": [
+      "0G-16",
+      "0G-17",
+      "0G-18",
+      "0G-19",
+      "0G-20",
+      "0G-21",
+      "0G-22B",
+      "0G-23",
+      "0G-24",
+      "0G-24B"
+    ],
+    "complete27EntitiesSum": 25110,
+    "kiryatFinalUnion": 5145,
+    "target10AugmentedSum": 29050
+  },
+  "buildMethod": "deterministic offline replay of already-committed/already-acquired Wave 0G artifacts; zero new network requests"
+}
