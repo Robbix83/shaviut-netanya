@@ -31,7 +31,7 @@
  *     official transaction id (no such field exists in the schema).
  */
 import type { Deal, Neighborhood } from "./types";
-import { normalizeDeal } from "./dealNormalization";
+import { normalizeDeal, buildTransactionIdSuffix } from "./dealNormalization";
 
 /** A Deal plus the two shadow-only fields needed for transaction-safe
  * dedup and official-identity traceability. NOT part of the production
@@ -100,13 +100,6 @@ export function parsePaginationContract(decoded: any, sourceId: string): Paginat
   };
 }
 
-/** Sentinel used for a missing parcelNum. Every observed real parcelNum is a
- * gush-helka-subparcel string of digits and hyphens only (e.g.
- * "8252-156-59") — this sentinel and the "|" delimiter below use characters
- * that never appear in that format, so a real parcelNum can never collide
- * with the sentinel. Enforced by TEST (see shadowRebuild.test.ts). */
-const NULL_PARCEL_SENTINEL = "∅NULL_PARCEL∅";
-
 /** The single, shared transaction key: parcelNum + dealDate + dealAmount —
  * the best-evidenced candidate from Wave 0G-10 (zero collisions observed,
  * not proven citywide). A row with a null parcelNum still gets a stable,
@@ -119,11 +112,14 @@ const NULL_PARCEL_SENTINEL = "∅NULL_PARCEL∅";
  * null-parcelNum or empty-dealDate rows across 2,384 total shadow rows —
  * see dedupByTransactionKey's diagnostic counts), but the key now includes
  * an explicit `hasDate` flag so an empty-string date can never silently
- * behave the same as a present one. */
+ * behave the same as a present one.
+ *
+ * Wave 0G-L1D: delegates to dealNormalization.ts's buildTransactionIdSuffix
+ * (byte-identical formula, including the same NULL_PARCEL_SENTINEL) so this
+ * codebase has exactly one implementation of this key, not two copies that
+ * could drift — the same fix now also backs the base `Deal.id` fallback. */
 export function transactionKey(row: ShadowDeal): string {
-  const parcel = row.parcelNum ?? NULL_PARCEL_SENTINEL;
-  const hasDate = row.dealDate ? "1" : "0";
-  return `${parcel}|${hasDate}:${row.dealDate}|${row.price}`;
+  return buildTransactionIdSuffix(row.parcelNum, row.dealDate, row.price);
 }
 
 export interface DedupResult {

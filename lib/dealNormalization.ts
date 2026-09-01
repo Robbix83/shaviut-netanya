@@ -20,6 +20,34 @@
  */
 import type { Deal, Neighborhood, PropertyType } from "./types";
 
+/** Sentinel for a missing parcelNum in the transaction-identity key below.
+ * Every observed real parcelNum is a gush-helka-subparcel string of digits
+ * and hyphens only (e.g. "8252-156-59") — this sentinel and the "|"
+ * delimiter use characters that never appear in that format, so a real
+ * parcelNum can never collide with it. Kept in sync with (and originally
+ * copied from) lib/shadowRebuild.ts's own copy of this same constant. */
+const NULL_PARCEL_SENTINEL = "∅NULL_PARCEL∅";
+
+/**
+ * The shared, best-evidenced transaction-identity key: parcelNum + dealDate
+ * + dealAmount. Canonical docs (evidence, null/empty-date handling, honest
+ * residual limit) live on lib/shadowRebuild.ts's transactionKey(), which
+ * now delegates here — this is the single implementation, not a second copy.
+ *
+ * Wave 0G-L1D fix: the OLDER `Deal.id` fallback (dealDate+price+area, no
+ * parcelNum) collides at V2's ~59k-row citywide scale — 116 rows across 103
+ * distinct ids, 94 genuinely different real transactions, not acquisition
+ * duplicates (audit/launch/L1_SUPABASE_V2_PREVIEW_IMPORT.md). `street`+
+ * `houseNumber` alone only resolves 73/94; this key resolves all of them
+ * (validated: scripts/validate-id-fix-wave0g-l1d.ts, 0 collisions across
+ * all 59,305 real rows, vs. 103 under the old formula).
+ */
+export function buildTransactionIdSuffix(parcelNum: string | null, dealDate: string, price: number): string {
+  const parcel = parcelNum ?? NULL_PARCEL_SENTINEL;
+  const hasDate = dealDate ? "1" : "0";
+  return `${parcel}|${hasDate}:${dealDate}|${price}`;
+}
+
 /** מפענח את גוף /deal-data (מחרוזת base64+gzip) למבנה {data:{items:[...]}} */
 export function decodeDealData(text: string): any {
   try {
@@ -104,8 +132,15 @@ export function normalizeDeal(
   const ppsqmBase = isLand ? plotSqm : areaSqm;
   const pricePerSqm = ppsqmBase && ppsqmBase > 0 ? Math.round(price / ppsqmBase) : null;
 
+  // Guard against a non-scalar raw.parcelNum (e.g. an object/array from an
+  // unexpected upstream shape) silently stringifying into a wrong-but-
+  // truthy-looking key like "[object Object]" — fall back to the honest
+  // null-parcel sentinel path instead.
+  const parcelNumRaw = raw.parcelNum;
+  const parcelNum =
+    typeof parcelNumRaw === "string" || typeof parcelNumRaw === "number" ? String(parcelNumRaw) : null;
   return {
-    id: `${n.id}-${raw.keyValue ?? raw.dealId ?? `${dealDate}-${price}-${builtArea || plotArea}`}`,
+    id: `${n.id}-${raw.keyValue ?? raw.dealId ?? buildTransactionIdSuffix(parcelNum, dealDate, price)}`,
     dealDate,
     price,
     propertyType,

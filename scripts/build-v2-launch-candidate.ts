@@ -417,4 +417,5 @@ if (isDirectExecution) {
   main().catch((e) => { console.error("BUILD_ERROR=" + (e instanceof Error ? e.stack : String(e))); process.exit(1); });
 }
 
-export { toPureDeal, DEAL_FIELDS, resolveTempPath };
+export { toPureDeal, DEAL_FIELDS, resolveTempPath, buildUnion };
+export type { EntityUnion };
