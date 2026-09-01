@@ -255,6 +255,31 @@ async function buildUnion(): Promise<{ entityUnions: EntityUnion[]; allRows: Sha
   }
   console.log(`COORD_ENRICHED=${coordEnriched} COORD_MISSING=${coordMissing} (${((coordEnriched / allRows.length) * 100).toFixed(1)}% coverage — up from 0%)`);
 
+  // Wave 0G-L1G: recompute every row's `id` with the Wave 0G-L1D fix.
+  // These rows were loaded from shadow-output JSON serialized BEFORE that
+  // fix existed (only the wave20/21 probe/street-fetch rows inside
+  // reconstructKiryatFinalUnion() go through a live toShadowDeal() call
+  // during THIS build — everything else is pre-serialized with the OLD
+  // id baked in), so simply re-running this script with the fixed
+  // lib/dealNormalization.ts does NOT by itself change existing `.id`
+  // values — they must be explicitly recomputed here.
+  //
+  // Safe and PROVABLY collision-free, not just empirically: `transactionKey()`
+  // (imported from lib/shadowRebuild.ts) and the new `Deal.id` fallback
+  // formula are — since Wave 0G-L1D — the exact same function
+  // (buildTransactionIdSuffix(parcelNum, dealDate, price)); Phase 3 below
+  // already hard-asserts `transactionKey()` is unique across all 59,305
+  // rows before the build can proceed. So `${neighborhoodId}-${transactionKey(r)}`
+  // is mathematically guaranteed unique given that assertion holds — not
+  // merely re-validated after the fact.
+  //
+  // MUST live inside buildUnion() (not in main(), after the call), for the
+  // same reason coordinate enrichment above does: both the real build AND
+  // the determinism-check rebuild must apply it identically.
+  for (const r of allRows) {
+    (r as any).id = `${r.neighborhoodId}-${transactionKey(r)}`;
+  }
+
   return { entityUnions, allRows };
 }
 
@@ -370,7 +395,7 @@ async function main() {
 
   // --- Phase 8: manifest ---
   const manifest = {
-    candidateVersion: "v2-l0-2026-08-30",
+    candidateVersion: "v2-l1g-2026-09-01",
     rowCount: pureDeals.length,
     sha256: sha1,
     officialTotalRows: 63704,
@@ -379,9 +404,10 @@ async function main() {
     entityCount: entityUnions.length,
     prevDealsIncluded: false,
     status: "LAUNCH_CANDIDATE",
+    idScheme: "parcelNum+dealDate+dealAmount (Wave 0G-L1D/L1G) — superseded the L0-era dealDate+price+area fallback, which collided on 103 distinct ids across this exact 59,305-row composition; see audit/wave0g-l1g/REGENERATE_V2_CANDIDATE.md",
     sourceEvidence: {
-      headCommit: "86edc05f80900f8ae9a95f7d459f4949e3da0eda",
-      contributingWaves: ["0G-16", "0G-17", "0G-18", "0G-19", "0G-20", "0G-21", "0G-22B", "0G-23", "0G-24", "0G-24B"],
+      headCommit: "66534f37d01af3650ef9b5b042ec43201f6d636d",
+      contributingWaves: ["0G-16", "0G-17", "0G-18", "0G-19", "0G-20", "0G-21", "0G-22B", "0G-23", "0G-24", "0G-24B", "0G-L1D", "0G-L1G"],
       // Membership-based (NOT status-based): a target entity can now
       // dynamically show status="COMPLETE" if it achieved 100% coverage
       // (e.g. רסקו) — this must stay pinned to the original 27

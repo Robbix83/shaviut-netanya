@@ -10,7 +10,12 @@ import { createHash } from "crypto";
 import { readFileSync } from "fs";
 import path from "path";
 
-const FROZEN_V2_SHA256 = "8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0";
+// Wave 0G-L1G: regenerated with the Wave 0G-L1D id-scheme fix (the
+// previous frozen SHA, 8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0,
+// had 116 rows sharing a primary-key id with another row — see
+// audit/wave0g-l1g/REGENERATE_V2_CANDIDATE.md). Row count/composition are
+// unchanged; only each row's `id` string differs.
+const FROZEN_V2_SHA256 = "1e7d066ddb145e27a645dcf3c0d0185d8a5ad2f5dbe905af7fb8102acd6f0a33";
 const EXPECTED_DEALS = 59305;
 const EXPECTED_NEIGHBORHOODS = 38;
 const BATCH_SIZE = 500;

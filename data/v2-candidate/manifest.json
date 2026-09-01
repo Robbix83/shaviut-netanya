@@ -1,15 +1,17 @@
 {
-  "candidateVersion": "v2-l0-2026-08-30",
+  "candidateVersion": "v2-l1g-2026-09-01",
   "rowCount": 59305,
-  "sha256": "8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0",
+  "sha256": "1e7d066ddb145e27a645dcf3c0d0185d8a5ad2f5dbe905af7fb8102acd6f0a33",
   "officialTotalRows": 63704,
   "knownDelta": 4399,
   "coverage": 93.0946,
   "entityCount": 38,
   "prevDealsIncluded": false,
   "status": "LAUNCH_CANDIDATE",
+  "idScheme": "parcelNum+dealDate+dealAmount (Wave 0G-L1D/L1G) — superseded the L0-era dealDate+price+area fallback, which collided on 103 distinct ids across this exact 59,305-row composition; see audit/wave0g-l1g/REGENERATE_V2_CANDIDATE.md",
+  "supersededSha256": "8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0",
   "sourceEvidence": {
-    "headCommit": "86edc05f80900f8ae9a95f7d459f4949e3da0eda",
+    "headCommit": "66534f37d01af3650ef9b5b042ec43201f6d636d",
     "contributingWaves": [
       "0G-16",
       "0G-17",
@@ -20,7 +22,9 @@
       "0G-22B",
       "0G-23",
       "0G-24",
-      "0G-24B"
+      "0G-24B",
+      "0G-L1D",
+      "0G-L1G"
     ],
     "complete27EntitiesSum": 25110,
     "kiryatFinalUnion": 5145,
