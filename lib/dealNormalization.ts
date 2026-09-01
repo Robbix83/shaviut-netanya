@@ -67,6 +67,10 @@ function legacyMatchKey(d: Deal): string {
 
 export interface MergeIncrementalDealsResult {
   merged: Deal[];
+  /** Exactly the fresh rows accepted this call, in original order — e.g. so
+   * a caller writing to Supabase can upsert only genuinely-new rows instead
+   * of redundantly re-pushing every existing row too (Wave 0G-L1F). */
+  added: Deal[];
   addedCount: number;
   skippedDuplicateCount: number;
 }
@@ -120,7 +124,7 @@ export function mergeIncrementalDeals(existingDeals: Deal[], freshDeals: Deal[])
     added.push(d);
   }
 
-  return { merged: [...existingDeals, ...added], addedCount: added.length, skippedDuplicateCount };
+  return { merged: [...existingDeals, ...added], added, addedCount: added.length, skippedDuplicateCount };
 }
 
 /** מפענח את גוף /deal-data (מחרוזת base64+gzip) למבנה {data:{items:[...]}} */

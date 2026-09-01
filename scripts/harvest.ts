@@ -19,6 +19,7 @@
  */
 import { promises as fs } from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
 import type { Deal, Neighborhood } from "../lib/types";
 import { discoverNeighborhoods as discoverNeighborhoodsImpl } from "../lib/neighborhoodDiscovery";
 import { decodeDealData, normalizeDeal, mergeIncrementalDeals } from "../lib/dealNormalization";
@@ -52,6 +53,38 @@ async function loadStreetCoords() {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Wave 0G-L1F: reads all existing deals from Supabase (read-only) so
+ * mergeIncrementalDeals() can recognize an already-stored transaction even
+ * though Wave 0G-L1D changed the id-generation formula. Without this, the
+ * Supabase upsert below had NO visibility into what the `deals` table
+ * already contains (existingDeals was only ever loaded from the local
+ * data/deals.json file, never for DATA_SOURCE=supabase) — a re-harvested
+ * version of an already-stored transaction would get a brand-new
+ * new-format id and get upserted as a genuine duplicate row alongside the
+ * untouched old one (upsert matches by primary key only; it never deletes
+ * or merges rows absent from its own payload). Applies to BOTH a full
+ * citywide run and an incremental HARVEST_ONLY run — a full run's
+ * exposure is larger (every neighborhood's already-stored transactions
+ * would get a duplicate upserted), not smaller.
+ *
+ * Paginated (PostgREST caps a single response ~1000 rows), mirroring the
+ * exhaustive-pagination pattern lib/store.ts's SupabaseStore.getAllDeals()
+ * already uses for this exact table.
+ */
+async function loadExistingDealsFromSupabase(sb: any): Promise<Deal[]> {
+  const PAGE_SIZE = 1000;
+  const all: Deal[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { data, error } = await sb.from("deals").select("*").order("id").range(offset, offset + PAGE_SIZE - 1);
+    if (error) throw new Error(`SUPABASE_EXISTING_DEALS_READ_FAILED:${error.code}:${error.message}`);
+    const page = (data ?? []) as Deal[];
+    all.push(...page);
+    if (page.length < PAGE_SIZE) break;
+  }
+  return all;
+}
 
 /**
  * מגלה את שכונות נתניה + מזהי UNIQ_ID + מרכזים גאוגרפיים.
@@ -320,6 +353,25 @@ async function main() {
     } catch { /* אין עדיין */ }
   }
 
+  // Wave 0G-L1F: יוצרים את לקוח ה-Supabase וקוראים את העסקאות הקיימות
+  // עכשיו — לפני השאיבה, לא אחריה. אחרת מפתח שגוי או תקלת קריאה חד-פעמית
+  // מבטלים ריצה שלמה (עד עשרות דקות של שאיבה) ללא כל תוצאה, במקום להיכשל
+  // מהר לפני שהזמן הזה מושקע (ECC planner finding). מדלגים ב-HARVEST_STREET
+  // — לענף הזה אין כלל נתיב כתיבה ל-Supabase (פער נפרד, מתועד ולא מתוקן).
+  const isSupabaseMode = process.env.DATA_SOURCE === "supabase";
+  let sb: any = null;
+  let existingDealsForMerge: Deal[] = onlyName ? existingDeals : [];
+  if (isSupabaseMode && !onlyStreet) {
+    const { createClient } = await import("@supabase/supabase-js");
+    sb = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false } },
+    );
+    existingDealsForMerge = await loadExistingDealsFromSupabase(sb);
+    console.log(`   📂 נטענו ${existingDealsForMerge.length} עסקאות קיימות מ-Supabase`);
+  }
+
   // ─── מצב HARVEST_STREET: שאיבת רחוב בודד ישירות ───
   if (onlyStreet) {
     console.log(`   🏘️  שאיבת רחוב: "${onlyStreet}"`);
@@ -366,27 +418,24 @@ async function main() {
   }
   await browser.close();
 
-  // הסרת כפילויות — במצב HARVEST_ONLY: מיזוג עם הקיים (Wave 0G-L1E: מיזוג
-  // מודע-לפורמט-מזהה — ראו תיעוד mergeIncrementalDeals())
-  const { merged: deals, addedCount, skippedDuplicateCount } = mergeIncrementalDeals(
-    onlyName ? existingDeals : [],
+  // הסרת כפילויות — מיזוג מודע-לפורמט-מזהה עם הקיים (Wave 0G-L1E/L1F —
+  // existingDealsForMerge/sb כבר נטענו לפני השאיבה למעלה — ראו תיעוד
+  // mergeIncrementalDeals())
+  const { merged: deals, added, addedCount, skippedDuplicateCount } = mergeIncrementalDeals(
+    existingDealsForMerge,
     allDeals,
   );
   if (skippedDuplicateCount > 0) console.log(`   ℹ️  ${skippedDuplicateCount} מהעסקאות שנאספו כבר קיימות (דולגו)`);
 
-  if (process.env.DATA_SOURCE === "supabase") {
-    const { createClient } = await import("@supabase/supabase-js");
-    const sb = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { persistSession: false } },
-    );
+  if (isSupabaseMode) {
     await sb.from("neighborhoods").upsert(neighborhoods);
-    // העלאה במנות
-    for (let i = 0; i < deals.length; i += 500) {
-      await sb.from("deals").upsert(deals.slice(i, i + 500));
+    // מעלים רק את השורות שבאמת חדשות (added) — לא את כל deals, כדי לא
+    // לדחוף מחדש שורות שכבר קיימות ב-Supabase (הבחנה זו היא בדיוק מה
+    // שהמיזוג למעלה מזהה).
+    for (let i = 0; i < added.length; i += 500) {
+      await sb.from("deals").upsert(added.slice(i, i + 500));
     }
-    console.log(`✅ הועלו ${deals.length} עסקאות ל-Supabase.`);
+    console.log(`✅ הועלו ${added.length} עסקאות חדשות ל-Supabase (סה"כ בטבלה: ${deals.length}).`);
   } else if (deals.length > 0) {
     const dataDir = path.join(process.cwd(), "data");
     await fs.mkdir(dataDir, { recursive: true });
@@ -398,14 +447,27 @@ async function main() {
     console.log(`✅ נכתבו ${deals.length} עסקאות ל-data/deals.json (${addedCount} חדשות מהסבב הזה)`);
   }
 
-  if (deals.length === 0) {
+  // Wave 0G-L1F: הבדיקה חייבת להיות על allDeals (מה שבאמת נאסף בסבב הזה),
+  // לא על deals (הכולל כעת גם עסקאות קיימות מ-Supabase/מהקובץ) — אחרת
+  // אזהרת "לא נאספו עסקאות" כמעט אף פעם לא תופיע ב-Supabase mode, גם
+  // כשה-scrape עצמו לא החזיר כלום.
+  if (allDeals.length === 0) {
     console.warn(
-      "⚠️  לא נאספו עסקאות (לא נכתב כלום — נתוני הדוגמה נשמרו). ייתכן ש-reCAPTCHA חסם headless, או שכתובת/מבנה העמוד השתנו.",
+      "⚠️  לא נאספו עסקאות (לא נכתב כלום חדש). ייתכן ש-reCAPTCHA חסם headless, או שכתובת/מבנה העמוד השתנו.",
     );
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+// Wave 0G-L1F: guarded, matching the established pattern in
+// scripts/build-v2-launch-candidate.ts — without this, merely IMPORTING
+// this file (e.g. to reuse/test loadExistingDealsFromSupabase) would
+// launch a real Playwright browser and start live scraping immediately.
+const isDirectExecution = typeof process.argv[1] === "string" && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isDirectExecution) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
+
+export { loadExistingDealsFromSupabase };
