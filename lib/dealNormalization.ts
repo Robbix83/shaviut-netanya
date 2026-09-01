@@ -48,6 +48,81 @@ export function buildTransactionIdSuffix(parcelNum: string | null, dealDate: str
   return `${parcel}|${hasDate}:${dealDate}|${price}`;
 }
 
+/** Format-independent match key for mergeIncrementalDeals() below — every
+ * field it uses (neighborhoodId/dealDate/price/propertyType/areaSqm/
+ * plotSqm) is on the base Deal shape, present regardless of which
+ * id-formula produced a row. Mostly the same content the OLD id fallback
+ * used to key on directly (Wave 0G-L1D replaced it as the PRIMARY key for
+ * exactly this reason — see buildTransactionIdSuffix's docs), reused here
+ * only as a secondary, transitional "have I already stored this
+ * transaction" signal. `propertyType` is included (the old id fallback
+ * didn't have it) — an ECC silent-failure-hunter finding: a `land` row
+ * (areaSqm always null, keyed on plotSqm) and a house/apartment row
+ * missing built area (also falls back to plotSqm) could otherwise collide
+ * on neighborhoodId+dealDate+price+plotSqm alone despite being obviously
+ * different transactions. */
+function legacyMatchKey(d: Deal): string {
+  return `${d.neighborhoodId}|${d.dealDate}|${d.price}|${d.propertyType}|${d.areaSqm ?? d.plotSqm ?? "null"}`;
+}
+
+export interface MergeIncrementalDealsResult {
+  merged: Deal[];
+  addedCount: number;
+  skippedDuplicateCount: number;
+}
+
+/**
+ * Merges freshly-normalized deals into an existing corpus for incremental
+ * harvest runs (scripts/harvest.ts's HARVEST_ONLY/HARVEST_STREET modes),
+ * fixing a real gap Wave 0G-L1D's id-formula change exposed: existing rows
+ * harvested before that fix carry the OLD (dealDate+price+area) id, so a
+ * freshly re-normalized version of an already-stored transaction now gets a
+ * DIFFERENT (parcelNum-based) id and plain id-equality dedup no longer
+ * recognizes it as already present — it would be silently appended as a
+ * duplicate, both to data/deals.json and (via the same merged array) to
+ * Supabase's `deals` table upsert.
+ *
+ * `existingDeals` is NEVER filtered, reordered, or modified — every row
+ * that was already there stays, unconditionally. A fresh row is skipped
+ * only if it matches an EXISTING row's id OR legacyMatchKey() — the latter
+ * check exists solely because existing rows may still carry an old,
+ * parcelNum-less id. Two FRESH rows are compared to each other by id ONLY
+ * (an ECC planner finding: an earlier version of this function ran
+ * legacyMatchKey() against already-accepted fresh rows too, which would
+ * have reintroduced the exact V2-scale collision class Wave 0G-L1D just
+ * fixed — fresh rows all carry the new, collision-resistant parcelNum-based
+ * id, so they need no lossy secondary check against each other).
+ *
+ * Honest residual limit, scoped to existing-vs-fresh only: two genuinely
+ * different real transactions sharing neighborhoodId+dealDate+price+area,
+ * where ONE is an old-format existing row, would be treated as one, and a
+ * genuinely new fresh transaction matching it would be skipped rather than
+ * added. At incremental-harvest scale (one run, typically one
+ * neighborhood/street) this is far less likely than at V2's ~59k-row
+ * citywide scale, but it is not zero; `skippedDuplicateCount` is returned
+ * so a caller can log it and notice if it's ever surprisingly high.
+ */
+export function mergeIncrementalDeals(existingDeals: Deal[], freshDeals: Deal[]): MergeIncrementalDealsResult {
+  const existingIds = new Set(existingDeals.map((d) => d.id));
+  const existingMatchKeys = new Set(existingDeals.map(legacyMatchKey));
+  const acceptedFreshIds = new Set<string>();
+
+  const added: Deal[] = [];
+  let skippedDuplicateCount = 0;
+  for (const d of freshDeals) {
+    const isDuplicateOfExisting = existingIds.has(d.id) || existingMatchKeys.has(legacyMatchKey(d));
+    const isDuplicateOfAlreadyAcceptedFresh = acceptedFreshIds.has(d.id);
+    if (isDuplicateOfExisting || isDuplicateOfAlreadyAcceptedFresh) {
+      skippedDuplicateCount++;
+      continue;
+    }
+    acceptedFreshIds.add(d.id);
+    added.push(d);
+  }
+
+  return { merged: [...existingDeals, ...added], addedCount: added.length, skippedDuplicateCount };
+}
+
 /** מפענח את גוף /deal-data (מחרוזת base64+gzip) למבנה {data:{items:[...]}} */
 export function decodeDealData(text: string): any {
   try {

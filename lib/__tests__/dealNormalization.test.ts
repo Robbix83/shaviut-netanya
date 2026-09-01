@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { normalizeDeal, classifyPropertyType, parseAddress, parseFloor, num, buildTransactionIdSuffix } from "../dealNormalization";
-import type { Neighborhood } from "../types";
+import { normalizeDeal, classifyPropertyType, parseAddress, parseFloor, num, buildTransactionIdSuffix, mergeIncrementalDeals } from "../dealNormalization";
+import type { Neighborhood, Deal } from "../types";
 
 /**
  * Regression coverage for the Wave 0G-12 extraction of scripts/harvest.ts's
@@ -119,5 +119,135 @@ describe("normalizeDeal id fallback — parcelNum-based transaction key (Wave 0G
   it("every generated id keeps the neighborhoodId prefix, unchanged by this fix", () => {
     const deal = normalizeDeal({ dealAmount: 1000000, dealDate: "2024-01-01", assetArea: 50, parcelNum: "8231-1-1" }, NEIGHBORHOOD)!;
     expect(deal.id.startsWith(`${NEIGHBORHOOD.id}-`)).toBe(true);
+  });
+});
+
+/**
+ * Regression coverage for Wave 0G-L1E: scripts/harvest.ts's incremental
+ * merge (HARVEST_ONLY/HARVEST_STREET) used to dedupe existing+fresh deals
+ * by `id` alone. After Wave 0G-L1D changed the id fallback to a
+ * parcelNum-based key, existing rows (harvested before that fix, OLD-
+ * format id) would no longer be recognized as already-present when the
+ * SAME real transaction is re-normalized under the NEW formula — silently
+ * re-added as a duplicate. mergeIncrementalDeals() fixes this with a
+ * secondary, format-independent content match.
+ */
+function dealFixture(overrides: Partial<Deal> = {}): Deal {
+  return {
+    id: "OLD-FORMAT-ID",
+    dealDate: "2024-01-01",
+    price: 1000000,
+    propertyType: "apartment",
+    rooms: 3,
+    areaSqm: 80,
+    plotSqm: null,
+    floor: 2,
+    yearBuilt: 2000,
+    dealNature: "דירה בבית קומות",
+    address: "רחוב הבדיקה 1",
+    houseNumber: "1",
+    street: "רחוב הבדיקה",
+    neighborhoodId: "65210195",
+    neighborhood: "נוף הטיילת",
+    settlement: "נתניה",
+    x: 100,
+    y: 200,
+    pricePerSqm: 12500,
+    ...overrides,
+  };
+}
+
+describe("mergeIncrementalDeals — id-format-aware incremental merge (Wave 0G-L1E fix)", () => {
+  it("never drops an existing row, even one with no fresh counterpart", () => {
+    const existing = [dealFixture({ id: "OLD-1" })];
+    const result = mergeIncrementalDeals(existing, []);
+    expect(result.merged).toEqual(existing);
+    expect(result.addedCount).toBe(0);
+    expect(result.skippedDuplicateCount).toBe(0);
+  });
+
+  it("adds a genuinely new fresh transaction (different content, different id)", () => {
+    const existing = [dealFixture({ id: "OLD-1", price: 1000000 })];
+    const fresh = [dealFixture({ id: "NEW-1", price: 2000000, dealDate: "2024-06-01" })];
+    const result = mergeIncrementalDeals(existing, fresh);
+    expect(result.merged.length).toBe(2);
+    expect(result.addedCount).toBe(1);
+    expect(result.skippedDuplicateCount).toBe(0);
+  });
+
+  it("THE ACTUAL BUG: recognizes a re-normalized existing transaction as a duplicate even though its id changed format (old id vs. new parcelNum-based id)", () => {
+    // Existing row harvested before Wave 0G-L1D — OLD-format id, no parcelNum captured.
+    const existing = [
+      dealFixture({ id: "65210195-2024-01-01-1000000-80", neighborhoodId: "65210195", dealDate: "2024-01-01", price: 1000000, areaSqm: 80 }),
+    ];
+    // Same real transaction, re-harvested after the fix — NEW-format (parcelNum-based) id.
+    const reharvested = [
+      dealFixture({
+        id: `65210195-${buildTransactionIdSuffix("8231-1-1", "2024-01-01", 1000000)}`,
+        neighborhoodId: "65210195",
+        dealDate: "2024-01-01",
+        price: 1000000,
+        areaSqm: 80,
+      }),
+    ];
+    const result = mergeIncrementalDeals(existing, reharvested);
+    expect(result.merged.length).toBe(1); // NOT silently duplicated
+    expect(result.addedCount).toBe(0);
+    expect(result.skippedDuplicateCount).toBe(1);
+    expect(result.merged[0].id).toBe(existing[0].id); // the existing row's id is untouched
+  });
+
+  it("also dedupes fresh rows against each other (mirrors the old Set-based intra-run behavior)", () => {
+    const dup = dealFixture({ id: "FRESH-1", price: 3000000, dealDate: "2024-09-01" });
+    const result = mergeIncrementalDeals([], [dup, { ...dup }]);
+    expect(result.merged.length).toBe(1);
+    expect(result.addedCount).toBe(1);
+    expect(result.skippedDuplicateCount).toBe(1);
+  });
+
+  it("REGRESSION (ECC planner finding): two genuinely DIFFERENT fresh transactions sharing neighborhoodId+dealDate+price+area are BOTH kept — fresh-vs-fresh comparison must use id only, never legacyMatchKey, since fresh ids are already collision-resistant (Wave 0G-L1D)", () => {
+    const a = dealFixture({
+      id: `65210195-${buildTransactionIdSuffix("8231-1-1", "2024-01-01", 1000000)}`,
+      street: "רחוב א",
+      houseNumber: "9",
+    });
+    const b = dealFixture({
+      id: `65210195-${buildTransactionIdSuffix("8231-1-2", "2024-01-01", 1000000)}`,
+      street: "רחוב א",
+      houseNumber: "7",
+    });
+    expect(a.id).not.toBe(b.id); // distinct real transactions, distinct new-format ids
+    const result = mergeIncrementalDeals([], [a, b]);
+    expect(result.merged.length).toBe(2); // NOT collapsed by the lossy legacy key
+    expect(result.addedCount).toBe(2);
+    expect(result.skippedDuplicateCount).toBe(0);
+  });
+
+  it("legacyMatchKey includes propertyType — a land parcel and a house sharing neighborhoodId+dealDate+price+plotSqm do not falsely collide (ECC silent-failure-hunter finding)", () => {
+    const existing = [
+      dealFixture({ id: "OLD-LAND-1", propertyType: "land", areaSqm: null, plotSqm: 500, dealNature: "מגרש" }),
+    ];
+    const fresh = [
+      dealFixture({ id: "NEW-HOUSE-1", propertyType: "house", areaSqm: null, plotSqm: 500, dealNature: "בית" }),
+    ];
+    const result = mergeIncrementalDeals(existing, fresh);
+    expect(result.merged.length).toBe(2); // both kept — different propertyType, not a real duplicate
+    expect(result.addedCount).toBe(1);
+    expect(result.skippedDuplicateCount).toBe(0);
+  });
+
+  it("honest residual limit: two genuinely different transactions sharing neighborhoodId+dealDate+price+area are still treated as one (documented, not silently pretended away)", () => {
+    const existing = [dealFixture({ id: "OLD-1", street: "רחוב א", houseNumber: "9" })];
+    const fresh = [dealFixture({ id: "NEW-1", street: "רחוב א", houseNumber: "7" })]; // different building, same date/price/area
+    const result = mergeIncrementalDeals(existing, fresh);
+    expect(result.merged.length).toBe(1); // the genuinely different "houseNumber:7" transaction is skipped
+    expect(result.skippedDuplicateCount).toBe(1);
+  });
+
+  it("preserves existing rows' relative order and keeps them ahead of newly-added rows", () => {
+    const existing = [dealFixture({ id: "OLD-1", price: 1 }), dealFixture({ id: "OLD-2", price: 2 })];
+    const fresh = [dealFixture({ id: "NEW-1", price: 3 })];
+    const result = mergeIncrementalDeals(existing, fresh);
+    expect(result.merged.map((d) => d.id)).toEqual(["OLD-1", "OLD-2", "NEW-1"]);
   });
 });

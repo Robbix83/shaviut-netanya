@@ -21,7 +21,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import type { Deal, Neighborhood } from "../lib/types";
 import { discoverNeighborhoods as discoverNeighborhoodsImpl } from "../lib/neighborhoodDiscovery";
-import { decodeDealData, normalizeDeal } from "../lib/dealNormalization";
+import { decodeDealData, normalizeDeal, mergeIncrementalDeals } from "../lib/dealNormalization";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { chromium: chromiumExtra } = require("playwright-extra");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -340,11 +340,11 @@ async function main() {
     allDeals = allDeals.concat(streetDeals);
     console.log(`   ✅ ${streetDeals.length} עסקאות נאספו עבור "${onlyStreet}"`);
     await browser.close();
-    const combined = [...existingDeals, ...allDeals];
-    const seen2 = new Set<string>();
-    const deals2 = combined.filter((d) => (seen2.has(d.id) ? false : (seen2.add(d.id), true)));
+    // Wave 0G-L1E: id-format-aware merge — see mergeIncrementalDeals() docs.
+    const { merged: deals2, addedCount, skippedDuplicateCount } = mergeIncrementalDeals(existingDeals, allDeals);
+    if (skippedDuplicateCount > 0) console.log(`   ℹ️  ${skippedDuplicateCount} מהעסקאות שנאספו כבר קיימות (דולגו)`);
     await fs.writeFile(path.join(process.cwd(), "data", "deals.json"), JSON.stringify(deals2, null, 2));
-    console.log(`✅ נכתבו ${deals2.length} עסקאות (${streetDeals.length} חדשות עבור ${onlyStreet})`);
+    console.log(`✅ נכתבו ${deals2.length} עסקאות (${addedCount} חדשות עבור ${onlyStreet})`);
     return;
   }
 
@@ -366,10 +366,13 @@ async function main() {
   }
   await browser.close();
 
-  // הסרת כפילויות — במצב HARVEST_ONLY: מיזוג עם הקיים
-  const combined = onlyName ? [...existingDeals, ...allDeals] : allDeals;
-  const seen = new Set<string>();
-  const deals = combined.filter((d) => (seen.has(d.id) ? false : (seen.add(d.id), true)));
+  // הסרת כפילויות — במצב HARVEST_ONLY: מיזוג עם הקיים (Wave 0G-L1E: מיזוג
+  // מודע-לפורמט-מזהה — ראו תיעוד mergeIncrementalDeals())
+  const { merged: deals, addedCount, skippedDuplicateCount } = mergeIncrementalDeals(
+    onlyName ? existingDeals : [],
+    allDeals,
+  );
+  if (skippedDuplicateCount > 0) console.log(`   ℹ️  ${skippedDuplicateCount} מהעסקאות שנאספו כבר קיימות (דולגו)`);
 
   if (process.env.DATA_SOURCE === "supabase") {
     const { createClient } = await import("@supabase/supabase-js");
@@ -392,8 +395,7 @@ async function main() {
       await fs.writeFile(path.join(dataDir, "neighborhoods.json"), JSON.stringify(neighborhoods, null, 2));
     }
     await fs.writeFile(path.join(dataDir, "deals.json"), JSON.stringify(deals, null, 2));
-    const newCount = allDeals.filter((d): d is Deal => !!d).length;
-    console.log(`✅ נכתבו ${deals.length} עסקאות ל-data/deals.json (${newCount} חדשות מהסבב הזה)`);
+    console.log(`✅ נכתבו ${deals.length} עסקאות ל-data/deals.json (${addedCount} חדשות מהסבב הזה)`);
   }
 
   if (deals.length === 0) {
