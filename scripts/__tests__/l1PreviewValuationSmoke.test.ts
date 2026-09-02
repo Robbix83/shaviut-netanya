@@ -76,7 +76,7 @@ describe.skipIf(!RUN)("L1 preview-table valuation smoke (live, real V2 data)", (
     const stats = await getStore().getStats();
     expect(stats.dealCount).toBe(59305);
     expect(stats.neighborhoodCount).toBeGreaterThan(0);
-  });
+  }, 30000); // ~60 paginated round-trips over a real network connection — vitest's 5s default is a test-harness limit, not a functional issue (independently verified via a standalone script first)
 
   it("getAllDeals() exhaustively paginates past 1000 rows against the real preview table", async () => {
     const { getStore } = await import("../../lib/store");
@@ -85,7 +85,7 @@ describe.skipIf(!RUN)("L1 preview-table valuation smoke (live, real V2 data)", (
     // full projection, not a narrow one (Wave 0E-1B regression class)
     expect(all[0]).toHaveProperty("street");
     expect(all[0]).toHaveProperty("houseNumber");
-  });
+  }, 30000);
 
   it("getDealsByNeighborhood() returns rows for a real, high-volume V2 entity (מרכז העיר, 65209717)", async () => {
     const { getStore } = await import("../../lib/store");

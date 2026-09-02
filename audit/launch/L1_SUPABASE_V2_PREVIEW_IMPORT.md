@@ -1,223 +1,231 @@
 # Wednesday Launch Sprint — L1: Supabase V2 Preview Import
 
-**Verdict: PARTIAL.** The DDL blocker from the previous session is fully
-resolved — the operator ran `supabase/l1_preview_tables.sql` successfully,
-and this session verified both preview tables exist with the correct
-schema and access posture as far as this REST-only connection can prove.
-**Import is blocked by a new, different, and more consequential finding:**
-the frozen V2 candidate contains 116 rows sharing an `id` with another row
-(the Postgres primary key on both `deals` and `deals_v2_preview`). The
-import's own pre-import validation caught this before any row was written
-— both preview tables remain at exactly 0 rows. This is a genuine,
-previously-undetected data-integrity defect in the existing citywide
-transaction-id scheme, not a bug in this session's import code.
+**Verdict: PASS.** The V2 launch candidate — regenerated in Wave 0G-L1G
+with a corrected, collision-free id scheme — was imported into the
+isolated `deals_v2_preview`/`neighborhoods_v2_preview` tables. Every gate
+independently re-verified: row counts, entity reconciliation, a
+canonical-normalization digest, data quality, the real (unmodified)
+application read path, and the real (unmodified) valuation algorithm all
+pass against live imported data. Production `deals`/`neighborhoods`/
+`leads` are confirmed byte-for-byte/row-for-row unchanged.
 
-## Resume baseline (re-confirmed)
+## Superseded SHA — do not use for any future L1 validation
 
 ```
-Previous commit = e139d4a7e4350224a8cc5ccf48cc3d0da3e85bb6
-Frozen V2 candidate: ROWS=59305, SHA256=8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0 (unchanged)
-Legacy canonical: ROWS=12642, SHA256=18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f (unchanged)
+SUPERSEDED (blocked the import, 116 rows shared an id):
+  8bb6770525894cd2053293d0c60acb877e6acd77d81bdd30c02200e5e6c34bf0
+
+ACTIVE FROZEN CANDIDATE (Wave 0G-L1G, imported this session):
+  ROWS   = 59305
+  SHA256 = 1e7d066ddb145e27a645dcf3c0d0185d8a5ad2f5dbe905af7fb8102acd6f0a33
 ```
 
-## Preview table verification (`scripts/l1-verify-preview-tables.ts`)
+## Phase 0 — Baseline verification (PASS)
 
 ```
-neighborhoods_v2_preview_EXISTS = YES (0 rows)
-deals_v2_preview_EXISTS         = YES (0 rows)
-NEIGHBORHOODS_V2_PREVIEW_SCHEMA = MATCHES_EXPECTED_5_COLS
-DEALS_V2_PREVIEW_SCHEMA         = MATCHES_EXPECTED_19_COLS
-SERVICE_ROLE_DELETE             = NO (live-proven: Postgres 42501 permission denied on a real DELETE attempt)
+HEAD contains 5dca35a = YES
+CANDIDATE_ROWS=59305 (independently recomputed, not trusted from any prior report)
+DISTINCT_IDS=59305
+SHA256=1e7d066ddb145e27a645dcf3c0d0185d8a5ad2f5dbe905af7fb8102acd6f0a33
+IMPORT_SCRIPT_SHA_MATCH=YES (scripts/l1-import-v2-preview.ts pins the identical value)
 ```
 
-**UNPROVEN vs FAILED, as instructed — nothing below was contradicted, this
-connection simply cannot observe it:**
-- `ANON_ACCESS` = UNPROVEN (no `NEXT_PUBLIC_SUPABASE_ANON_KEY` exists anywhere in this environment; this session cannot make a live anon-role request)
-- `AUTHENTICATED_ACCESS` = UNPROVEN (no mechanism here mints a Supabase authenticated-role JWT)
-- Both are backed by documentary evidence only: `supabase/l1_preview_tables.sql` explicitly runs `revoke all ... from anon, authenticated`, and the operator confirmed it executed with SUCCESS/no error.
-- **`SERVICE_ROLE_INSERT`/`SERVICE_ROLE_UPDATE` = UNPROVEN VIA LIVE TEST this session too** — important nuance: the import never reached its own insert/update calls (it threw during pre-import validation first), so despite the grants being present in the executed DDL, no live INSERT or UPDATE has actually been exercised against these tables yet. Only `SELECT` (via the count/schema checks) and `DELETE` (correctly rejected) were live-tested.
-
-## Import attempt — BLOCKED (`scripts/l1-import-v2-preview.ts`)
-
-The script verifies the frozen SHA, loads both source files, then runs a
-full pre-import validation pass over **all** 59,305 rows (not stopping at
-the first problem — an early version did stop early, and a silent-failure-
-hunter-style check confirmed this could mask other defect categories; the
-loop now scans every row for every check before deciding whether to
-proceed):
+## Phase 1 — Preview table state before import (PASS)
 
 ```
-VALIDATION_DUPLICATE_IDS      = 103 distinct ids (116 rows total involved)
-VALIDATION_ORPHANED_FK        = 0
-VALIDATION_INVALID_PRICE      = 0
-VALIDATION_UNEXPECTED_PREVDEALS = 0
+neighborhoods_v2_preview_EXISTS=YES  PREIMPORT_COUNT=0
+deals_v2_preview_EXISTS=YES          PREIMPORT_COUNT=0
+NEIGHBORHOODS_V2_PREVIEW_SCHEMA=MATCHES_EXPECTED_5_COLS
+DEALS_V2_PREVIEW_SCHEMA=MATCHES_EXPECTED_19_COLS
+SERVICE_ROLE_DELETE=NO (live-proven: Postgres 42501 permission denied)
+ANON_ACCESS=UNPROVEN (no anon key configured in this environment — not FAILED, genuinely untestable here)
+AUTHENTICATED_ACCESS=UNPROVEN (same reason)
 ```
 
-Only the duplicate-id category is a problem — orphaned FKs, invalid
-prices, and stray `prevDeals` fields are all clean across the full
-dataset, confirming the rest of L0's build integrity holds.
+Both tables confirmed empty — clean state, proceeded to import. No
+synthetic INSERT probe was attempted first: with DELETE already proven
+denied, an untestable stray row would have been unremovable, and the
+import itself requires (and asserts) an empty starting table — so the
+actual import is the live INSERT proof, fail-closed by construction.
 
-Both target tables were re-confirmed at exactly 0 rows after this run.
-**Zero writes of any kind occurred against either preview table this
-session.**
-
-## Root cause — a real, pre-existing citywide defect, not a V2-build bug
-
-`lib/dealNormalization.ts:108` builds every `Deal.id` as:
-```
-`${neighborhoodId}-${raw.keyValue ?? raw.dealId ?? `${dealDate}-${price}-${builtArea||plotArea}`}`
-```
-A direct check found **100% of both the V2 candidate's 59,305 ids and
-production `data/deals.json`'s 12,642 ids** take the fallback branch —
-`raw.keyValue`/`raw.dealId` are never actually populated by this
-pipeline's source data. This is corroborated by an earlier finding
-already on record in `audit/wave0g10/PAGINATION_DEPTH_AND_TRANSACTION_IDENTITY.md`,
-which established that no `dealId`/`keyValue`/`transactionId` field
-exists anywhere in the observed raw nadlan.gov.il schema, and explicitly
-flagged that citywide id-uniqueness at scale was never proven — this
-defect materializing now is a pre-registered risk landing on schedule,
-not a new discovery.
-
-Production's 12,642 rows have **zero** id collisions (checked directly) —
-not because the scheme is sound, but because that smaller, narrower
-dataset never happened to produce two same-day/same-price/same-area
-transactions in the same neighborhood. V2's 59,305 rows (~4.7x larger,
-spanning more entities and years) crossed that threshold: **116 rows /
-59,305 ≈ 0.20% collision rate.**
-
-Of the 103 duplicated-id groups:
-- **9 groups** are byte-for-byte identical rows after normalization (could
-  look like safe no-op duplicates) — but `normalizeDeal()` drops
-  `parcelNum` and other raw fields before this comparison is even
-  possible, so "identical after normalization" does not prove "the same
-  real-world transaction." No action was taken to deduplicate these.
-- **94 groups** contain rows that differ in some field — e.g. the first
-  one found: id `65209683-2007-07-30-930000-97.5` maps to two real
-  transactions, "זאב ליבר 9" and "זאב ליבר 7" — same date/price/rooms/area,
-  different buildings. These are almost certainly distinct real
-  transactions the id scheme cannot disambiguate, not acquisition
-  duplicates.
-
-**Tested whether `street`+`houseNumber` would fix it (cheap, high-value
-check before recommending it):** adding both to the id for the 94
-differing groups resolves 73 of them — but **21 still collide**, all on
-one entity (65209703), because those specific raw rows have `street="0"`
-(a placeholder) and `houseNumber=null`. So `street`+`houseNumber` alone is
-an incomplete fix. `audit/wave0g10/...` already names
-`parcelNum + dealDate + dealAmount` as the best-evidenced transaction key,
-and separately notes `parcelNum` is absent from the canonical `Deal`
-schema — but it is **not** absent from the underlying `ShadowDeal` shadow
-corpus this candidate was built from (`ShadowDeal` already carries
-`parcelNum`; `build-v2-launch-candidate.ts`'s `toPureDeal()` is what
-strips it via its 19-field `DEAL_FIELDS` projection). A real fix would
-most likely need to combine both signals, not choose one — a decision for
-a future, separately-authorized wave, not this one.
-
-**Decision: no deduplication or workaround was attempted.** Silently
-dropping the 116 rows would violate the "import exactly 59,305 deals"
-requirement and would discard real, distinct transactions for 94 of the
-103 groups. Modifying `lib/dealNormalization.ts`'s id-generation logic is
-a foundational, reused-everywhere change explicitly out of this wave's
-scope. STOP was the only in-charter option, and both preview tables
-remaining at 0 rows means there is nothing to roll back.
-
-## Post-import gates — NOT_ATTEMPTED (correctly gated behind the import)
-
-Row reconciliation, entity reconciliation, digest match, null
-reconciliation, known-case checks, pagination/getStats/getAllDeals/
-getDealsByNeighborhood, exact-building/street lookup, comparable-selection
-smoke, valuation smoke, leads/auth isolation, final access re-verification,
-and performance checks were all not attempted — none can produce a
-meaningful result against empty tables.
-
-`scripts/__tests__/l1PreviewValuationSmoke.test.ts` (new, committed) was
-built and its plumbing was verified: it wraps the real, unmodified
-`SupabaseStore`/`valuate()`/`resolveAndValuate()` via a `Proxy` on
-`createClient` that transparently redirects `.from("deals")`/
-`.from("neighborhoods")` to the `_v2_preview` tables — no application code
-was changed. Run once against the still-empty tables
-(`L1_PREVIEW_SMOKE=1 npx vitest run scripts/__tests__/l1PreviewValuationSmoke.test.ts`),
-all 5 assertions correctly failed on 0-row data (not on wrong-table
-reads — confirming the redirect hits the empty preview tables rather
-than production's populated ones). This test is real, reusable
-infrastructure for the next resume: once the id-collision blocker is
-resolved and import succeeds, re-running it with no changes should pass.
-It is gated behind `L1_PREVIEW_SMOKE=1` so it never runs in (and never
-breaks) the normal `npx vitest run`.
-
-## What's needed to unblock the rest of L1
-
-A decision on `lib/dealNormalization.ts`'s `Deal.id` scheme, most likely
-incorporating `parcelNum` (available in the shadow corpus but currently
-stripped before the final `Deal` shape) alongside `street`+`houseNumber`
-(covers 73/94 of the differing groups alone, but not all). This is a
-cross-cutting change affecting the id format used by every prior wave's
-artifacts and production itself — it needs its own authorized wave, not a
-decision made inside L1.
-
-Once a corrected candidate exists (regenerated via
-`build-v2-launch-candidate.ts` with a fixed id scheme, producing a new SHA
-to freeze), `scripts/l1-import-v2-preview.ts` is ready to run as-is — its
-pre-import validation, batching, and reconciliation logic all passed ECC
-review this session.
-
-## Production safety (unaffected)
+## Phase 2 — Import execution (PASS)
 
 ```
-ORIGINAL_TABLES_CHANGED = NO
-LEADS_CHANGED           = NO
-PRODUCTION_ENV_CHANGED  = NO
-PRODUCTION_DEPLOYED     = NO
-PREVIEW_TABLES_ROWS     = 0 / 0 (neighborhoods / deals) — nothing was ever written
-LEGACY data/deals.json  = unchanged (SHA verified above)
+SOURCE_SHA256=1e7d066ddb145e27a645dcf3c0d0185d8a5ad2f5dbe905af7fb8102acd6f0a33
+PRE_IMPORT_VALIDATION=PASS
+NEIGHBORHOODS_IMPORTED=38
+SERVICE_ROLE_UPDATE_PROBE=PASS (real no-op UPDATE, 1 row matched — live proof of UPDATE capability)
+DEALS_IMPORTED=59305 (bounded batches, zero partial-batch failures)
+NEIGHBORHOODS_V2_PREVIEW_FINAL_COUNT=38
+DEALS_V2_PREVIEW_FINAL_COUNT=59305
 ```
 
-## Tests / quality gates
+## Phase 3 — Hard reconciliation (PASS, independently re-derived)
+
+A fresh script (not reusing the import script's own internal checks)
+paginated through both tables from scratch:
+
+```
+PREVIEW_NEIGHBORHOODS=38
+PREVIEW_DEALS=59305
+DISTINCT_DEAL_IDS=59305
+DUPLICATE_IDS=0
+ENTITY_COUNT_CANDIDATE=38  ENTITY_COUNT_DB=38  ENTITY_MISMATCHES=0
+ENTITY_RECONCILIATION=PASS
+ROW_RECONCILIATION=PASS
+```
+
+## Phase 4 — Digest proof (PASS)
+
+DB-returned JSON key order/shape won't reproduce the literal file SHA, so
+a canonical-normalization digest was computed identically on both sides:
+fixed field order (all 19 `Deal` fields), `value ?? null` normalization,
+one string per row, sorted (order-independent), joined, hashed.
+
+```
+SOURCE_CANONICAL_DIGEST=ee4d02a1002402f2841294e5ce929aa4bf15accf40acb1b875a3f5a031955523
+DB_CANONICAL_DIGEST=ee4d02a1002402f2841294e5ce929aa4bf15accf40acb1b875a3f5a031955523
+DIGEST_MATCH=YES
+```
+
+Spot-checked 5 rows whose id contains the new `|`/`:` characters — every
+one found in the DB with an exact, byte-for-byte matching id string.
+
+## Phase 5 — Data quality (PASS)
+
+```
+ROWS_MISSING_A_FIELD=0
+DB_COLUMN_SET matches the expected 19 Deal fields exactly, no extra columns
+NO_PREVDEALS_COLUMN=YES
+NULL_DISTRIBUTION_MATCH=YES (per-field null counts identical, source vs DB)
+PROPERTY_TYPE_DISTRIBUTION_MATCH=YES (apartment=55840, land=1751, house=1714, both sides)
+dealNature (Hebrew text) round-trips exactly — no encoding corruption, spot-checked
+PRICE_NON_NUMERIC_ROWS=0 (no string coercion)
+Neighborhood id sets match exactly, source vs DB
+Kiryat Hasharon (65209683) = 5145 rows, Rasko (65210248) = 2012 rows — both match known values
+```
+
+## Phase 6 — Product read path (PASS)
+
+Functions replicating `lib/store.ts`'s `SupabaseStore.getStats()`/
+`getAllDeals()`/`getDealsByNeighborhood()` exactly (same query shape,
+same pagination), pointed at the `_v2_preview` tables — no application
+code or production `DATA_SOURCE` was touched.
+
+```
+getStats(): dealCount=59305, neighborhoodCount=38
+getAllDeals(): 59305 rows, PAGINATION_OVER_1000_PROVEN=YES
+getDealsByNeighborhood(Kiryat): 5145 rows (matches known value; proves single-neighborhood pagination past 1000)
+All 3 property types present (apartment/house/land)
+עובד בן עמי 41 (Ben Ami 41): 101 matching rows found
+Exact-building lookup (street+houseNumber): works, sensible non-empty result
+Street/address lookup: works, sensible non-empty result
+```
+
+## Phase 7 — Valuation smoke (PASS)
+
+Ran the existing, already-committed `scripts/__tests__/l1PreviewValuationSmoke.test.ts`
+(`L1_PREVIEW_SMOKE=1`) — uses a `vi.mock` on the raw `@supabase/supabase-js`
+client to redirect table names only; exercises the real, completely
+unmodified `lib/store.ts`/`lib/valuationService.ts`. 2 of 5 tests initially
+hit vitest's default 5000ms timeout (not a functional failure — genuinely
+takes longer to paginate ~60 pages over a real network connection;
+independently confirmed both operations succeed via a separate script
+first). Fixed with an explicit 30000ms timeout on those 2 tests — all 5
+then passed, **committed** (see below).
+
+Additional targeted cases run live (temporary script, deleted after use)
+to specifically prove Phase 7's confidence/fallback requirements:
+
+```
+CASE A — exact-building match (הבשן 1, קריית השרון): confidence=high, 12 comparables, tier mix {building:1, street:1, radius:10}
+CASE B — sparse/unrealistic case (9.5 rooms, nonexistent street): {ok:false, error:"insufficient_data"} — correctly refuses rather than fabricating a low-confidence answer
+CASE C — land, no address (edge case): insufficient_data (address-resolution edge case, not an algorithm issue)
+CASE D — land, real address (יוסף 4, קריית השרון): confidence=low, 3 comparables — correctly LOW given how little data existed, not falsely high
+```
+
+Zero changes were made to `lib/valuation.ts` or `lib/valuationService.ts` —
+no blocker was found requiring an algorithm change.
+
+**ECC planner note, recorded not acted on:** `getAllDeals()`/`getStats()`
+pagination took >5s in this test's timeout, a real capacity datapoint at
+today's 59,305-row scale (4.7x production's current 12,642) worth keeping
+in mind for any future full-corpus read-path work, not itself a defect.
+
+## Phase 8 — Production isolation (PASS)
+
+```
+PRODUCTION_NEIGHBORHOODS_CHANGED=NO (still 21)
+PRODUCTION_DEALS_CHANGED=NO (still 12,642)
+LEADS_CHANGED=NO (still 0)
+PRODUCTION_ENV_CHANGED=NO (.env.local's DATA_SOURCE still "local"; this session only ever set DATA_SOURCE=supabase inside a script's own process.env at runtime)
+PRODUCTION_DEPLOYED=NO
+data/deals.json SHA unchanged = 18b3796e8f1c085a7099c22d59b67201ae30c9cb66f197c746e8090008e11a8f
+data/neighborhoods.json SHA unchanged = 366255233b70cd9da9b5b092fd8441b52a018fa3ddac57c36a1003f7ea493939
+```
+
+## Phase 9 — Security (PASS)
+
+```
+RLS enabled = YES (documentary, from the executed DDL)
+anon access = UNPROVEN (no anon key in this environment — genuinely untestable, not FAILED)
+authenticated access = UNPROVEN (same reason)
+service_role SELECT = PROVEN (every read this session)
+service_role INSERT = PROVEN (the import itself, 59,305 rows, zero errors)
+service_role UPDATE = PROVEN (live no-op probe inside the import script, 1 row matched)
+service_role DELETE = NO (live-proven denied, Postgres 42501)
+SECRET_EXPOSURE = NO (ECC security-reviewer verdict: no credential value in any log, error, or file this session touched or created)
+ENV_FILE_TRACKED = NO (.env.local is untracked-and-ignored; only .env.example, a template with no real values, is tracked)
+```
+
+**id primary-key enforcement (ECC planner follow-up, confirmed):**
+`supabase/l1_preview_tables.sql` declares `id text primary key` on both
+tables (lines 24, 32) — genuine schema-level uniqueness enforcement, not
+merely an observed property of this one import's data. A duplicate id in
+any batch would have thrown a unique-constraint violation and the
+fail-closed import would have stopped immediately.
+
+## Phase 10 — Quality gates (PASS)
 
 ```
 npx tsc --noEmit   -> clean
-npx vitest run     -> 32 files, 392 tests passing, 5 skipped (the gated live-preview smoke test)
+npx vitest run     -> 34 files, 412 tests passing, 5 skipped (the L1 preview smoke suite, gated behind L1_PREVIEW_SMOKE=1 — correctly not run in the standard suite)
 npm run build      -> compiled successfully, 25 routes generated
+L1_PREVIEW_SMOKE=1 npx vitest run scripts/__tests__/l1PreviewValuationSmoke.test.ts -> 5/5 passing (run separately, against live data, per its own documented opt-in gate)
 ```
 
-## Security
+## ECC review (3 reviewers)
 
-- No credential value was ever printed, logged, or written anywhere this
-  session — only variable NAMES were checked for presence, matching every
-  prior session in this engagement.
-- `SECRET_EXPOSURE = NO`.
-- `audit/launch/backups/` (real production row dumps from the prior
-  session) remains `.gitignore`'d; confirmed absent from `git status`.
-
-## ECC review (5 reviewers dispatched across 2 rounds this session)
-
-- **planner** — confirmed STOP (not a dedup workaround or a surrogate-key
-  change) is the only in-charter option; confirmed the root-cause framing
-  is accurate and, per `audit/wave0g10/...`, actually understated (this
-  was a pre-registered risk, not a surprise); recommended citing
-  `parcelNum` alongside `street`+`houseNumber` in the fix
-  recommendation — applied; recommended checking whether
-  `street`+`houseNumber` alone actually resolves the 94 differing groups
-  — run, found 21/94 still collide, incorporated into this report.
-- **database-reviewer** — reviewed the import script's batching/fail-closed
-  design as sound and safe to re-run later; found the UPDATE-grant probe
-  didn't verify a row actually matched — fixed with a `.select()` count
-  assertion.
-- **silent-failure-hunter** — independently found the same UPDATE-probe gap
-  and, separately, that the original validation loop stopped at the first
-  violation found, potentially hiding other defect categories — both
-  already fixed by the time of the second run in this session, which
-  scanned the full 59,305 rows and confirmed no other defect category
-  exists.
-- **security-reviewer**, **code-reviewer** — not re-dispatched this round;
-  the new files follow the same patterns (env loading, error handling,
-  no logged secrets) already reviewed clean in the prior session, and no
-  new credential-handling surface was introduced.
+- **planner** — confirmed the Phase 1 no-probe-row reasoning is correct
+  (an untestable stray row would have broken the import's own empty-table
+  precondition); confirmed the Phase 4 canonical-digest methodology is
+  rigorous with only benign edge cases (missing-key vs explicit-null
+  collapse, which PostgREST itself can't distinguish either); confirmed
+  the timeout fix is the right call (independently proven working first);
+  flagged that "id" uniqueness had only been checked as observed data,
+  not confirmed as a schema constraint — verified directly: it is a real
+  `primary key` declaration in the DDL.
+- **database-reviewer** — independently re-verified row counts (59,305/38),
+  spot-checked 5 individual rows byte-for-byte including new-format ids,
+  ran a full FK-orphan check across all 59,305 rows (zero orphans, all 38
+  neighborhoodIds resolve), reconfirmed production tables untouched;
+  noted (non-blocking) that no index exists on `price`/`rooms`/`areaSqm`
+  for future filter/sort query patterns — not needed by anything this
+  wave exercises.
+- **security-reviewer** — `SECRET_EXPOSURE=NO`; confirmed the test-file
+  diff is exactly the 2-line timeout addition with no credential-handling
+  change; confirmed every throwaway verification script this session
+  created was deleted and never staged/committed; confirmed `.env.local`
+  was never modified this session; broad credential-pattern scan across
+  every touched file found nothing.
 
 ## Commit
 
-New files this session: `scripts/l1-verify-preview-tables.ts`,
-`scripts/l1-import-v2-preview.ts`,
-`scripts/__tests__/l1PreviewValuationSmoke.test.ts`, this report. Never
-committed: any credential, DB dumps, the 59,305-row V2 candidate file
-(already local-only since L0).
+Changed: `scripts/__tests__/l1PreviewValuationSmoke.test.ts` (explicit
+30000ms timeout on 2 tests; no other change). Updated: this report.
+Never staged: `graphify-out/`, any `audit/wave0g*/shadow/` or
+`shadow-output/` directory, `data/v2-candidate/deals-v2.json` (still
+intentionally untracked), any backup dump, any credential, any temp/cache
+file. The live Supabase writes themselves (38 neighborhoods, 59,305
+deals into the preview tables) are database state, not a git change —
+nothing about them appears in `git status`.
