@@ -5,6 +5,7 @@
   "description": "מחולל לידים למוכרי דירות בנתניה — הערכת שווי לפי עסקאות אמיתיות",
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
+    "dev:preview": "node scripts/dev-preview.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

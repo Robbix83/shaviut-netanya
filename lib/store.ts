@@ -185,10 +185,37 @@ class SupabaseStore implements Store {
     return createClient(url, key, { auth: { persistSession: false } });
   }
 
+  /**
+   * Wave 0G-L2: explicit, reversible preview-table override for
+   * acceptance testing against the isolated deals_v2_preview /
+   * neighborhoods_v2_preview tables (see supabase/l1_preview_tables.sql).
+   * Off by default — every existing call site is unaffected unless
+   * `PREVIEW_TABLES=1` is set, which is not part of any normal deploy
+   * config. Deliberately never applied to "leads" (see every call site
+   * below — lead reads/writes always target the real `leads` table,
+   * regardless of this flag, per this wave's explicit lead-safety
+   * requirement) so acceptance testing can exercise real deals/
+   * neighborhoods data without ever touching lead capture's data sink.
+   */
+  private table(name: "deals" | "neighborhoods"): string {
+    if (process.env.PREVIEW_TABLES === "1") {
+      if (process.env.NODE_ENV === "production") {
+        // Extra guard, not required by resolveDataSource() (which only
+        // gates DATA_SOURCE): a real production deploy has no reason to
+        // ever set this flag, so treat it as almost certainly a
+        // misconfiguration rather than a deliberate choice — fail loud
+        // instead of silently serving preview data to real users.
+        throw new Error("PREVIEW_TABLES=1 is set in a production environment — refusing to serve preview data to real traffic.");
+      }
+      return `${name}_v2_preview`;
+    }
+    return name;
+  }
+
   async listNeighborhoods(settlement: string): Promise<Neighborhood[]> {
     const sb = await this.client();
     const { data, error } = await sb
-      .from("neighborhoods")
+      .from(this.table("neighborhoods"))
       .select("*")
       .eq("settlement", settlement)
       .order("name");
@@ -198,7 +225,7 @@ class SupabaseStore implements Store {
 
   async getNeighborhood(id: string): Promise<Neighborhood | null> {
     const sb = await this.client();
-    const { data } = await sb.from("neighborhoods").select("*").eq("id", id).maybeSingle();
+    const { data } = await sb.from(this.table("neighborhoods")).select("*").eq("id", id).maybeSingle();
     return (data as Neighborhood) ?? null;
   }
 
@@ -213,7 +240,7 @@ class SupabaseStore implements Store {
     const PAGE_SIZE = 1000;
     const all: Deal[] = [];
     for (let offset = 0; ; offset += PAGE_SIZE) {
-      let query = sb.from("deals").select("*").eq("neighborhoodId", neighborhoodId).order("id");
+      let query = sb.from(this.table("deals")).select("*").eq("neighborhoodId", neighborhoodId).order("id");
       if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack));
       if (q.roomsMin != null) query = query.gte("rooms", q.roomsMin);
       if (q.roomsMax != null) query = query.lte("rooms", q.roomsMax);
@@ -236,7 +263,7 @@ class SupabaseStore implements Store {
     const PAGE_SIZE = 1000;
     const all: Deal[] = [];
     for (let offset = 0; ; offset += PAGE_SIZE) {
-      const { data, error } = await sb.from("deals").select("*").order("id").range(offset, offset + PAGE_SIZE - 1);
+      const { data, error } = await sb.from(this.table("deals")).select("*").order("id").range(offset, offset + PAGE_SIZE - 1);
       if (error) throw error;
       const page = (data ?? []) as Deal[];
       all.push(...page);
@@ -247,7 +274,7 @@ class SupabaseStore implements Store {
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
     const sb = await this.client();
-    const countRes = await sb.from("deals").select("id", { count: "exact", head: true });
+    const countRes = await sb.from(this.table("deals")).select("id", { count: "exact", head: true });
     // A failed count query must not be reported as "0 deals" — that's indistinguishable
     // from a genuinely empty table. Fail loud, matching every other SupabaseStore method.
     if (countRes.error) throw countRes.error;
@@ -262,7 +289,7 @@ class SupabaseStore implements Store {
     const neighborhoodIds = new Set<string>();
     for (let offset = 0; offset < dealCount; offset += PAGE_SIZE) {
       const page = await sb
-        .from("deals")
+        .from(this.table("deals"))
         .select("neighborhoodId")
         .not("neighborhoodId", "is", null)
         .range(offset, offset + PAGE_SIZE - 1);
@@ -329,7 +356,7 @@ class SupabaseStore implements Store {
   async dataAsOf(): Promise<string> {
     const sb = await this.client();
     const { data } = await sb
-      .from("deals")
+      .from(this.table("deals"))
       .select("dealDate")
       .order("dealDate", { ascending: false })
       .limit(1)
