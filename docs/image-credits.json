@@ -1,0 +1,56 @@
+{
+  "about": "Licence record for every photo on the live homepage (public/images/). Kept as evidence of good-faith use; the on-page credits live in app/page.tsx (CREDITS).",
+  "images": [
+    {
+      "file": "public/images/netanya-cliffs.jpg",
+      "title": "Netanya cliffs (מצוקי נתניה)",
+      "creator": "Eldar Eldadi (אלדר אלדדי)",
+      "date": "2022-01-08",
+      "source": "Wikimedia Commons, commons:117666517",
+      "page": "https://commons.wikimedia.org/wiki/File:Netanya_cliffs.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "permission": {
+        "type": "Wikimedia VRT (permission confirmed by the copyright holder by e-mail, reviewed by a VRT volunteer)",
+        "ticket": "2022050610001973",
+        "ticketUrl": "https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketNumber=2022050610001973",
+        "checkedOn": "2026-10-27",
+        "screenshot": "docs/netanya-cliffs-vrt-permission-2026-10-27.png"
+      },
+      "downloadedOn": "2026-10-25",
+      "changes": "Cropped, and darkened at the edges behind the text",
+      "shareAlike": "The adapted image itself stays under CC BY-SA 4.0; the site's text and design are not affected.",
+      "creditOnPage": "Caption on the photo and the full credit in the footer, both linked"
+    },
+    {
+      "file": "public/images/netanya-seashore-1935.jpg",
+      "title": "THE SEASHORE AT NATANYA (חוף הים בנתניה), D25-045",
+      "creator": "Zoltan Kluger, National Photo Collection",
+      "date": "1935-04-30",
+      "source": "Wikimedia Commons, commons:59272974",
+      "page": "https://commons.wikimedia.org/wiki/File:THE_SEASHORE_AT_NATANYA._%D7%97%D7%95%D7%A3_%D7%94%D7%99%D7%9D_%D7%91%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-045.jpg",
+      "license": "Public domain (Israeli photograph taken before 1958)",
+      "downloadedOn": "2026-10-25"
+    },
+    {
+      "file": "public/images/netanya-geva-1935.jpg",
+      "title": "THE GEVA NEIGHBOURHOOD IN NATANYA (שכונת גבע בנתניה), D25-041",
+      "creator": "Zoltan Kluger, National Photo Collection",
+      "date": "1935-04-30",
+      "source": "Wikimedia Commons, commons:59272961",
+      "page": "https://commons.wikimedia.org/wiki/File:THE_GEVA_NEIGHBOURHOOD_IN_NATANYA._%D7%A9%D7%9B%D7%95%D7%A0%D7%AA_%D7%92%D7%91%D7%A2_%D7%91%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-041.jpg",
+      "license": "Public domain (Israeli photograph taken before 1958)",
+      "downloadedOn": "2026-10-25"
+    },
+    {
+      "file": "public/images/netanya-general-1935.jpg",
+      "title": "GENERAL VIEW OF NATANYA (מראה כללי של נתניה), D25-053",
+      "creator": "Zoltan Kluger, National Photo Collection",
+      "date": "1935-06-08",
+      "source": "Wikimedia Commons, commons:59273006",
+      "page": "https://commons.wikimedia.org/wiki/File:GENERAL_VIEW_OF_NATANYA._%D7%9E%D7%A8%D7%90%D7%94_%D7%9B%D7%9C%D7%9C%D7%99_%D7%A9%D7%9C_%D7%94%D7%A2%D7%99%D7%A8_%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-053.jpg",
+      "license": "Public domain (Israeli photograph taken before 1958)",
+      "downloadedOn": "2026-10-25"
+    }
+  ]
+}

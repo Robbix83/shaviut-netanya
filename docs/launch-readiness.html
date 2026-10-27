@@ -1,0 +1,256 @@
+<title>השקת שוויות נתניה</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap">
+<style>
+  /* Layout: one reading column, a verdict band on top, then tests, launch tasks grouped by system, and a launch-day run order. Same palette as the site (פריים). */
+  :root {
+    --bg: #f3efe7;
+    --surface: #fbf9f5;
+    --fg: #0c0c0b;
+    --muted: #5d5850;
+    --line: #e2dbcd;
+    --accent: #c2410c;
+    --ok: #157347;
+    --ok-bg: #e3f1e8;
+    --warn: #8a5a00;
+    --warn-bg: #f8ecd2;
+    --block: #b42318;
+    --block-bg: #fbe4e1;
+    --font: "Rubik", "Segoe UI", Arial, sans-serif;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0c0b; --surface: #1a1917; --fg: #f3efe7; --muted: #b3ac9f; --line: #2e2c28;
+      --accent: #ff8a3d; --ok: #6fd39a; --ok-bg: #12291c; --warn: #f2c063; --warn-bg: #2d230f;
+      --block: #ff8f84; --block-bg: #331614; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0c0b; --surface: #1a1917; --fg: #f3efe7; --muted: #b3ac9f; --line: #2e2c28;
+    --accent: #ff8a3d; --ok: #6fd39a; --ok-bg: #12291c; --warn: #f2c063; --warn-bg: #2d230f;
+    --block: #ff8f84; --block-bg: #331614; color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 16px; line-height: 1.6;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding-block: 40px 80px; display: grid; gap: 48px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.15; }
+  h1 { font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -0.02em; }
+  h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+  h3 { font-size: 18px; font-weight: 700; }
+  p { margin: 0; max-width: 68ch; }
+  code { font-family: var(--mono); font-size: 0.86em; background: var(--surface); border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; direction: ltr; unicode-bidi: isolate; overflow-wrap: anywhere; }
+  a { color: var(--accent); }
+  section { display: grid; gap: 16px; min-width: 0; }
+  .lede { color: var(--muted); font-size: 17px; }
+
+  header { display: grid; gap: 14px; }
+  .date { color: var(--muted); font-size: 15px; }
+  .verdict { background: var(--fg); color: var(--bg); border-radius: 18px; padding: 22px 24px; display: grid; gap: 10px; }
+  .verdict strong { font-size: 21px; }
+  .verdict p { color: inherit; opacity: 0.86; }
+  .counts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; padding: 4px 12px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.warn { background: var(--warn-bg); color: var(--warn); }
+  .pill.block { background: var(--block-bg); color: var(--block); }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: start; padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  th { font-size: 13px; font-weight: 500; color: var(--muted); }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .group { display: grid; gap: 10px; }
+  .group-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .group-head .why { color: var(--muted); font-size: 15px; }
+  ul.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .task { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-inline-start: 4px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .task.block { border-inline-start-color: var(--block); }
+  .task.warn { border-inline-start-color: var(--warn); }
+  .task.later { border-inline-start-color: var(--muted); }
+  .task input { width: 20px; height: 20px; margin: 3px 0 0; accent-color: var(--accent); cursor: pointer; }
+  .task input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .task label { display: grid; gap: 4px; cursor: pointer; min-width: 0; }
+  .task .t { font-weight: 700; }
+  .task .d { color: var(--muted); font-size: 15px; }
+  .task.done .t { text-decoration: line-through; color: var(--muted); }
+  .who { font-size: 13px; font-weight: 500; color: var(--accent); }
+
+  ol.run { margin: 0; padding-inline-start: 22px; display: grid; gap: 10px; }
+  ol.run li { padding-inline-start: 6px; }
+  ol.run li::marker { font-weight: 800; color: var(--accent); }
+  .note { background: var(--warn-bg); color: var(--fg); border-radius: 12px; padding: 14px 16px; font-size: 15px; }
+  .note b { color: var(--warn); }
+  .progress { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  footer { color: var(--muted); font-size: 14px; display: grid; gap: 6px; }
+</style>
+
+<div class="wrap" dir="rtl" lang="he">
+
+  <header>
+    <span class="date">דוח מוכנות · 27 באוקטובר 2026 · נבדק על הקוד המקומי (לא בוצע commit ולא deploy)</span>
+    <h1>שוויות נתניה: מה נשאר עד שעולים לאוויר</h1>
+    <div class="verdict">
+      <strong>האתר עצמו מוכן. ההשקה תלויה בהגדרות חיצוניות.</strong>
+      <p>העיצוב החדש (פריים), האשף, ההערכה וקליטת הלידים עובדים ונבנים לפרודקשן בלי שגיאות. מה שעוצר עלייה לאוויר הוא חיבורים ופרטים שעדיין לא הוגדרו: בוט הוואטסאפ, הנתונים החדשים בסופאבייס, כניסת המנהל, פרטי המתווך, הדומיין, והסרת עמודי הטיוטה.</p>
+      <div class="counts">
+        <span class="pill ok">7 בדיקות עברו</span>
+        <span class="pill warn">2 בדיקות יחידה נכשלו (לא באג באתר)</span>
+        <span class="pill block">16 משימות חוסמות</span>
+      </div>
+    </div>
+  </header>
+
+  <section aria-labelledby="tests">
+    <h2 id="tests">סבב הבדיקות</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>בדיקה</th><th>תוצאה</th><th>פירוט</th></tr></thead>
+        <tbody>
+          <tr><td>בדיקת טיפוסים (TypeScript)</td><td><span class="pill ok">עבר</span></td><td>אפס שגיאות.</td></tr>
+          <tr><td>בנייה לפרודקשן</td><td><span class="pill ok">עבר</span></td><td>25 עמודים נבנו. אזהרה אחת: Next 16 מבקש לשנות את שם הקובץ <code>middleware.ts</code> ל-<code>proxy.ts</code>. לא חוסם.</td></tr>
+          <tr><td>בדיקות יחידה</td><td><span class="pill warn">414 מתוך 416</span></td><td class="num">414 עברו · 2 נכשלו · 5 דולגו. פירוט בהמשך.</td></tr>
+          <tr><td>Smoke לדף הבית</td><td><span class="pill ok">4/4</span></td><td>טלפון 320 ו-390, מחשב 1440, והפחתת תנועה. בלי שגיאות קונסול ובלי גלילה לרוחב.</td></tr>
+          <tr><td>מסלול אמיתי עד תוצאה</td><td><span class="pill ok">עבר</span></td><td>הרצל 12, 4 חדרים, 100 מ״ר, קומה 3. נבדק בטלפון ובמחשב.</td></tr>
+          <tr><td>מקרי קצה</td><td><span class="pill ok">7/7</span></td><td>כתובת ושכונה ארוכות, ₪12.8 מיליון, זום 200%, תוצאה ריקה, אין מספיק עסקאות, שגיאת שרת. אין חריגות מהמסך.</td></tr>
+          <tr><td>עמודים ציבוריים</td><td><span class="pill ok">200</span></td><td><code>/</code>, <code>/privacy</code>, <code>/terms</code>, <code>/robots.txt</code>, <code>/sitemap.xml</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <b>שתי הבדיקות שנכשלו:</b>
+      <ul style="margin:6px 0 0; padding-inline-start:20px; display:grid; gap:6px">
+        <li><b>בדיקת "חישוב השווי לא השתנה" (אגמים):</b> הבדיקה נועלת מספרים שנמדדו בעבר. ההערכה מסתכלת על חלון של 6 חודשים אחורה מהיום, כך שעם הזמן נכנסות עסקאות אחרות. לכן הטווח התחתון זז מ-₪2,425,000 ל-₪2,496,000. ההגדרה הייתה לא לגעת בקובץ הבדיקה, ולכן לא עדכנתי אותו. כדי לעדכן או לקבע את התאריך בבדיקה צריך את האישור שלך.</li>
+        <li><b>בדיקת השוואת עסקאות מול סופאבייס:</b> נכשלה כי עבר זמן ההמתנה (5 שניות) בפנייה לשרת סופאבייס. נכשלה גם בהרצה חוזרת. זו לא שגיאה בחישוב, אבל זה מתחבר לבעיית האיטיות שמופיעה בהמשך.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="tasks">
+    <h2 id="tasks">משימות לפני ההשקה</h2>
+    <p class="lede">הסימון בתיבות נשמר רק בדפדפן שלך. <span class="who">אתה</span> = רק אתה יכול לעשות את זה (חשבונות, מספרי טלפון, החלטות). <span class="who">Claude</span> = אני יכול לבצע אחרי שתאשר.</p>
+    <p class="progress" id="progress"></p>
+
+    <div class="group">
+      <div class="group-head"><h3>1. בוט הוואטסאפ (Green API)</h3><span class="why">שולח לך התראה על כל ליד, שולח ללקוח את דוח השווי, ומטפל בהסרה (STOP)</span></div>
+      <p>הקוד כבר כתוב: <code>lib/notify.ts</code> ו-<code>/api/webhook/green</code>. אף אחד מפרטי Green API לא מוגדר כרגע, ולכן הבוט עוד לא נבדק אף פעם מול וואטסאפ אמיתי. בלי ההגדרה הלידים עדיין נשמרים, אבל אף הודעה לא יוצאת.</p>
+      <ul class="tasks">
+        <li class="task block"><input type="checkbox" id="t-wa-sim"><label for="t-wa-sim"><span class="who">אתה</span><span class="t">להשיג מספר וואטסאפ ייעודי לעסק (SIM נפרד)</span><span class="d">Green API מחבר מספר רגיל דרך QR. זה שירות לא רשמי של וואטסאפ, ומספר ששולח הודעות לאנשים שלא פנו אליו עלול להיחסם. לכן לא כדאי להשתמש בנייד האישי. כדאי להתחיל מכמה הודעות ביום.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-wa-inst"><label for="t-wa-inst"><span class="who">אתה</span><span class="t">לפתוח חשבון ב-green-api.com, ליצור Instance ולסרוק QR מהמספר הייעודי</span><span class="d">לבדוק שם את המסלולים והמחירים העדכניים. המסלול החינמי מוגבל ולא מתאים לפרודקשן.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-wa-env"><label for="t-wa-env"><span class="who">אתה</span><span class="t">להזין ב-Vercel ארבעה משתנים</span><span class="d"><code>GREEN_API_ID_INSTANCE</code>, <code>GREEN_API_TOKEN_INSTANCE</code>, <code>LEAD_NOTIFY_WHATSAPP</code> (הנייד שלך בפורמט 9725XXXXXXXX), <code>GREEN_WEBHOOK_TOKEN</code> (מחרוזת אקראית ארוכה). בלי האסימון, השרת דוחה את ה-webhook בפרודקשן.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-wa-hook"><label for="t-wa-hook"><span class="who">אתה</span><span class="t">להגדיר webhook בהגדרות ה-Instance</span><span class="d">כתובת: <code>https://&lt;הדומיין&gt;/api/webhook/green?token=&lt;GREEN_WEBHOOK_TOKEN&gt;</code>, ולהפעיל קבלת הודעות נכנסות. בלי זה, "STOP" מלקוח לא יסיר אותו מהרשימה, וזו דרישה של חוק הספאם.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-wa-test"><label for="t-wa-test"><span class="who">אתה + Claude</span><span class="t">בדיקה מקצה לקצה עם הטלפון שלך</span><span class="d">להשאיר ליד עם המספר שלך ולוודא שלוש הודעות: התראת ליד אליך, דוח שווי ללקוח, ואחרי ששולחים "STOP" גם הודעת אישור הסרה. אחר כך לוודא בדשבורד שהליד מסומן כמוסר.</span></label></li>
+        <li class="task later"><input type="checkbox" id="t-wa-alerts"><label for="t-wa-alerts"><span class="who">אתה</span><span class="t">התראות "נמכרה דירה דומה" (אחרי ההשקה)</span><span class="d"><code>npm run alerts -- --dry</code> ואחר כך הרצה אמיתית, אחרי הקציר החודשי. זו הרצה ידנית, אין לה תזמון אוטומטי.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h3>2. נתונים וסופאבייס</h3><span class="why">מה שהאתר מציג ללקוחות</span></div>
+      <ul class="tasks">
+        <li class="task block"><input type="checkbox" id="t-db-cut"><label for="t-db-cut"><span class="who">Claude, באישורך</span><span class="t">להעביר את נתוני V2 לטבלאות הפרודקשן</span><span class="d">59,305 העסקאות החדשות נמצאות כרגע בטבלאות הבדיקה <code>deals_v2_preview</code> ו-<code>neighborhoods_v2_preview</code>, אבל האתר בפרודקשן קורא מ-<code>deals</code> ו-<code>neighborhoods</code>. קודם גיבוי (הסקריפט <code>l1-backup-production.ts</code> קיים), אחר כך ההעברה, ואז אימות מספר השורות. זה שינוי בבסיס הנתונים, ולכן הוא דורש אישור מפורש.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-db-env"><label for="t-db-env"><span class="who">אתה</span><span class="t">ב-Vercel: <code>DATA_SOURCE=supabase</code>, <code>NEXT_PUBLIC_SUPABASE_URL</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code></span><span class="d">אם <code>DATA_SOURCE</code> לא מוגדר, האתר מסרב לרוץ בפרודקשן. זו הגנה מכוונת. לא להגדיר <code>PREVIEW_TABLES</code> בפרודקשן.</span></label></li>
+        <li class="task warn"><input type="checkbox" id="t-db-speed"><label for="t-db-speed"><span class="who">Claude</span><span class="t">למדוד את זמן ההערכה על השרת האמיתי</span><span class="d">בבדיקות הקודמות ההערכה לקחה 7.8 עד 13.9 שניות מול סופאבייס, והבדיקה של היום נתקעה על 5 שניות. אם זה נשאר איטי, צריך להאיץ, או לפחות להחליף את "מיידי" בתיאור לשיתוף (<code>app/layout.tsx</code>).</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h3>3. אימות טלפון (OTP ב-SMS)</h3><span class="why">מונע לידים עם מספרים מזויפים</span></div>
+      <ul class="tasks">
+        <li class="task block"><input type="checkbox" id="t-otp-env"><label for="t-otp-env"><span class="who">אתה</span><span class="t">להעביר ל-Vercel את פרטי Twilio ולהזין <code>OTP_SECRET</code> חדש</span><span class="d">פרטי Twilio מוגדרים אצלך מקומית: <code>TWILIO_ACCOUNT_SID</code>, <code>TWILIO_AUTH_TOKEN</code>, <code>TWILIO_VERIFY_SID</code>, <code>TWILIO_FROM</code>. את <code>OTP_SECRET</code> צריך ליצור מחדש לפרודקשן (64 תווים אקראיים) ולא להעתיק את זה של הפיתוח.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-otp-test"><label for="t-otp-test"><span class="who">אתה</span><span class="t">שליחה אמיתית של קוד לנייד שלך</span><span class="d">עדיין לא נבדק אם SMS באמת מגיע לטלפון ישראלי.</span></label></li>
+        <li class="task warn"><input type="checkbox" id="t-otp-fraud"><label for="t-otp-fraud"><span class="who">אתה</span><span class="t">לנעול את Twilio לישראל בלבד ולהגדיר תקרת הוצאה</span><span class="d">מגבלת הבקשות באתר נשמרת בזיכרון של כל שרת. ב-Vercel יש כמה שרתים במקביל, ולכן ההגנה חלשה מול הצפת SMS שעולה כסף. בהגדרות Twilio: Geo Permissions לישראל בלבד, ותקרת הוצאה.</span></label></li>
+        <li class="task later"><input type="checkbox" id="t-otp-vest"><label for="t-otp-vest"><span class="who">אתה</span><span class="t">לא להעביר ל-Vercel את <code>NEXT_PUBLIC_DEV_BYPASS_OTP</code></span><span class="d">המשתנה לא בשימוש בקוד ונשאר מהפיתוח.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h3>4. כניסה לדשבורד הלידים</h3><span class="why">הדף שבו רואים ומנהלים לידים</span></div>
+      <ul class="tasks">
+        <li class="task block"><input type="checkbox" id="t-adm-google"><label for="t-adm-google"><span class="who">אתה</span><span class="t">ליצור OAuth Client ב-Google Cloud ולהזין <code>AUTH_GOOGLE_ID</code> ו-<code>AUTH_GOOGLE_SECRET</code></span><span class="d">שימו לב: בקובץ ההגדרות המקומי מופיעים השמות <code>GOOGLE_CLIENT_ID</code> ו-<code>GOOGLE_CLIENT_SECRET</code>, והגרסה הנוכחית של NextAuth לא קוראת אותם. כתובת החזרה: <code>https://&lt;הדומיין&gt;/api/auth/callback/google</code>.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-adm-email"><label for="t-adm-email"><span class="who">אתה</span><span class="t"><code>ADMIN_EMAIL</code>, ו-<code>AUTH_SECRET</code> חדש</span><span class="d">בפרודקשן, אם <code>ADMIN_EMAIL</code> לא מוגדר, אף אחד לא יכול להיכנס. לא להעביר את <code>ADMIN_DEV_BYPASS</code>. גם בלעדיו הוא מושבת בפרודקשן, אבל עדיף שלא יהיה שם.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h3>5. פרטי המתווך, הדומיין והתוכן</h3><span class="why">חובה לפי חוק המתווכים, וגם מה שגולשים וגוגל רואים</span></div>
+      <ul class="tasks">
+        <li class="task block"><input type="checkbox" id="t-agent"><label for="t-agent"><span class="who">אתה</span><span class="t">פרטי המתווך האמיתיים ב-Vercel</span><span class="d"><code>NEXT_PUBLIC_AGENT_NAME</code>, <code>NEXT_PUBLIC_AGENT_LICENSE</code>, <code>NEXT_PUBLIC_AGENT_PHONE</code>, ואם רוצים גם <code>NEXT_PUBLIC_AGENT_PHOTO</code> ו-<code>NEXT_PUBLIC_AGENT_TESTIMONIAL</code>. כרגע מוצג "שם המתווך · רישיון 0000000". כפתור הוואטסאפ הצף מופיע רק כשמוגדר טלפון.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-domain"><label for="t-domain"><span class="who">אתה + Claude</span><span class="t">דומיין: לקנות, לחבר ל-Vercel, ולעדכן בקוד</span><span class="d">הכתובת <code>shaviut-netanya.co.il</code> כתובה כרגע כמחזיקת מקום בשלושה קבצים: <code>app/layout.tsx</code>, <code>app/robots.ts</code>, <code>app/sitemap.ts</code>. אני מעדכן אחרי שתבחר דומיין.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-proto"><label for="t-proto"><span class="who">Claude, באישורך</span><span class="t">להוציא את עמודי הטיוטה מהאתר</span><span class="d"><code>/prototypes/round-2</code> עד <code>round-7</code> נבנים לפרודקשן ויהיו פתוחים לכל אחד, יחד עם כ-10MB של תמונות. אפשר למחוק אותם (הם נשמרים בהיסטוריה של git) או לחסום אותם בפרודקשן.</span></label></li>
+        <li class="task warn"><input type="checkbox" id="t-og"><label for="t-og"><span class="who">Claude</span><span class="t">תמונת שיתוף חדשה (og-image) בעיצוב פריים</span><span class="d">הקיימת היא מהעיצוב הישן. זו התמונה שמופיעה כשמשתפים קישור בוואטסאפ. עדיף לבנות אותה מצילום בנחלת הכלל, כי בתמונה בודדת אין מקום לקרדיט.</span></label></li>
+        <li class="task warn"><input type="checkbox" id="t-img"><label for="t-img"><span class="who">Claude</span><span class="t">לכווץ את תמונות הדף</span><span class="d">ארבע התמונות שוקלות יחד כ-2.5MB. תמונת המצוק לבד היא 622KB, והיא הדבר הראשון שנטען בטלפון. המרה ל-WebP בגדלים מתאימים תאיץ את הטעינה.</span></label></li>
+        <li class="task warn"><input type="checkbox" id="t-privacy"><label for="t-privacy"><span class="who">אתה + עורך דין</span><span class="t">לעדכן את מדיניות הפרטיות ולהעביר לבדיקה משפטית</span><span class="d">הדף מזכיר את Green API ו-Supabase. חסרים בו Twilio (שליחת SMS), Vercel (אירוח) וגוגל (גיליון ואנליטיקס, אם יופעלו). הדף עצמו כותב שצריך בדיקה של עורך דין לפני השקה מסחרית.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h3>6. קוד והעלאה</h3><span class="why">שום דבר מהעבודה האחרונה עוד לא שמור ב-git</span></div>
+      <ul class="tasks">
+        <li class="task block"><input type="checkbox" id="t-commit"><label for="t-commit"><span class="who">Claude, באישורך</span><span class="t">commit לעיצוב החדש, רק עם קבצי האתר</span><span class="d"><code>app/page.tsx</code>, <code>app/layout.tsx</code>, <code>app/globals.css</code>, <code>tailwind.config.ts</code>, <code>public/images/</code> והקומפוננטות שהשתנו. בלי <code>graphify-out</code>, בלי תיקיות ה-audit ובלי קבצי נתונים זמניים.</span></label></li>
+        <li class="task block"><input type="checkbox" id="t-deploy"><label for="t-deploy"><span class="who">אתה</span><span class="t">deploy ל-Vercel, קודם כ-Preview ורק אחר כך Production</span><span class="d">הפרויקט כבר מקושר (shaviut-netanya, Node 24). לבדוק את ה-Preview עם הטלפון, ורק אז לקדם לפרודקשן.</span></label></li>
+        <li class="task later"><input type="checkbox" id="t-fixture"><label for="t-fixture"><span class="who">Claude, באישורך</span><span class="t">לתקן את בדיקת "חישוב השווי לא השתנה"</span><span class="d">לקבע תאריך בבדיקה כדי שלא תישבר עם הזמן. לפי ההגדרה הקיימת, לגעת בקובץ הזה מותר רק באישורך.</span></label></li>
+        <li class="task later"><input type="checkbox" id="t-polish"><label for="t-polish"><span class="who">Claude</span><span class="t">ליטוש אחרי ההשקה</span><span class="d">קופסת ההתחדשות העירונית עדיין צהבהבה. דשבורד הניהול עדיין בעיצוב הישן. לשנות את שם הקובץ <code>middleware.ts</code> ל-<code>proxy.ts</code>.</span></label></li>
+      </ul>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h3>אופציונלי</h3><span class="why">אפשר להשיק בלי אלה</span></div>
+      <ul class="tasks">
+        <li class="task later"><input type="checkbox" id="t-sheet"><label for="t-sheet"><span class="who">אתה</span><span class="t">גיליון לידים בגוגל</span><span class="d">להדביק את <code>scripts/google-apps-script.gs</code> ב-Apps Script, לפרסם כ-Web App ולהזין את הכתובת ב-<code>GOOGLE_SHEETS_WEBHOOK</code>.</span></label></li>
+        <li class="task later"><input type="checkbox" id="t-ga"><label for="t-ga"><span class="who">אתה</span><span class="t">Google Analytics ופיקסל של פייסבוק</span><span class="d"><code>NEXT_PUBLIC_GA4_ID</code> ו-<code>NEXT_PUBLIC_FB_PIXEL_ID</code>. אם מפעילים את הפיקסל, כדאי להוסיף באנר הסכמה לעוגיות.</span></label></li>
+      </ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="run">
+    <h2 id="run">סדר הפעולות ביום ההשקה</h2>
+    <ol class="run">
+      <li>commit לעיצוב והוצאת עמודי הטיוטה.</li>
+      <li>גיבוי טבלאות הפרודקשן בסופאבייס, ואחר כך העברת נתוני V2 ובדיקת מספר השורות (59,305).</li>
+      <li>הזנת כל המשתנים ב-Vercel: סופאבייס, Twilio, Green API, Google OAuth, פרטי המתווך, הדומיין.</li>
+      <li>deploy כ-Preview. בדיקה מהטלפון: הערכה, קוד SMS, השארת ליד עם המספר שלך.</li>
+      <li>לוודא שהגיעו התראת הוואטסאפ אליך ודוח השווי ללקוח. לשלוח "STOP" ולוודא שהגיעה הודעת הסרה.</li>
+      <li>להיכנס לדשבורד עם חשבון הגוגל שלך ולראות את ליד הבדיקה.</li>
+      <li>קידום ל-Production וחיבור הדומיין.</li>
+      <li>בדיקה חוזרת על הדומיין האמיתי, ואז מחיקת ליד הבדיקה מהדשבורד.</li>
+    </ol>
+  </section>
+
+  <footer>
+    <span>הדוח נבנה מתוך בדיקות שהורצו היום על הקוד המקומי, ומתוך דוח ההשקה הקודם (<code>audit/launch/L2_PREVIEW_ACCEPTANCE_GO_NO_GO.md</code>).</span>
+    <span>הדוח כולל רק שמות של משתנים, בלי אף מפתח או סיסמה.</span>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('.task input[type="checkbox"]'));
+    var KEY = 'shaviut-launch-v1';
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+    var progress = document.getElementById('progress');
+    function paint() {
+      var done = 0;
+      boxes.forEach(function (b) {
+        b.closest('.task').classList.toggle('done', b.checked);
+        if (b.checked) done++;
+      });
+      progress.textContent = 'בוצעו ' + done + ' מתוך ' + boxes.length + ' משימות';
+    }
+    boxes.forEach(function (b) {
+      b.checked = !!saved[b.id];
+      b.addEventListener('change', function () {
+        saved[b.id] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        paint();
+      });
+    });
+    paint();
+  })();
+</script>

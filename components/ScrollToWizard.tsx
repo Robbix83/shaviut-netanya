@@ -6,7 +6,10 @@ export default function ScrollToWizard({ className, children }: { className?: st
     <button
       type="button"
       className={className}
-      onClick={() => document.getElementById("check")?.scrollIntoView({ behavior: "smooth" })}
+      onClick={() => {
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.getElementById("check")?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+      }}
     >
       {children}
     </button>

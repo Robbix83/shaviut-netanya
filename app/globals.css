@@ -1,23 +1,39 @@
-/* ── Google Fonts: Heebo (Hebrew) ─────────────────────────────── */
-@import url("https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap");
+/* ── Google Fonts: Rubik (Hebrew) — the only typeface ─────────── */
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --brand: #0d3efb;
-  --brand-dark: #0a2fc2;
-  --brand-glow: #6b93ff;
+  --brand: #c2410c;
+  --brand-dark: #9a3412;
+  --brand-glow: #c2410c;
   --hero-dark: #060d24;
+  --butter: #f3efe7;
+  --sun: #ff8a3d;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;  /* no grey flash on tap — every control has its own :active */
+  -webkit-text-size-adjust: 100%;
+}
+button, a, [role="button"], label {
+  touch-action: manipulation;                /* no double-tap-zoom delay on taps */
+}
+button, [role="button"] {
+  -webkit-user-select: none;                 /* long-press doesn't select a control's label */
+  user-select: none;
+}
+input, textarea, select {
+  font-size: max(16px, 1em);                 /* iOS never zooms into a field */
 }
 
 body {
-  font-family: "Heebo", system-ui, Arial, sans-serif;
+  font-family: "Rubik", system-ui, Arial, sans-serif;
   font-feature-settings: "kern";
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
@@ -41,35 +57,69 @@ input[type="number"] {
   }
 
   .field-input {
-    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base
-           outline-none transition
+    @apply w-full rounded-2xl border border-butter-deep bg-white px-4 py-3 text-base
+           outline-none
            focus:border-brand focus:ring-2 focus:ring-brand/20
-           placeholder:text-slate-400;
+           placeholder:text-slate-500;
+    transition: border-color 140ms ease, box-shadow 140ms ease;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl
+    @apply inline-flex items-center justify-center gap-2 rounded-full
            bg-brand px-6 py-3.5 text-base font-bold text-white
-           shadow-[0_4px_24px_rgba(13,62,251,0.35)]
-           transition
-           hover:bg-brand-dark hover:shadow-[0_4px_32px_rgba(13,62,251,0.5)]
-           active:scale-[0.98]
            disabled:cursor-not-allowed disabled:opacity-50;
+    min-height: 52px;
+    transition: transform 160ms var(--ease-out), background-color 160ms ease;
   }
+  .btn-primary:active:not(:disabled) { transform: scale(0.97); }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center rounded-xl border border-slate-200
-           bg-white px-5 py-3 text-base font-medium text-slate-700
-           transition hover:bg-slate-50 active:scale-[0.98];
+    @apply inline-flex items-center justify-center rounded-full bg-butter-soft
+           px-5 py-3 text-base font-medium text-ink;
+    min-height: 52px;
+    transition: transform 160ms var(--ease-out), background-color 160ms ease;
+  }
+  .btn-ghost:active { transform: scale(0.97); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover:not(:disabled) { @apply bg-brand-dark; }
+    .btn-ghost:hover { @apply bg-butter-deep; }
+  }
+
+  /* שעה זהובה: pill links/buttons and small fact chips */
+  .gh-pill {
+    @apply inline-flex items-center gap-2 rounded-full px-4 text-sm font-medium;
+    min-height: 44px;
+    transition: transform 160ms var(--ease-out), background-color 160ms ease;
+  }
+  .gh-pill:active { transform: scale(0.97); }
+  .gh-press { transition: transform 160ms var(--ease-out), background-color 140ms ease, color 140ms ease; }
+  .gh-press:active { transform: scale(0.97); }
+  .gh-step { animation: gh-step 220ms var(--ease-out) both; }
+  .gh-in { animation: gh-step 180ms var(--ease-out) both; }
+  /* popovers grow out of the field they belong to */
+  .gh-pop { transform-origin: top center; animation: gh-pop 150ms var(--ease-out) both; }
+  .gh-chip {
+    @apply inline-flex items-center gap-[0.3em] rounded-full bg-butter-deep px-3 text-sm font-medium text-ink;
+    min-height: 32px;
   }
 
   /* Wizard card inner wrapper (white card on dark hero glass border) */
   .wizard-card {
-    @apply rounded-2xl bg-white shadow-[0_24px_64px_rgba(0,0,0,0.18)];
+    @apply rounded-3xl bg-white shadow-card;
   }
 }
 
 /* ── Keyframes ────────────────────────────────────────────────── */
+/* wizard step change + small state reveals: start visible, settle in place */
+@keyframes gh-step {
+  from { opacity: 0.4; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes gh-pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -112,3 +162,20 @@ input[type="number"] {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── פריים: the opening shot drifts in, slowly (reduced motion: still) ── */
+@keyframes fr-push { from { transform: scale(1.02); } to { transform: scale(1.1); } }
+.fr-push { animation: fr-push 24s linear both; }
+@media (prefers-reduced-motion: reduce) { .fr-push { animation: none; } }
+
+/* ── browser surfaces + reduced motion ─────────────── */
+::selection { background: var(--brand); color: #fff; }
+input, textarea { caret-color: var(--brand); }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-property: opacity, color, background-color, border-color !important;
+  }
+}

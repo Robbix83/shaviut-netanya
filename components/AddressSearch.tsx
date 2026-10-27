@@ -110,15 +110,15 @@ const inputRef = useRef<HTMLInputElement>(null);
   if (selected) {
     return (
       <div className="space-y-2">
-        <div className="rounded-xl border-2 border-green-200 bg-green-50 px-4 py-3 flex items-center gap-3">
-          <span className="text-green-500 text-xl font-bold flex-shrink-0">✓</span>
+        <div className="rounded-2xl bg-butter-soft px-4 py-3 flex items-center gap-3">
+          <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-ink text-white" aria-hidden="true"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg></span>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-slate-800 truncate">{selected.street}</p>
+            <p className="font-bold text-slate-800 [overflow-wrap:anywhere]">{selected.street}</p>
             {selected.neighborhoodName
-              ? <p className="text-xs font-semibold text-green-700">{selected.neighborhoodName}, נתניה</p>
-              : <p className="text-xs text-slate-400">הזינו מספר בית לשיוך שכונה</p>}
+              ? <p className="text-xs font-semibold text-slate-700">{selected.neighborhoodName}, נתניה</p>
+              : <p className="text-xs text-slate-600">הזינו מספר בית לשיוך שכונה</p>}
           </div>
-          <button onClick={clear} className="text-slate-400 hover:text-slate-700 text-lg flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center" title="שנה" aria-label="שנה רחוב">✕</button>
+          <button onClick={clear} className="gh-press flex-shrink-0 rounded-full bg-white px-3 text-xs font-semibold text-ink min-h-[44px] flex items-center justify-center" aria-label="שנה רחוב">שינוי</button>
         </div>
         {/* מספר בית — מאפשר חיפוש ברמת בניין ספציפי */}
         <div className="flex items-center gap-2 flex-wrap">
@@ -130,20 +130,20 @@ const inputRef = useRef<HTMLInputElement>(null);
             type="text"
             inputMode="numeric"
             dir="ltr"
-            className="field-input max-w-[90px] text-center"
+            className="field-input max-w-[96px] text-center tabular-nums"
             placeholder="12"
             autoComplete="address-line2"
             aria-required={required || undefined}
             value={houseNumber ?? ""}
             onChange={(e) => onHouseNumberChange?.(e.target.value.replace(/[^\d\w]/g, ""))}
           />
-          {!required && <span className="text-xs text-slate-400">(לא חובה — ישפר דיוק)</span>}
+          {!required && <span className="text-xs text-slate-600">(לא חובה — ישפר דיוק)</span>}
           {houseNumberNotFound && (
-            <span className="text-xs font-medium text-amber-600">⚠ מספר לא נמצא — שכונה משוייכת לפי שם הרחוב</span>
+            <span className="text-xs font-medium text-amber-800">מספר לא נמצא — שכונה משוייכת לפי שם הרחוב</span>
           )}
         </div>
         {required && !(houseNumber ?? "").trim() && (
-          <p className="text-xs font-medium text-amber-600">{HOUSE_NUMBER_REQUIRED_MESSAGE}</p>
+          <p className="text-xs font-medium text-amber-800">{HOUSE_NUMBER_REQUIRED_MESSAGE}</p>
         )}
       </div>
     );
@@ -163,6 +163,7 @@ const inputRef = useRef<HTMLInputElement>(null);
           placeholder="הקלד שם רחוב (ויצמן, הרצל, ביל&quot;ו...)"
           value={query}
           autoComplete="off"
+          enterKeyHint="search"
           autoCorrect="off"
           autoCapitalize="off"
           spellCheck={false}
@@ -174,7 +175,7 @@ const inputRef = useRef<HTMLInputElement>(null);
         <button
           type="button"
           aria-label="חפש רחוב"
-          className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-500 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
           onMouseDown={(e) => { e.preventDefault(); triggerSearch(); }}
           onTouchEnd={(e) => { e.preventDefault(); triggerSearch(); }}
         >
@@ -192,19 +193,18 @@ const inputRef = useRef<HTMLInputElement>(null);
       </div>
 
       {open && suggestions.length > 0 && (
-        <div ref={listRef} className="absolute z-50 mt-1 w-full rounded-xl border border-slate-200 bg-white shadow-xl overflow-hidden max-h-72 overflow-y-auto">
+        <div ref={listRef} className="gh-pop absolute z-50 mt-1.5 w-full rounded-2xl bg-white p-1.5 shadow-[0_18px_40px_-16px_rgba(18,19,43,0.35)] ring-1 ring-butter-deep overflow-hidden max-h-72 overflow-y-auto">
           {suggestions.map((s, i) => (
             <button
               key={i}
               type="button"
               aria-label={`בחר ${s.street}`}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-right hover:bg-brand/5 transition-colors border-b border-slate-100 last:border-0"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 min-h-[44px] text-right hover:bg-butter-soft"
               onMouseDown={(e) => { e.preventDefault(); pick(s); }}
               onTouchEnd={(e) => { e.preventDefault(); pick(s); }}
             >
-              <span className="text-brand/50 flex-shrink-0">📍</span>
               <span className="flex-1 min-w-0 text-right">
-                <span className="block text-sm font-medium text-slate-800 truncate">{s.street}</span>
+                <span className="block text-[15px] font-medium text-ink [overflow-wrap:anywhere]">{s.street}</span>
               </span>
             </button>
           ))}
@@ -212,7 +212,7 @@ const inputRef = useRef<HTMLInputElement>(null);
       )}
 
       {open && !loading && query.length >= 1 && suggestions.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-slate-100 bg-white px-4 py-3 text-sm text-slate-500 shadow-lg">
+        <div className="gh-pop absolute z-50 mt-1.5 w-full rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-[0_18px_40px_-16px_rgba(18,19,43,0.35)] ring-1 ring-butter-deep">
           לא נמצא רחוב — בחרו שכונה ידנית
         </div>
       )}

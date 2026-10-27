@@ -51,3 +51,7 @@ C*leadserr.txt
 .claude/scheduled_tasks.lock
 .vercel
 .env*
+
+# Playwright generated output
+test-results/
+playwright-report/

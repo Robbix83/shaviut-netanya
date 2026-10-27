@@ -41,9 +41,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,   // מונע zoom אוטומטי של iOS על שדות קלט (נראה כמו ריענון)
+  // אין חסימת זום (נגישות). זום אוטומטי של iOS נמנע כי כל שדות הקלט ≥16px.
+  interactiveWidget: "resizes-content",
   viewportFit: "cover",
-  themeColor: "#0d3efb",
+  themeColor: "#0c0c0b",
 };
 
 const jsonLd = {
@@ -119,14 +120,14 @@ export default function RootLayout({
         {/* Preconnect לגופן — מפחית FOUC */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* Preload Heebo Bold (המשקל הכבד ביותר — נטען ראשון) */}
+        {/* Rubik — the only typeface (preload + stylesheet) */}
         <link
           rel="preload"
           as="style"
-          href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap"
           rel="stylesheet"
         />
         {/* JSON-LD Structured Data */}
@@ -135,7 +136,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-slate-50 text-ink antialiased">
+      <body className="min-h-screen bg-butter text-ink antialiased">
         <Analytics />
         {children}
         <WhatsAppButton />

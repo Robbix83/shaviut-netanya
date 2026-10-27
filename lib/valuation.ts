@@ -95,6 +95,14 @@ const AREA_TOLERANCE_RATIO = 0.5;    // ±50% שטח — מסנן דירות ק�
 const HOUSE_MAX_PPSQM_BUILT = 40_000; // sanity: ₪/מ"ר בנוי > ₪40K לבית = composite לא אמין → fallback
 const FLOOR_TOLERANCE = 2; // ±2 קומות
 
+// רצפת רוחב לטווח המוצג, סביב האומדן האמצעי (מכויל בבדיקה לאחור, 500 חיפושים על נתוני V2, 27.10.2026):
+// טווח האחוזונים לבדו (≈±10%) כלל רק 46% מהמחירים בפועל. ±15% בדירה → 70%; בבתים הסטייה גדולה יותר.
+// קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר, הנכס עובר לבדיקה אישית (manualReview).
+const MIN_RANGE_HALF: Record<string, number> = {
+  apartment: 0.15,
+  house: 0.25,
+};
+
 // סף מינימום ₪/מ"ר לפי סוג נכס — מסנן עסקאות חלקיות/זכויות שנדל"ן מפרסם ביחד
 // עם עסקאות שוק רגילות (מכירת 25% מדירה, העברות בין קרובים בתמורה סמלית וכו')
 const MIN_PPSQM: Record<string, number> = {
@@ -530,6 +538,22 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     estHigh = size ? round(size * hi) : 0;
   }
 
+  // רצפת רוחב: הטווח לא צר מ-±MIN_RANGE_HALF סביב האמצע (האמצע עצמו לא משתנה)
+  const minHalf = MIN_RANGE_HALF[ptype];
+  if (minHalf && estMid! > 0) {
+    estLow = Math.min(estLow!, round(estMid! * (1 - minHalf)));
+    estHigh = Math.max(estHigh!, round(estMid! * (1 + minHalf)));
+    ppsLow = Math.min(ppsLow, Math.round(ppsMid * (1 - minHalf)));
+    ppsHigh = Math.max(ppsHigh, Math.round(ppsMid * (1 + minHalf)));
+  }
+
+  // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה
+  const manualReview = isLand;
+  if (manualReview) {
+    estLow = estMid = estHigh = 0;
+    ppsLow = ppsMid = ppsHigh = 0;
+  }
+
   const valuation: Valuation = {
     pricePerSqmLow: ppsLow,
     pricePerSqmMid: ppsMid,
@@ -555,9 +579,11 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     buildingRights: null,
     // התחדשות עירונית רלוונטית לדירות/בתים (לא לקרקע ריקה) — לפי מרחק מהכתובת
     renewal: isLand ? null : await renewalFor(input.neighborhood ?? null, input.streetX, input.streetY),
-    confidence: confidenceFromCount(basedOn),
+    // בית/קרקע: הבדיקה לאחור הראתה סטייה גבוהה — תמיד ביטחון נמוך
+    confidence: ptype === "apartment" ? confidenceFromCount(basedOn) : "low",
     asOf,
     compositeUsed,
+    manualReview,
     plotNotValued: ptype === "house" && (input.plotSqm ?? 0) > 200 && !compositeUsed,
   };
   return valuation;

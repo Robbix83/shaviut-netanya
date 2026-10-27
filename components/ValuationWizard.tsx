@@ -67,6 +67,8 @@ interface Valuation {
   asOf: string;
   compositeUsed?: boolean;
   plotNotValued?: boolean;
+  /** קרקע: אין אומדן מספרי (הסכומים 0), המתווך בודק אישית */
+  manualReview?: boolean;
 }
 interface PriceTrend {
   points: { label: string; ppsqm: number }[];
@@ -92,6 +94,9 @@ interface RenewalInfo {
   asOf: string;
 }
 
+// smooth scrolling only when the user hasn't asked for reduced motion
+const scrollBehavior = (): ScrollBehavior =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 const nis = (n: number) => "₪" + Math.round(n).toLocaleString("he-IL");
 // "2025-09-19" → "09/2025"
 const fmtDate = (iso: string) => {
@@ -111,9 +116,10 @@ const AGENT = {
   name: process.env.NEXT_PUBLIC_AGENT_NAME || "שם המתווך",
   license: process.env.NEXT_PUBLIC_AGENT_LICENSE || "0000000",
   photo: process.env.NEXT_PUBLIC_AGENT_PHOTO || "", // URL לתמונה (אופציונלי)
-  testimonial:
-    process.env.NEXT_PUBLIC_AGENT_TESTIMONIAL ||
-    "ליווי מקצועי ומהיר — קיבלתי הערכה מדויקת ומכרתי תוך שבועות.",
+  // ציטוט אמיתי בלבד — אם לא הוגדר, לא מציגים ציטוט (לא ממציאים המלצות).
+  testimonial: process.env.NEXT_PUBLIC_AGENT_TESTIMONIAL || "",
+  // תג "מאומת" רק כשהוגדר מספר רישיון אמיתי.
+  licensed: Boolean(process.env.NEXT_PUBLIC_AGENT_LICENSE),
 };
 
 // מתי המוכר שוקל למכור — מסנן לידים חמים
@@ -132,6 +138,18 @@ const VALUE_FACTORS: { key: string; label: string; icon: string; mult: number }[
   { key: "balcony", label: "מרפסת/סוכה", icon: "🪟", mult: 0.04 },
   { key: "needsReno", label: "דרוש שיפוץ", icon: "🧰", mult: -0.1 },
 ];
+/** קרקע: במקום מספר — הסבר קצר שהמתווך בודק אישית */
+function ManualReviewNote() {
+  return (
+    <div className="my-3 space-y-1">
+      <p className="text-2xl font-black tracking-[-0.02em] text-brand sm:text-[1.7rem]">מגרשים דורשים בדיקה אישית</p>
+      <p className="mx-auto max-w-sm text-sm text-slate-600">
+        מחיר מגרש תלוי בזכויות הבנייה, בתב"ע ובחלקים בבעלות, ואלה לא מופיעים בנתונים הציבוריים. השאירו פרטים ונחזור אליכם עם הערכה.
+      </p>
+    </div>
+  );
+}
+
 function ValueFactors({ low, high }: { low: number; high: number }) {
   const [sel, setSel] = useState<Set<string>>(new Set());
   const factor = [...sel].reduce(
@@ -141,9 +159,9 @@ function ValueFactors({ low, high }: { low: number; high: number }) {
   const r = (n: number) => Math.round((n * factor) / 1000) * 1000;
   const changed = sel.size > 0;
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <p className="text-sm font-bold text-slate-700">🎚️ מה משפיע על השווי שלך?</p>
-      <p className="mt-0.5 text-xs text-slate-400">סמנו מאפיינים כדי לדייק את ההערכה</p>
+    <div className="rounded-3xl bg-butter-soft p-4">
+      <p className="text-[15px] font-bold text-ink">מה משפיע על השווי שלך?</p>
+      <p className="mt-0.5 text-xs text-slate-500">סמנו מאפיינים כדי לדייק את ההערכה</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {VALUE_FACTORS.map((f) => {
           const on = sel.has(f.key);
@@ -152,24 +170,25 @@ function ValueFactors({ low, high }: { low: number; high: number }) {
               key={f.key}
               type="button"
               onClick={() => setSel((s) => { const n = new Set(s); n.has(f.key) ? n.delete(f.key) : n.add(f.key); return n; })}
-              className={`rounded-full border px-3 py-1.5 min-h-[44px] text-xs font-medium transition ${
+              aria-pressed={on}
+              className={`gh-press rounded-full px-3 py-1.5 min-h-[44px] text-[13px] font-medium ${
                 on
-                  ? f.mult >= 0 ? "border-green-400 bg-green-50 text-green-700" : "border-red-300 bg-red-50 text-red-600"
-                  : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+                  ? f.mult >= 0 ? "bg-ink text-white" : "bg-red-700 text-white"
+                  : "bg-white text-slate-700"
               }`}
             >
-              {f.icon} {f.label} <span className="opacity-60">{f.mult >= 0 ? "+" : ""}{Math.round(f.mult * 100)}%</span>
+              {f.label} <span className="tabular-nums opacity-70">{f.mult >= 0 ? "+" : ""}{Math.round(f.mult * 100)}%</span>
             </button>
           );
         })}
       </div>
       {changed && (
-        <div className="mt-3 rounded-xl bg-brand-light p-3 text-center">
-          <p className="text-xs font-medium text-brand-dark/70">הערכה מותאמת (משוערת)</p>
-          <p className="text-lg font-black text-brand-dark">{nis(r(low))} – {nis(r(high))}</p>
+        <div className="gh-in mt-3 rounded-2xl bg-white p-3 text-center">
+          <p className="text-xs font-medium text-slate-600">הערכה מותאמת (משוערת)</p>
+          <p className="text-lg font-black tabular-nums text-brand">{nis(r(low))} – {nis(r(high))}</p>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-400">* התאמה משוערת בלבד — כלי עזר, אינו תחליף לבדיקת שמאי.</p>
+      <p className="mt-2 text-xs text-slate-500">* התאמה משוערת בלבד — כלי עזר, אינו תחליף לבדיקת שמאי.</p>
     </div>
   );
 }
@@ -180,10 +199,10 @@ function TrendChart({ t }: { t: PriceTrend }) {
   const min = Math.min(...t.points.map((p) => p.ppsqm));
   const up = t.changePct >= 0;
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <div className="rounded-3xl bg-butter-soft p-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-bold text-slate-700">📈 מגמת מחירים בשכונה</p>
-        <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${up ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}>
+        <p className="text-[15px] font-bold text-ink">מגמת מחירים בשכונה</p>
+        <span className={`shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-bold ${up ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
           {up ? "▲" : "▼"} {Math.abs(t.changePct)}% ב-{Math.round(t.months / 12) >= 1 ? `${Math.round(t.months / 12)} שנים` : `${t.months} ח׳`}
         </span>
       </div>
@@ -191,18 +210,18 @@ function TrendChart({ t }: { t: PriceTrend }) {
         {t.points.map((p, i) => {
           const h = 12 + ((p.ppsqm - min) / Math.max(max - min, 1)) * 50;
           return (
-            <div key={i} className="flex flex-1 flex-col items-center justify-end gap-1">
+            <div key={i} className="flex min-w-0 flex-1 flex-col items-center justify-end gap-1">
               <div
-                className={`w-full rounded-t ${i === t.points.length - 1 ? "bg-brand" : "bg-brand/30"}`}
+                className={`w-full rounded-t ${i === t.points.length - 1 ? "bg-brand" : "bg-brand/25"}`}
                 style={{ height: `${h}px` }}
                 title={`${p.label}: ₪${p.ppsqm.toLocaleString("he-IL")}/מ"ר`}
               />
-              <span className="text-[10px] text-slate-400">{p.label.replace("-", "'")}</span>
+              <span className="text-[10px] tabular-nums text-slate-500">{(() => { const [y, q] = p.label.split("-"); return q ? `${q}/${y.slice(2)}` : p.label; })()}</span>
             </div>
           );
         })}
       </div>
-      <p className="mt-1 text-xs text-slate-400 text-center">₪/מ"ר חציוני לפי רבעון · מבוסס עסקאות אמיתיות</p>
+      <p className="mt-1 text-xs text-slate-500 text-center">₪/מ"ר חציוני לפי רבעון · מבוסס עסקאות אמיתיות</p>
     </div>
   );
 }
@@ -211,9 +230,8 @@ function TrendChart({ t }: { t: PriceTrend }) {
 function RenewalPanel({ r }: { r: RenewalInfo }) {
   const hasNearby = r.nearby.length > 0;
   return (
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+    <div className="rounded-3xl bg-amber-50 p-4">
       <div className="flex items-start gap-2">
-        <span className="text-xl">🏗️</span>
         <div className="flex-1">
           <p className="text-sm font-extrabold text-amber-900">
             {r.neighborhoodOnly ? "התחדשות עירונית בשכונה" : "התחדשות עירונית בקרבת הכתובת"}
@@ -227,12 +245,12 @@ function RenewalPanel({ r }: { r: RenewalInfo }) {
               </p>
               <div className="mt-2 space-y-1.5">
                 {r.nearby.slice(0, 4).map((c, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-lg bg-amber-100/60 px-2 py-1 text-xs">
+                  <div key={i} className="flex items-center justify-between gap-2 rounded-xl bg-amber-100/60 px-2 py-1.5 text-xs">
                     <span className="font-medium text-amber-900">
-                      {c.tier === "veryClose" ? "🔴 סמוך מאוד" : "🟠 בסמוך"} · {c.name}
+                      {c.tier === "veryClose" ? "סמוך מאוד" : "בסמוך"} · {c.name}
                       {c.addedUnits ? ` · +${c.addedUnits} יח"ד` : ""}
                     </span>
-                    <span className="font-bold text-amber-700">~{c.distanceMeters} מ׳</span>
+                    <span className="shrink-0 whitespace-nowrap font-bold tabular-nums text-amber-800">~{c.distanceMeters} מ׳</span>
                   </div>
                 ))}
               </div>
@@ -251,7 +269,7 @@ function RenewalPanel({ r }: { r: RenewalInfo }) {
           )}
 
           <p className="mt-2 rounded-lg bg-amber-100 px-2 py-1 text-xs font-medium text-amber-900">
-            ⚠️ מכירה לפני בירור זכויות עלולה לעלות לך מאות אלפי ₪. שווה לבדוק לפני שמחליטים.
+            מכירה לפני בירור זכויות עלולה לעלות לך מאות אלפי ₪. שווה לבדוק לפני שמחליטים.
           </p>
           {r.mapLink && (
             <a href={r.mapLink} target="_blank" rel="noreferrer"
@@ -282,17 +300,18 @@ function ReportSection({
 }) {
   const [open, setOpen] = useState(true);
   return (
-    <div className="rounded-2xl border border-slate-200 overflow-hidden">
+    <div className="rounded-3xl bg-butter-soft overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition text-right"
+        aria-expanded={open}
+        className="flex w-full items-center justify-between px-4 py-3 min-h-[52px] text-right"
       >
         <div>
           <p className="text-sm font-bold text-slate-800">{title}</p>
-          <p className="text-xs text-slate-400">{subtitle}</p>
+          <p className="text-xs text-slate-500">{subtitle}</p>
         </div>
-        <span className={`text-slate-400 transition-transform ${open ? "rotate-180" : ""}`}>▼</span>
+        <svg className={`h-4 w-4 text-slate-600 transition-transform duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] ${open ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
       </button>
       {open && <div className="bg-white">{children}</div>}
     </div>
@@ -300,10 +319,10 @@ function ReportSection({
 }
 
 const TIER_BADGE: Record<string, { label: string; cls: string }> = {
-  building:     { label: "🏢 אותו בניין",   cls: "bg-brand/10 text-brand-dark border-brand/20" },
-  street:       { label: "📍 אותו רחוב",    cls: "bg-blue-50 text-blue-700 border-blue-200" },
-  radius:       { label: "📐 בקרבת מקום",   cls: "bg-slate-100 text-slate-600 border-slate-200" },
-  neighborhood: { label: "🏘️ שכונה",         cls: "bg-slate-100 text-slate-400 border-slate-200" },
+  building:     { label: "אותו בניין",   cls: "bg-brand/10 text-brand-dark border-brand/20" },
+  street:       { label: "אותו רחוב",    cls: "bg-blue-50 text-blue-700 border-blue-200" },
+  radius:       { label: "בקרבת מקום",   cls: "bg-slate-100 text-slate-600 border-slate-200" },
+  neighborhood: { label: "שכונה",         cls: "bg-slate-100 text-slate-500 border-slate-200" },
 };
 
 function CompDealCard({ c }: { c: Comparable }) {
@@ -312,18 +331,16 @@ function CompDealCard({ c }: { c: Comparable }) {
   const tierBadge = c.tier ? TIER_BADGE[c.tier] : null;
 
   return (
-    <div className={`rounded-xl border px-4 py-3 text-sm transition-colors hover:shadow-sm ${
-      c.tier === "building" ? "border-brand/25 bg-brand/4 hover:bg-brand/6" :
-      c.tier === "street"   ? "border-blue-100 bg-blue-50/40 hover:bg-blue-50/70" :
-      "border-slate-100 bg-slate-50/60 hover:border-brand/20 hover:bg-white"
+    <div className={`rounded-2xl px-4 py-3 text-sm ${
+      c.tier === "building" ? "bg-white ring-2 ring-brand/25" : "bg-butter-soft"
     }`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-0.5">
+      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1">
+        <div className="min-w-[11rem] flex-1 space-y-0.5">
           <div className="flex items-center gap-2 flex-wrap">
             {addr.isRealAddress ? (
-              <span className="font-semibold text-slate-800 truncate">{addr.text}</span>
+              <span className="min-w-0 font-semibold text-slate-800 [overflow-wrap:anywhere]">{addr.text}</span>
             ) : (
-              <span className="text-slate-400 text-xs italic">{addr.text}</span>
+              <span className="text-slate-500 text-xs italic">{addr.text}</span>
             )}
             {tierBadge && (
               <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-bold ${tierBadge.cls}`}>
@@ -332,7 +349,7 @@ function CompDealCard({ c }: { c: Comparable }) {
             )}
             {c.propertyType === "house" && c.dealNature ? (
               <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-700">
-                🏡 {c.dealNature}
+                {c.dealNature}
               </span>
             ) : c.propertyType !== "house" && c.floor != null ? (
               <span className="shrink-0 rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-bold text-slate-600">
@@ -340,13 +357,13 @@ function CompDealCard({ c }: { c: Comparable }) {
               </span>
             ) : null}
           </div>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500">
             {[compDesc(c), c.yearBuilt ? `בנ' ${c.yearBuilt}` : null].filter(Boolean).join(" · ")}
           </p>
         </div>
         <div className="shrink-0 text-left">
-          <p className="font-black text-slate-900">{nis(c.price)}</p>
-          <p className="text-xs text-slate-400">
+          <p className="font-black tabular-nums text-ink">{nis(c.price)}</p>
+          <p className="text-xs text-slate-500">
             {c.pricePerSqm ? `₪${c.pricePerSqm.toLocaleString("he-IL")}/מ"ר · ` : ""}
             {fmtDate(c.dealDate)}
           </p>
@@ -368,39 +385,37 @@ function ShevahSection({
   const tax = Math.round(gain * 0.25);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-      <p className="text-sm font-bold text-slate-700">🏛️ מה לגבי מס שבח?</p>
-      <p className="mt-0.5 text-xs text-slate-400">שאלה שמוכרים רבים שוכחים לשאול לפני שחותמים</p>
+    <div className="rounded-3xl bg-butter-soft p-4">
+      <p className="text-[15px] font-bold text-ink">מה לגבי מס שבח?</p>
+      <p className="mt-0.5 text-xs text-slate-500">שאלה שמוכרים רבים שוכחים לשאול לפני שחותמים</p>
 
       <p className="mt-3 text-sm text-slate-600">האם זו דירת המגורים היחידה שלכם?</p>
       <div className="mt-2 flex gap-2">
         <button
           type="button"
           onClick={() => { setStatus("yes"); trackEvent("shevah_only_property"); }}
-          className={`flex-1 rounded-xl border py-2.5 min-h-[44px] text-sm font-medium transition ${
-            status === "yes"
-              ? "border-green-400 bg-green-50 text-green-700"
-              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+          aria-pressed={status === "yes"}
+          className={`gh-press flex-1 rounded-full py-2.5 min-h-[44px] text-sm font-medium ${
+            status === "yes" ? "bg-ink font-bold text-white" : "bg-white text-slate-700"
           }`}
         >
-          ✅ כן, יחידה
+          כן, יחידה
         </button>
         <button
           type="button"
           onClick={() => { setStatus("no"); trackEvent("shevah_not_only_property", { estimateMid }); }}
-          className={`flex-1 rounded-xl border py-2.5 min-h-[44px] text-sm font-medium transition ${
-            status === "no"
-              ? "border-red-300 bg-red-50 text-red-600"
-              : "border-slate-300 bg-white text-slate-600 hover:bg-slate-50"
+          aria-pressed={status === "no"}
+          className={`gh-press flex-1 rounded-full py-2.5 min-h-[44px] text-sm font-medium ${
+            status === "no" ? "bg-ink font-bold text-white" : "bg-white text-slate-700"
           }`}
         >
-          ⚠️ לא, יש לי נוספות
+          לא, יש לי נוספות
         </button>
       </div>
 
       {status === "yes" && (
-        <div className="mt-3 rounded-xl border border-green-200 bg-green-50 px-3 py-2.5">
-          <p className="text-sm font-bold text-green-800">✅ ייתכן שתהיו פטורים ממס שבח</p>
+        <div className="gh-in mt-3 rounded-2xl bg-emerald-50 px-3 py-2.5">
+          <p className="text-sm font-bold text-emerald-900">ייתכן שתהיו פטורים ממס שבח</p>
           <p className="mt-1 text-xs leading-relaxed text-green-700">
             על דירת מגורים יחידה קיים פטור מלא — בכפוף לתנאים (18 חודשי בעלות ועוד).
             מתווך מנוסה יוודא שאתם עומדים בתנאים ולא מפספסים זכות.
@@ -409,9 +424,9 @@ function ShevahSection({
       )}
 
       {status === "no" && (
-        <div className="mt-3 space-y-2">
-          <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5">
-            <p className="text-sm font-bold text-red-800">⚠️ מס שבח — עלות שאסור לשכוח</p>
+        <div className="gh-in mt-3 space-y-2">
+          <div className="rounded-2xl bg-red-50 px-3 py-2.5">
+            <p className="text-sm font-bold text-red-900">מס שבח — עלות שאסור לשכוח</p>
             <p className="mt-1 text-xs leading-relaxed text-red-700">
               על נכס שאינו דירה יחידה, מס שבח עשוי להגיע ל‑<strong>25%</strong> מהרווח.
               לפי ערך הנכס הנוכחי — הרווח הממוצע עשוי להניב{" "}
@@ -425,7 +440,7 @@ function ShevahSection({
           <button
             type="button"
             onClick={() => { trackEvent("shevah_cta_click"); onScrollToForm(); }}
-            className="w-full rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white transition hover:bg-brand/90"
+            className="btn-primary w-full text-sm"
           >
             בואו נבדוק יחד מה ניתן לחסוך ←
           </button>
@@ -800,12 +815,12 @@ export default function ValuationWizard() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-2xl bg-white p-6 shadow-[0_24px_64px_rgba(0,0,0,0.15)] sm:p-8">
+    <div className="mx-auto w-full max-w-xl rounded-3xl bg-white p-5 shadow-card sm:p-7">
       <Stepper step={step} />
 
       {/* שלב 1 — סוג נכס + מיקום */}
       {step === 1 && (
-        <div className="space-y-4">
+        <div className="gh-step space-y-4">
           <h2 className="text-2xl font-extrabold">מה הנכס שלך ואיפה?</h2>
           <div>
             <label className="field-label">סוג הנכס</label>
@@ -814,13 +829,12 @@ export default function ValuationWizard() {
                 <button
                   key={t.value}
                   onClick={() => setPropertyType(t.value)}
-                  className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-3 text-sm font-medium transition min-h-[56px] ${
+                  className={`gh-press flex items-center justify-center rounded-full px-2 text-[15px] min-h-[48px] ${
                     propertyType === t.value
-                      ? "border-brand bg-brand text-white"
-                      : "border-slate-400 bg-white text-slate-800 font-semibold hover:border-brand hover:text-brand"
+                      ? "bg-ink font-bold text-white"
+                      : "bg-butter-soft font-medium text-slate-700"
                   }`}
                 >
-                  <span className="text-xl">{t.icon}</span>
                   {t.label}
                 </button>
               ))}
@@ -862,7 +876,7 @@ export default function ValuationWizard() {
             {!selectedStreet && (
               <button
                 type="button"
-                className="mt-2 text-xs text-slate-400 underline hover:text-slate-600 min-h-[44px] px-2"
+                className="mt-2 text-xs text-slate-500 underline hover:text-slate-600 min-h-[44px] px-2"
                 onClick={() => setShowNeighFallback(!showNeighFallback)}
               >
                 {showNeighFallback ? "סגור" : "לא מוצאים את הרחוב? בחרו שכונה ידנית"}
@@ -920,7 +934,7 @@ export default function ValuationWizard() {
 
       {/* שלב 2 — פרטי הנכס (מותנה בסוג) */}
       {step === 2 && (
-        <div className="space-y-5">
+        <div className="gh-step space-y-5">
           <h2 className="text-2xl font-extrabold">פרטי הנכס</h2>
 
           {!isLand && (
@@ -933,10 +947,10 @@ export default function ValuationWizard() {
                     onClick={() => setRooms(r)}
                     aria-label={`${r} חדרים`}
                     aria-pressed={rooms === r}
-                    className={`rounded-xl border px-4 py-2.5 text-sm font-medium transition min-h-[44px] ${
+                    className={`gh-press rounded-full px-4 py-2.5 text-[15px] tabular-nums min-h-[44px] min-w-[52px] ${
                       rooms === r
-                        ? "border-brand bg-brand text-white"
-                        : "border-slate-400 bg-white text-slate-800 font-semibold hover:border-brand hover:text-brand"
+                        ? "bg-ink font-bold text-white"
+                        : "bg-butter-soft font-medium text-slate-700"
                     }`}
                   >
                     {r}
@@ -994,7 +1008,7 @@ export default function ValuationWizard() {
             )}
             {/* שנת בנייה — קריטית לדיוק (ישן vs חדש) */}
             <div>
-              <label className="field-label">שנת בנייה משוערת <span className="font-normal text-slate-400">(לא חובה)</span></label>
+              <label className="field-label">שנת בנייה משוערת <span className="font-normal text-slate-500">(לא חובה)</span></label>
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
                 {[
                   { label: "לפני 1975", value: "1965" },
@@ -1007,10 +1021,10 @@ export default function ValuationWizard() {
                     key={opt.value}
                     type="button"
                     onClick={() => setYearBuilt(yearBuilt === opt.value ? "" : opt.value)}
-                    className={`rounded-xl border px-1 py-3 text-xs font-medium transition text-center min-h-[44px] ${
+                    className={`gh-press rounded-full px-1 py-3 text-xs text-center tabular-nums min-h-[44px] ${
                       yearBuilt === opt.value
-                        ? "border-brand bg-brand text-white"
-                        : "border-slate-400 bg-white text-slate-800 font-semibold hover:border-brand hover:text-brand"
+                        ? "bg-ink font-bold text-white"
+                        : "bg-butter-soft font-medium text-slate-700"
                     }`}
                   >
                     {opt.label}
@@ -1030,7 +1044,15 @@ export default function ValuationWizard() {
               disabled={loading || !canCalc}
               onClick={calcValuation}
             >
-              {loading ? "מחשב..." : "חשב שווי לפי עסקאות אמיתיות"}
+              {loading ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.3" strokeWidth="3" />
+                    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+                  </svg>
+                  משווים לעסקאות באזור…
+                </>
+              ) : "חשב שווי לפי עסקאות אמיתיות"}
             </button>
           </div>
         </div>
@@ -1038,74 +1060,70 @@ export default function ValuationWizard() {
 
       {/* שלב 3 — תוצאה + שער ליד */}
       {step === 3 && valuation && (
-        <div className="space-y-4">
+        <div className="gh-step space-y-4">
           {/* ── כרטיס שווי ראשי ── */}
-          <div className="relative overflow-hidden rounded-2xl bg-[#060d24] p-5 text-center text-white shadow-[0_8px_32px_rgba(13,62,251,0.35)]">
-            {/* Grid overlay */}
-            <div
-              className="pointer-events-none absolute inset-0 opacity-[0.06]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(to right,#fff 1px,transparent 1px),linear-gradient(to bottom,#fff 1px,transparent 1px)",
-                backgroundSize: "32px 32px",
-              }}
-            />
-            {/* Glow blobs */}
-            <div className="pointer-events-none absolute -top-12 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-brand/40 blur-2xl" />
-            <div className="pointer-events-none absolute -bottom-8 right-0 h-28 w-28 rounded-full bg-blue-500/20 blur-xl" />
+          <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
 
             <div className="relative">
               {/* Confidence badge — scope-based */}
               <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold mb-3 ${
-                valuation.compSearchScope === "building" ? "border-green-500/30 bg-green-500/15 text-green-300"
-                : valuation.compSearchScope === "street" ? "border-teal-500/30 bg-teal-500/15 text-teal-300"
-                : valuation.compSearchScope === "radius" ? "border-yellow-500/30 bg-yellow-500/15 text-yellow-300"
-                : "border-white/10 bg-white/10 text-white/70"
+                valuation.compSearchScope === "building" ? "border-transparent bg-emerald-100 text-emerald-800"
+                : valuation.compSearchScope === "street" ? "border-transparent bg-teal-100 text-teal-800"
+                : valuation.compSearchScope === "radius" ? "border-transparent bg-amber-100 text-amber-900"
+                : "border-transparent bg-butter-deep text-slate-700"
               }`}>
-                {valuation.compSearchScope === "building" ? "🏢 מבוסס על אותו בניין"
-                 : valuation.compSearchScope === "street" ? "📍 מבוסס על אותו רחוב"
-                 : valuation.compSearchScope === "radius" ? "📐 טווח מהשכונה הקרובה"
-                 : "🏘️ מבוסס על השכונה"}
+                {valuation.compSearchScope === "building" ? "מבוסס על אותו בניין"
+                 : valuation.compSearchScope === "street" ? "מבוסס על אותו רחוב"
+                 : valuation.compSearchScope === "radius" ? "טווח מהשכונה הקרובה"
+                 : "מבוסס על השכונה"}
               </span>
 
               {evaluatedAddress && (
-                <p className="text-sm font-bold text-white/90">{evaluatedAddress}</p>
+                <p className="text-sm font-bold text-ink">{evaluatedAddress}</p>
               )}
-              <p className="text-sm font-medium text-white/55">
-                טווח שווי משוער{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
+              <p className="text-sm font-medium text-slate-600">
+                {valuation.manualReview ? "מגרש" : "טווח שווי משוער"}{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
 
-              <p className="my-3 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-tight sm:text-[2.2rem]">
-                <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
-                <span className="text-xl font-light text-white/40">—</span>
-                <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
-              </p>
+              {valuation.manualReview ? (
+                <ManualReviewNote />
+              ) : (
+                <p className="my-3 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-[-0.03em] text-brand tabular-nums sm:text-[2.2rem]">
+                  <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
+                  <span className="text-xl font-light text-slate-500">—</span>
+                  <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
+                </p>
+              )}
 
-              <p className="text-sm font-medium text-white/70">{sizeSummary(valuation)}</p>
+              {!valuation.manualReview && <p className="text-sm font-medium text-slate-600">{sizeSummary(valuation)}</p>}
 
-              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/50">
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
                 מבוסס על {valuation.basedOnDeals} עסקאות ·{" "}
-                {valuation.compSearchScope === "building" ? "🏢 אותו בניין" :
-                 valuation.compSearchScope === "street"   ? "📍 אותו רחוב" :
-                 valuation.compSearchScope === "radius"   ? `📐 רדיוס ${valuation.compRadiusMeters}מ'` :
-                 "🏘️ שכונה"}
+                {valuation.compSearchScope === "building" ? "אותו בניין" :
+                 valuation.compSearchScope === "street"   ? "אותו רחוב" :
+                 valuation.compSearchScope === "radius"   ? `רדיוס ${valuation.compRadiusMeters} מ'` :
+                 "שכונה"}
                 {valuation.floorAdjusted ? " · קומה דומה" : ""}
               </div>
             </div>
           </div>
 
-          <ValueFactors low={valuation.estimateLow} high={valuation.estimateHigh} />
+          {!valuation.manualReview && (
+            <>
+              <ValueFactors low={valuation.estimateLow} high={valuation.estimateHigh} />
 
-          <ShevahSection
-            estimateMid={valuation.estimateMid}
-            onScrollToForm={() => leadFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
-          />
+              <ShevahSection
+                estimateMid={valuation.estimateMid}
+                onScrollToForm={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
+              />
+            </>
+          )}
 
           {valuation.priceTrend && <TrendChart t={valuation.priceTrend} />}
 
           {valuation.plotNotValued && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm" dir="rtl">
-              <p className="font-bold text-amber-800">⚠️ שטח המגרש לא נכלל בהערכה</p>
+              <p className="font-bold text-amber-800">שטח המגרש לא נכלל בהערכה</p>
               <p className="mt-1 text-amber-700 text-xs leading-relaxed">
                 עסקאות הבתים הקיימות בנתונים חסרות נתוני שטח מגרש — לכן ההערכה מבוססת על שטח הבנייה בלבד.
                 לבית עם מגרש משמעותי, ערך הקרקע עשוי להוסיף סכום משמעותי מעל להערכה המוצגת.
@@ -1115,8 +1133,8 @@ export default function ValuationWizard() {
 
           {valuation.comparableDeals.length > 0 && (
             <div>
-              <p className="mb-2 text-sm font-bold text-slate-700">
-                🏷️ עסקאות שנמכרו באזורך:
+              <p className="mb-2 text-[15px] font-bold text-ink">
+                עסקאות שנמכרו באזורך
               </p>
               <div className="space-y-2">
                 {valuation.comparableDeals.slice(0, 3).map((c, i) => (
@@ -1125,18 +1143,18 @@ export default function ValuationWizard() {
               </div>
               {/* כותרת המסבירה מאיפה נלקחו העסקאות */}
               {valuation.compSearchScope && valuation.compSearchScope !== "neighborhood" && (
-                <p className="mt-1.5 text-xs text-slate-400">
+                <p className="mt-1.5 text-xs text-slate-500">
                   {valuation.compSearchScope === "building"
-                    ? "⬆️ מוצגות קודם עסקאות מאותו בניין (5 שנים אחרונות)"
+                    ? "מוצגות קודם עסקאות מאותו בניין (5 שנים אחרונות)"
                     : valuation.compSearchScope === "street"
-                    ? "⬆️ מוצגות קודם עסקאות מאותו רחוב (5 שנים אחרונות)"
-                    : `⬆️ מוצגות קודם עסקאות ברדיוס ${valuation.compRadiusMeters}מ' (5 שנים אחרונות)`}
+                    ? "מוצגות קודם עסקאות מאותו רחוב (5 שנים אחרונות)"
+                    : `מוצגות קודם עסקאות ברדיוס ${valuation.compRadiusMeters}מ' (5 שנים אחרונות)`}
                 </p>
               )}
-              {valuation.propertyType !== "apartment" && (
-                <p className="mt-2 text-xs leading-relaxed text-slate-400">
+              {valuation.propertyType !== "apartment" && !valuation.manualReview && (
+                <p className="mt-2 text-xs leading-relaxed text-slate-500">
                   {valuation.propertyType === "house"
-                    ? "⚠️ רשות המסים אינה מפרסמת שטח מגרש לבתים — לכן עסקאות ההשוואה אינן מסוננות לפי גודל אדמה. האומדן מחושב לפי בנוי בלבד ועשוי לסטות מהמציאות בבתים עם מגרשים גדולים."
+                    ? "רשות המסים אינה מפרסמת שטח מגרש לבתים — לכן עסקאות ההשוואה אינן מסוננות לפי גודל אדמה. האומדן מחושב לפי בנוי בלבד ועשוי לסטות מהמציאות בבתים עם מגרשים גדולים."
                     : `* המחיר הכולל מושפע משטח המגרש — ההערכה מנורמלת לנכסך (≈${nis(valuation.pricePerSqmMid)} למ"ר מגרש).`
                   }
                 </p>
@@ -1148,24 +1166,24 @@ export default function ValuationWizard() {
 
           {/* ── עסקאות מטושטשות (teaser) ── */}
           {valuation.comparableDeals.length > 3 && (
-            <div className="relative overflow-hidden rounded-2xl border border-slate-200">
+            <div className="relative overflow-hidden rounded-3xl bg-butter-soft">
               <p className="px-4 pt-3 pb-2 text-sm font-bold text-slate-700">
-                🏷️ +{valuation.comparableDeals.length - 3} עסקאות נוספות באזורך
+                +{valuation.comparableDeals.length - 3} עסקאות נוספות באזורך
               </p>
               <div className="space-y-2 px-4 pb-2 select-none pointer-events-none">
                 {valuation.comparableDeals.slice(3, 6).map((c, i) => (
-                  <div key={i} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-2.5 blur-[3px]">
+                  <div key={i} className="flex items-center justify-between rounded-2xl bg-white px-4 py-2.5 blur-[3px]">
                     <span className="text-sm text-slate-600">{compDesc(c)}</span>
                     <span className="font-black text-slate-900">{nis(c.price)}</span>
                   </div>
                 ))}
               </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-transparent via-white/70 to-white">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-transparent via-butter-soft/80 to-butter-soft">
                 <button
-                  onClick={() => leadFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                  className="rounded-full bg-brand px-5 py-2.5 min-h-[44px] text-sm font-bold text-white shadow-lg hover:bg-brand/90 transition"
+                  onClick={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
+                  className="gh-press rounded-full bg-brand px-5 py-2.5 min-h-[44px] text-sm font-bold text-white"
                 >
-                  🔓 לדוח המלא — הזינו פרטים
+                  לדוח המלא
                 </button>
               </div>
             </div>
@@ -1173,8 +1191,8 @@ export default function ValuationWizard() {
 
           {/* ── תובנות נעולות (CBS / נגישות / MAVAT) ── */}
           {teaserData && (teaserData.cbs || teaserData.access || teaserData.mavat) && (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-4 space-y-3">
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">🔍 עוד מה שגילינו עבורך</p>
+            <div className="rounded-3xl bg-butter-soft p-4 space-y-3">
+              <p className="text-[15px] font-bold text-ink">עוד מה שגילינו עבורך</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 {/* CBS */}
                 {teaserData.cbs && (
@@ -1183,7 +1201,7 @@ export default function ValuationWizard() {
                     label="פרופיל שכונה"
                     score={teaserData.cbs.score}
                     sub={teaserData.cbs.precision === "city" ? "ממוצע עירוני" : "אזור ספציפי"}
-                    onUnlock={() => leadFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                    onUnlock={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
                   />
                 )}
                 {/* נגישות */}
@@ -1196,43 +1214,42 @@ export default function ValuationWizard() {
                       const bus = teaserData.access.nearest?.find((n) => n.category === "bus");
                       return bus?.found ? `תחנה ${bus.distanceMeters}מ'` : "תחבורה ציבורית";
                     })()}
-                    onUnlock={() => leadFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
+                    onUnlock={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
                   />
                 )}
                 {/* MAVAT */}
                 {teaserData.mavat && (
-                  <div className="rounded-xl border border-slate-200 bg-white p-3 text-center flex flex-col items-center gap-1.5">
-                    <span className="text-xl">🏛️</span>
+                  <div className="rounded-2xl bg-white p-3 text-center flex flex-col items-center gap-1.5">
                     <p className="text-xs font-bold text-slate-500 leading-tight">תכנון עירוני</p>
                     <p className="text-xs font-extrabold leading-tight">
                       {teaserData.mavat.upside
-                        ? <span className="text-emerald-600">📈 פוטנציאל</span>
+                        ? <span className="text-emerald-700">פוטנציאל</span>
                         : teaserData.mavat.demolition
-                        ? <span className="text-orange-500">🏗️ פינוי-בינוי</span>
-                        : <span className="text-slate-500">✅ יציב</span>}
+                        ? <span className="text-orange-700">פינוי-בינוי</span>
+                        : <span className="text-slate-600">יציב</span>}
                     </p>
                     <button
-                      onClick={() => leadFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })}
-                      className="mt-1 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-brand/10 hover:text-brand transition min-h-[44px] flex items-center justify-center"
+                      onClick={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
+                      className="gh-press mt-1 rounded-full bg-butter-soft px-3 py-1.5 text-xs font-semibold text-ink min-h-[44px] flex items-center justify-center"
                     >
                       פרטים ↓
                     </button>
                   </div>
                 )}
               </div>
-              <p className="text-xs text-slate-400 text-center">
+              <p className="text-xs text-slate-500 text-center">
                 פרטים מלאים — מפת תכנון, ניתוח שכונה, עסקאות — בדוח המלא
               </p>
             </div>
           )}
 
-          <div ref={leadFormRef} data-lead-form className="rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/4 to-blue-50/60 p-5">
+          <div ref={leadFormRef} data-lead-form className="rounded-3xl bg-butter-deep p-5">
             <h3 className="text-lg font-extrabold text-slate-900">
               {otpState === "sent" || otpState === "verifying"
-                ? "📲 שלחתי לך את הדוח בוואטסאפ"
-                : "📋 רוצים את הדוח המלא?"}
+                ? "שלחתי לך את הדוח בוואטסאפ"
+                : "רוצים את הדוח המלא?"}
             </h3>
-            <p className="mb-4 text-sm text-slate-500">
+            <p className="mb-4 text-sm text-slate-700">
               {otpState === "sent" || otpState === "verifying"
                 ? `כדי לפתוח את הדוח, הזינו את הקוד שקיבלתם בוואטסאפ למספר ${phone}.`
                 : "דוח עסקאות מלא + הערכה מותאמת אישית, ישירות לוואטסאפ שלכם."}
@@ -1242,20 +1259,22 @@ export default function ValuationWizard() {
             {(otpState === "idle" || otpState === "sending") && (
               <div className="space-y-3">
                 {/* שכבת אמון — מתווך מורשה (חובה חוקית) */}
-                <div className="flex items-center gap-3 rounded-xl bg-slate-50 p-3">
+                <div className="flex items-center gap-3 rounded-2xl bg-white p-3">
                   {AGENT.photo ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={AGENT.photo} alt={AGENT.name} className="h-10 w-10 rounded-full object-cover" />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10 text-lg">🏠</div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sun text-base font-bold text-ink" aria-hidden="true">{AGENT.name.slice(0, 1)}</div>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
                     <p className="text-xs text-slate-500">מתווך מורשה · רישיון {AGENT.license}</p>
                   </div>
-                  <span className="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-bold text-green-700">מאומת ✓</span>
+                  {AGENT.licensed && (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
+                  )}
                 </div>
-                <p className="text-xs italic text-slate-400">"{AGENT.testimonial}"</p>
+                {AGENT.testimonial && <p className="text-xs italic text-slate-600">"{AGENT.testimonial}"</p>}
 
                 {/* שאלת תזמון — מסנן לידים חמים */}
                 <div>
@@ -1266,10 +1285,11 @@ export default function ValuationWizard() {
                         key={t.value}
                         type="button"
                         onClick={() => setSellTiming(t.value)}
-                        className={`rounded-xl border px-2 py-2.5 text-xs font-medium transition min-h-[44px] ${
+                        aria-pressed={sellTiming === t.value}
+                        className={`gh-press rounded-full px-2 py-2.5 text-[13px] min-h-[44px] ${
                           sellTiming === t.value
-                            ? "border-brand bg-brand text-white"
-                            : "border-slate-400 bg-white text-slate-800 font-semibold hover:border-brand hover:text-brand"
+                            ? "bg-ink font-bold text-white"
+                            : "bg-white font-medium text-slate-700"
                         }`}
                       >
                         {t.label}
@@ -1300,20 +1320,20 @@ export default function ValuationWizard() {
                 />
 
                 {/* 2 הסכמות נפרדות — נדרש בתיקון 13 לחוק הגנת הפרטיות */}
-                <label className="flex items-start gap-3 text-xs text-slate-500 cursor-pointer">
+                <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
                   <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentReport}
                     onChange={(e) => setConsentReport(e.target.checked)} />
                   <span>אני מאשר/ת קבלת דוח השווי בוואטסאפ ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות</a>.</span>
                 </label>
-                <label className="flex items-start gap-3 text-xs text-slate-500 cursor-pointer">
+                <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
                   <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentMarketing}
                     onChange={(e) => setConsentMarketing(e.target.checked)} />
                   <span>אני מאשר/ת יצירת קשר ודיוור שיווקי בנוגע לנכס (לא חובה · ניתן להסיר בכל עת).</span>
                 </label>
-                <label className="flex items-start gap-3 text-xs text-slate-500 cursor-pointer">
+                <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
                   <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={alertOptIn}
                     onChange={(e) => setAlertOptIn(e.target.checked)} />
-                  <span>🔔 עדכנו אותי כשתימכר דירה דומה באזורי (התראת שוק חינמית).</span>
+                  <span>עדכנו אותי כשיימכר נכס דומה באזורי (התראת שוק חינמית).</span>
                 </label>
 
                 {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
@@ -1322,7 +1342,7 @@ export default function ValuationWizard() {
                   disabled={otpState === "sending"}
                   onClick={sendOTP}
                 >
-                  {otpState === "sending" ? "שולח..." : "שלחו לי את הדוח 📲"}
+                  {otpState === "sending" ? "שולח..." : "שלחו לי את הדוח"}
                 </button>
               </div>
             )}
@@ -1340,6 +1360,8 @@ export default function ValuationWizard() {
                     inputMode="numeric"
                     dir="ltr"
                     aria-label="קוד אימות בן 6 ספרות"
+                    autoComplete="one-time-code"
+                    enterKeyHint="done"
                     maxLength={6}
                     placeholder="_ _ _ _ _ _"
                     value={otpCode}
@@ -1351,7 +1373,7 @@ export default function ValuationWizard() {
                     autoFocus
                   />
                   {otpCountdown > 0 && (
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
                       {fmtCountdown(otpCountdown)}
                     </span>
                   )}
@@ -1365,7 +1387,7 @@ export default function ValuationWizard() {
                   {otpState === "verifying" ? "פותח..." : "פתחו את הדוח ←"}
                 </button>
                 <button
-                  className="w-full text-center text-xs text-slate-400 underline py-3 min-h-[44px]"
+                  className="w-full text-center text-xs text-slate-500 underline py-3 min-h-[44px]"
                   disabled={otpCountdown > 270} // מאפשר שליחה מחדש רק אחרי 30ש'
                   onClick={() => { setOtpState("idle"); setOtpCode(""); setOtpToken(""); setError(null); if (typeof window !== "undefined") sessionStorage.removeItem("otp_token"); }}
                 >
@@ -1379,46 +1401,48 @@ export default function ValuationWizard() {
 
       {/* שלב 4 — דוח מלא */}
       {step === 4 && submitted && valuation && (
-        <div className="space-y-5">
+        <div className="gh-step space-y-5">
           <div className="text-center">
-            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">
-              ✓
+            <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white" aria-hidden="true">
+              <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
             </div>
             <h2 className="text-2xl font-extrabold">הדוח שלך מוכן, {name}!</h2>
-            <p className="text-sm text-slate-500">שלחנו לך עותק גם ב-WhatsApp 📲</p>
+            <p className="text-sm text-slate-600">שלחנו לך עותק גם ב-WhatsApp</p>
           </div>
 
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-blue-700 p-5 text-center text-white shadow-lg">
-            <div className="pointer-events-none absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10" />
-            <div className="pointer-events-none absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-white/10" />
+          <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
             <div className="relative">
               <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold mb-3 ${
-                valuation.compSearchScope === "building" ? "bg-green-400/20 text-green-200"
-                : valuation.compSearchScope === "street" ? "bg-teal-400/20 text-teal-200"
-                : valuation.compSearchScope === "radius" ? "bg-yellow-400/20 text-yellow-200"
-                : "bg-white/20 text-white/80"
+                valuation.compSearchScope === "building" ? "bg-emerald-100 text-emerald-800"
+                : valuation.compSearchScope === "street" ? "bg-teal-100 text-teal-800"
+                : valuation.compSearchScope === "radius" ? "bg-amber-100 text-amber-900"
+                : "bg-butter-deep text-slate-700"
               }`}>
-                {valuation.compSearchScope === "building" ? "🏢 מבוסס על אותו בניין"
-                 : valuation.compSearchScope === "street" ? "📍 מבוסס על אותו רחוב"
-                 : valuation.compSearchScope === "radius" ? "📐 טווח מהשכונה הקרובה"
-                 : "🏘️ מבוסס על השכונה"}
+                {valuation.compSearchScope === "building" ? "מבוסס על אותו בניין"
+                 : valuation.compSearchScope === "street" ? "מבוסס על אותו רחוב"
+                 : valuation.compSearchScope === "radius" ? "טווח מהשכונה הקרובה"
+                 : "מבוסס על השכונה"}
               </span>
               {evaluatedAddress && (
                 <p className="text-sm font-bold opacity-90">{evaluatedAddress}</p>
               )}
               <p className="text-sm font-semibold opacity-80">
-                טווח שווי משוער{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
+                {valuation.manualReview ? "מגרש" : "טווח שווי משוער"}{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
-              <p className="my-2 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black sm:text-4xl drop-shadow-sm">
-                <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
-                <span>–</span>
-                <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
-              </p>
-              <p className="text-sm font-medium opacity-85">{sizeSummary(valuation)}</p>
+              {valuation.manualReview ? (
+                <ManualReviewNote />
+              ) : (
+                <p className="my-2 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-[-0.03em] text-brand tabular-nums sm:text-4xl">
+                  <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
+                  <span>–</span>
+                  <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
+                </p>
+              )}
+              {!valuation.manualReview && <p className="text-sm font-medium opacity-85">{sizeSummary(valuation)}</p>}
               <p className="mt-2 text-xs opacity-70">
                 מבוסס על {valuation.basedOnDeals} עסקאות ·{" "}
-                {valuation.compSearchScope === "building" ? "🏢 אותו בניין" :
-                 valuation.compSearchScope === "street" ? "📍 אותו רחוב" :
+                {valuation.compSearchScope === "building" ? "אותו בניין" :
+                 valuation.compSearchScope === "street" ? "אותו רחוב" :
                  valuation.compSearchScope === "radius" ? `רדיוס ${valuation.compRadiusMeters}מ'` :
                  "שכונה"}
                 {valuation.floorAdjusted ? " · קומה דומה" : ""}
@@ -1428,7 +1452,7 @@ export default function ValuationWizard() {
 
           {valuation.plotNotValued && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm mb-3" dir="rtl">
-              <p className="font-bold text-amber-800">⚠️ שטח המגרש לא נכלל בהערכה</p>
+              <p className="font-bold text-amber-800">שטח המגרש לא נכלל בהערכה</p>
               <p className="mt-1 text-amber-700 text-xs leading-relaxed">
                 עסקאות הבתים בנתונים חסרות נתוני שטח מגרש — ההערכה מבוססת על שטח בנייה בלבד.
                 לבית עם מגרש משמעותי, ערך הקרקע עשוי להוסיף סכום משמעותי.
@@ -1462,11 +1486,11 @@ export default function ValuationWizard() {
           {valuation.renewal && <RenewalPanel r={valuation.renewal} />}
 
           {/* ── פאנלים מלאים — נגלים רק בדוח ── */}
-          <ReportSection title="🏘️ פרופיל שכונה" subtitle="נתוני אוכלוסייה ושכר · מפקד 2022">
+          <ReportSection title="פרופיל שכונה" subtitle="נתוני אוכלוסייה ושכר · מפקד 2022">
             <CbsPanel neighborhood={valuation.neighborhood} />
           </ReportSection>
 
-          <ReportSection title="🏛️ תכנון עירוני" subtitle="תכניות בנייה ויעודי קרקע · מבא&quot;ת">
+          <ReportSection title="תכנון עירוני" subtitle="תכניות בנייה ויעודי קרקע · מבא&quot;ת">
             <MavatPanel
               neighborhood={valuation.neighborhood || undefined}
               x={selectedStreet?.x ?? neighborhoodCoords?.x ?? null}
@@ -1474,7 +1498,7 @@ export default function ValuationWizard() {
             />
           </ReportSection>
 
-          <ReportSection title="📍 נגישות ותשתיות" subtitle="מרחקים לתחבורה, חינוך ופארקים">
+          <ReportSection title="נגישות ותשתיות" subtitle="מרחקים לתחבורה, חינוך ופארקים">
             <AccessibilityPanel
               neighborhoodId={neighborhoodId || undefined}
               neighborhood={valuation.neighborhood || undefined}
@@ -1484,12 +1508,12 @@ export default function ValuationWizard() {
           </ReportSection>
 
           <div className="rounded-2xl bg-slate-50 p-4 text-center text-sm text-slate-600">
-            נחזור אליך בהקדם עם סקירה מותאמת אישית. 📞
+            נחזור אליך בהקדם עם סקירה מותאמת אישית.
           </div>
         </div>
       )}
 
-      <p className="mt-5 text-center text-xs leading-relaxed text-slate-400">
+      <p className="mt-5 text-center text-xs leading-relaxed text-slate-500">
         ההערכה היא אינדיקציה המבוססת על עסקאות פומביות ממאגר רשות המסים ואינה תחליף
         להערכת שמאי מוסמך.
       </p>
@@ -1506,17 +1530,16 @@ function TeaserCard({
   const color = score >= 7 ? "text-emerald-600" : score >= 4.5 ? "text-amber-600" : "text-red-500";
   const bar   = score >= 7 ? "bg-emerald-500"   : score >= 4.5 ? "bg-amber-500"   : "bg-red-400";
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 text-center flex flex-col items-center gap-1.5">
-      <span className="text-xl">{icon}</span>
+    <div className="rounded-2xl bg-white p-3 text-center flex flex-col items-center gap-1.5">
       <p className="text-xs font-bold text-slate-500 leading-tight">{label}</p>
-      <p className={`text-lg font-black leading-none ${color}`}>{score}<span className="text-[10px] font-normal text-slate-400">/10</span></p>
-      <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+      <p className={`text-lg font-black leading-none ${color}`}>{score}<span className="text-[10px] font-normal text-slate-500">/10</span></p>
+      <div className="w-full h-1.5 rounded-full bg-butter-deep overflow-hidden">
         <div className={`h-full ${bar}`} style={{ width: `${score * 10}%` }} />
       </div>
-      <p className="text-xs text-slate-400 leading-tight">{sub}</p>
+      <p className="text-xs text-slate-500 leading-tight">{sub}</p>
       <button
         onClick={onUnlock}
-        className="mt-0.5 rounded-full bg-slate-100 px-3 py-1.5 min-h-[44px] text-xs font-semibold text-slate-600 hover:bg-brand/10 hover:text-brand transition flex items-center justify-center"
+        className="gh-press mt-0.5 rounded-full bg-butter-soft px-3 py-1.5 min-h-[44px] text-xs font-semibold text-ink flex items-center justify-center"
       >
         פרטים ↓
       </button>
@@ -1538,12 +1561,12 @@ function Stepper({ step }: { step: number }) {
               {/* Step dot */}
               <div className="flex flex-col items-center gap-1">
                 <div
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-all duration-300 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-colors duration-200 ${
                     done
-                      ? "bg-green-500 text-white shadow-[0_0_12px_rgba(34,197,94,0.4)]"
+                      ? "bg-ink text-white"
                       : active
-                      ? "bg-brand text-white shadow-[0_0_12px_rgba(13,62,251,0.4)]"
-                      : "bg-slate-100 text-slate-400"
+                      ? "bg-brand text-white"
+                      : "bg-butter-soft text-slate-500"
                   }`}
                 >
                   {done ? (
@@ -1554,13 +1577,13 @@ function Stepper({ step }: { step: number }) {
                     n
                   )}
                 </div>
-                <span className={`text-xs font-medium ${active ? "text-brand" : done ? "text-green-600" : "text-slate-400"}`}>
+                <span className={`text-xs font-medium ${active ? "text-brand" : done ? "text-ink" : "text-slate-500"}`}>
                   {l}
                 </span>
               </div>
               {/* Connector */}
               {i < labels.length - 1 && (
-                <div className={`mx-2 mb-4 h-px w-10 transition-all duration-500 ${step > n ? "bg-green-400" : "bg-slate-200"}`} />
+                <div className={`mx-2 mb-4 h-0.5 w-10 rounded-full transition-colors duration-200 ${step > n ? "bg-ink" : "bg-butter-deep"}`} />
               )}
             </div>
           );

@@ -2,309 +2,203 @@ import ValuationWizard from "@/components/ValuationWizard";
 import ScrollToWizard from "@/components/ScrollToWizard";
 import { getStore } from "@/lib/store";
 
+// פריים — Netanya is the opening shot: the real cliff fills the screen, the question sits on its lower
+// edge like a film title, the valuation waits under it. Near-black ground, warm paper, sunset orange.
+
+/** Every picture on the page, credited in full: title, author, source and licence, each linked.
+ *  Licence evidence (incl. the cliffs photo's Wikimedia VRT ticket 2022050610001973) is in docs/image-credits.json. */
+const CREDITS: { title: string; by: string; page: string; licence: string; licenceUrl?: string; changed?: string }[] = [
+  {
+    title: "Netanya cliffs",
+    by: "אלדר אלדדי (Eldar Eldadi)",
+    page: "https://commons.wikimedia.org/wiki/File:Netanya_cliffs.jpg",
+    licence: "CC BY-SA 4.0",
+    licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0/deed.he",
+    changed: "נחתכה והוכהתה בשוליים מאחורי הטקסט",
+  },
+  {
+    title: "חוף הים בנתניה, 1935",
+    by: "זולטן קלוגר, אוסף התצלומים הלאומי",
+    page: "https://commons.wikimedia.org/wiki/File:THE_SEASHORE_AT_NATANYA._%D7%97%D7%95%D7%A3_%D7%94%D7%99%D7%9D_%D7%91%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-045.jpg",
+    licence: "נחלת הכלל",
+  },
+  {
+    title: "שכונת גבע בנתניה, 1935",
+    by: "זולטן קלוגר, אוסף התצלומים הלאומי",
+    page: "https://commons.wikimedia.org/wiki/File:THE_GEVA_NEIGHBOURHOOD_IN_NATANYA._%D7%A9%D7%9B%D7%95%D7%A0%D7%AA_%D7%92%D7%91%D7%A2_%D7%91%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-041.jpg",
+    licence: "נחלת הכלל",
+  },
+  {
+    title: "מראה כללי של נתניה, 1935",
+    by: "זולטן קלוגר, אוסף התצלומים הלאומי",
+    page: "https://commons.wikimedia.org/wiki/File:GENERAL_VIEW_OF_NATANYA._%D7%9E%D7%A8%D7%90%D7%94_%D7%9B%D7%9C%D7%9C%D7%99_%D7%A9%D7%9C_%D7%94%D7%A2%D7%99%D7%A8_%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-053.jpg",
+    licence: "נחלת הכלל",
+  },
+];
+
 export default async function Home() {
   const store = getStore();
-  const [leadCount, stats] = await Promise.all([
-    store.countLeads().catch(() => 0),
-    store.getStats().catch(() => ({ dealCount: 0, neighborhoodCount: 0 })),
-  ]);
-  const { dealCount, neighborhoodCount } = stats;
+  const stats = await store.getStats().catch(() => ({ dealCount: 0, neighborhoodCount: 0 }));
+  const dealCount = stats.dealCount;
+  const agentName = process.env.NEXT_PUBLIC_AGENT_NAME;
+  const agentLicense = process.env.NEXT_PUBLIC_AGENT_LICENSE;
+
   return (
-    <main dir="rtl">
-
-      {/* ═══════════════════════ HERO ═══════════════════════ */}
-      <section className="relative min-h-screen bg-hero-dark flex items-center overflow-x-clip">
-
-        {/* Decorative elements — overflow-hidden בנפרד כדי לא לחתוך את הdropdown */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* Mesh grid overlay */}
-          <div
-            className="absolute inset-0 opacity-[0.07]"
-            style={{
-              backgroundImage:
-                "linear-gradient(to right,#ffffff 1px,transparent 1px),linear-gradient(to bottom,#ffffff 1px,transparent 1px)",
-              backgroundSize: "72px 72px",
-            }}
+    <main dir="rtl" className="overflow-x-clip bg-night text-butter">
+      {/* ═══════════ OPENING SHOT ═══════════ */}
+      <section className="relative lg:min-h-[100svh]" aria-labelledby="home-h1">
+        <div className="relative h-[40svh] min-h-[240px] overflow-hidden lg:absolute lg:inset-0 lg:h-auto">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/netanya-cliffs.jpg"
+            alt="מצוקי נתניה ממבט אווירי: מגדלי מגורים מעל הים"
+            width={1920}
+            height={1280}
+            fetchPriority="high"
+            className="fr-push absolute inset-0 h-full w-full object-cover"
           />
-          {/* Radial glow blobs */}
-          <div className="absolute -top-40 right-[10%] h-[600px] w-[600px] rounded-full bg-brand/25 blur-[120px]" />
-          <div className="absolute -bottom-20 left-[5%] h-[400px] w-[400px] rounded-full bg-blue-500/20 blur-[100px]" />
-          <div className="absolute top-1/2 left-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-600/10 blur-[80px]" />
-        </div>
+          {/* neutral scrims under the type on the photograph */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-night/60 to-transparent" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-b from-transparent to-night lg:h-3/5" aria-hidden="true" />
 
-        <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 gap-12 px-5 py-16 lg:grid-cols-2 lg:items-center lg:py-24">
-
-          {/* ── Copy ── */}
-          <div className="text-center lg:text-right">
-
-            {/* Eyebrow badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-semibold text-blue-200 backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400" />
-              </span>
-              מומחיות מקומית · נתניה 🏙️
-            </div>
-
-            {/* Headline */}
-            <h1 className="mt-6 text-4xl font-black leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-[3.4rem]">
-              כמה{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10 text-brand-glow">באמת</span>
-                <span className="absolute inset-x-0 -bottom-1 h-3 rounded-full bg-brand/30 blur-sm" />
-              </span>{" "}
-              שווה
-              <br />
-              <span className="text-white/90">הדירה שלך בנתניה?</span>
-            </h1>
-
-            <p className="mt-5 text-lg leading-relaxed text-white/65">
-              גלו תוך 30 שניות את שווי הנכס שלכם — לפי עסקאות אמיתיות שנמכרו
-              באזורכם, ממאגר רשות המסים. בחינם, ללא התחייבות.
-            </p>
-
-            {/* Trust pills */}
-            <ul className="mt-6 flex flex-wrap justify-center gap-2 lg:justify-end">
-              {[
-                { icon: "✓", text: "מבוסס נתונים אמיתיים", color: "text-green-400" },
-                { icon: "⚡", text: "תוצאה מיידית", color: "text-yellow-400" },
-                { icon: "📊", text: "דוח עסקאות מלא", color: "text-blue-400" },
-              ].map((item) => (
-                <li
-                  key={item.text}
-                  className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-sm font-medium text-white/80 backdrop-blur-sm"
-                >
-                  <span className={`${item.color} font-bold`}>{item.icon}</span>
-                  {item.text}
-                </li>
-              ))}
-            </ul>
-
-            {/* Mini stats */}
-            <div className="mt-10 flex justify-center gap-4 sm:gap-8 lg:justify-end">
-              {[
-                { value: `${neighborhoodCount}`, label: "שכונות בנתניה" },
-                { value: `${Math.floor(dealCount / 1000) * 1000}+`.replace(/\B(?=(\d{3})+(?!\d))/g, ","), label: "עסקאות במאגר" },
-                { value: "חינם", label: "ללא עלות" },
-                ...(leadCount >= 5
-                  ? [{ value: `${Math.floor(leadCount / 5) * 5}+`, label: "הערכות ניתנו" }]
-                  : []),
-              ].map((s) => (
-                <div key={s.label} className="text-center">
-                  <p className="text-3xl font-black text-white">{s.value}</p>
-                  <p className="mt-0.5 text-xs font-medium text-white/45">{s.label}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA arrow */}
-            <div className="mt-8 flex justify-center lg:justify-end">
-              <ScrollToWizard className="group inline-flex items-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-bold text-white shadow-[0_0_30px_rgba(13,62,251,0.5)] transition hover:bg-brand-dark hover:shadow-[0_0_40px_rgba(13,62,251,0.7)] lg:hidden">
-                קבלו הערכת שווי
-                <svg className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-              </ScrollToWizard>
-            </div>
-          </div>
-
-          {/* ── Wizard card ── */}
-          <div id="check" className="relative">
-            {/* Glow ring behind card */}
-            <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-brand/20 blur-2xl" />
-            {/* Card glass border */}
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm shadow-2xl">
-              <ValuationWizard />
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom fade to white */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-white to-transparent" />
-      </section>
-
-      {/* ═══════════════════════ VIDEO SHOWCASE ═══════════════════════ */}
-      <section className="relative bg-slate-950 px-5 py-16 overflow-hidden">
-        {/* Background glow */}
-        <div className="pointer-events-none absolute -top-32 left-1/2 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-brand/15 blur-[120px]" />
-
-        <div className="relative mx-auto max-w-5xl">
-          {/* Header */}
-          <div className="mb-10 text-center">
-            <span className="inline-block rounded-full border border-brand/30 bg-brand/10 px-4 py-1 text-sm font-semibold text-blue-300">
-              נתניה מלמעלה
-            </span>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-              הטיילת שעל חוף הים התיכון
-            </h2>
-            <p className="mt-2 text-white/50 text-sm">
-              נוף ייחודי · אוויר ים · ביקוש גבוה לנכסים
-            </p>
-          </div>
-
-          {/* Video */}
-          <div className="relative overflow-hidden rounded-2xl shadow-[0_0_80px_rgba(13,62,251,0.25)] ring-1 ring-white/10">
-            <video
-              src="https://d8j0ntlcm91z4.cloudfront.net/user_3EmCVY2h0BZPB50TZVh8f3eqYkj/hf_20260607_203720_a1d15db6-70b1-41af-8922-220d3d354cf9.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full aspect-video object-cover"
-            />
-            {/* Overlay gradient for cinematic feel */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-slate-950/20" />
-
-            {/* Bottom caption */}
-            <div className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-black/50 px-3 py-1.5 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs font-medium text-white/80">טיילת נתניה · חוף הים התיכון</span>
-            </div>
-          </div>
-
-          {/* CTA under video */}
-          <div className="mt-8 text-center">
-            <ScrollToWizard className="inline-flex items-center gap-2 rounded-full bg-brand px-7 py-3 text-sm font-bold text-white shadow-[0_0_30px_rgba(13,62,251,0.5)] transition hover:bg-brand-dark hover:shadow-[0_0_40px_rgba(13,62,251,0.7)]">
-              גלו כמה שווה הדירה שלכם
-              <span>←</span>
-            </ScrollToWizard>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ HOW IT WORKS ═══════════════════════ */}
-      <section className="relative bg-white px-5 py-20">
-        <div className="mx-auto max-w-5xl">
-
-          {/* Section header */}
-          <div className="mb-14 text-center">
-            <span className="inline-block rounded-full bg-brand/8 px-4 py-1 text-sm font-semibold text-brand">
-              פשוט ומהיר
-            </span>
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
-              איך זה עובד?
-            </h2>
-            <p className="mt-2 text-slate-500">שלושה צעדים — דוח שווי מלא תוך דקה</p>
-          </div>
-
-          {/* Steps */}
-          <div className="relative grid gap-8 sm:grid-cols-3">
-            {/* Connector line (desktop) */}
-            <div className="pointer-events-none absolute top-10 right-[16.6%] left-[16.6%] hidden h-px bg-gradient-to-l from-transparent via-brand/30 to-transparent sm:block" />
-
-            {[
-              {
-                n: "01",
-                icon: "📍",
-                title: "מזינים כתובת",
-                desc: "בחרו שכונה בנתניה — הכלי מזהה מיד עסקאות אמיתיות באזורכם.",
-                color: "from-blue-500 to-brand",
-              },
-              {
-                n: "02",
-                icon: "🏠",
-                title: "ממלאים פרטים",
-                desc: "חדרים, שטח וקומה — פחות מ-30 שניות.",
-                color: "from-violet-500 to-blue-600",
-              },
-              {
-                n: "03",
-                icon: "📊",
-                title: "מקבלים שווי",
-                desc: "טווח שווי + עסקאות ברדיוס + דוח מלא לנייד.",
-                color: "from-indigo-500 to-violet-600",
-              },
-            ].map((s) => (
-              <div
-                key={s.n}
-                className="group relative flex flex-col items-center rounded-2xl bg-white p-7 text-center shadow-sm ring-1 ring-slate-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-brand/20"
-              >
-                {/* Step number */}
-                <div className="absolute -top-3.5 right-5 rounded-full bg-brand px-2.5 py-0.5 text-xs font-black tracking-wide text-white shadow">
-                  {s.n}
-                </div>
-
-                {/* Icon */}
-                <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${s.color} text-3xl shadow-lg`}>
-                  {s.icon}
-                </div>
-
-                <h3 className="text-lg font-bold text-slate-800">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-500">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ TRUST BAR ═══════════════════════ */}
-      <section className="relative overflow-hidden bg-hero-dark py-16">
-        {/* Shimmer overlay */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              "linear-gradient(to right,#ffffff 1px,transparent 1px),linear-gradient(to bottom,#ffffff 1px,transparent 1px)",
-            backgroundSize: "48px 48px",
-          }}
-        />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/60 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-brand/40 to-transparent" />
-
-        <div className="relative mx-auto max-w-4xl px-5">
-          <div className="flex flex-wrap items-center justify-around gap-10 text-center">
-            {[
-              { value: "100%", label: "עסקאות אמיתיות", sub: "ממאגר רשות המסים", icon: "🏛️" },
-              { value: `${neighborhoodCount}`, label: "שכונות מכוסות", sub: "כל נתניה", icon: "🗺️" },
-              { value: "חינם", label: "ללא עלות", sub: "ושקיפות מלאה", icon: "✨" },
-            ].map((s) => (
-              <div key={s.value} className="flex flex-col items-center gap-1">
-                <span className="mb-1 text-2xl">{s.icon}</span>
-                <p className="text-4xl font-black tracking-tight text-white">{s.value}</p>
-                <p className="text-sm font-semibold text-white/80">{s.label}</p>
-                <p className="text-xs text-white/40">{s.sub}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ AGENT STRIP ═══════════════════════ */}
-      <section className="border-y border-slate-100 bg-gradient-to-l from-brand/4 to-blue-50/60 px-5 py-10">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center sm:flex-row sm:text-right">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand to-blue-600 text-3xl shadow-md">
-            🤝
-          </div>
-          <div className="flex-1">
-            <p className="font-bold text-slate-800">מתווך מורשה · נתניה</p>
-            <p className="mt-1 text-sm leading-relaxed text-slate-500">
-              הדוח נשלח אליכם ישירות — ואם תרצו, מתווך מקצועי עם ניסיון בשוק המקומי
-              יהיה זמין לענות על כל שאלה.
-            </p>
-          </div>
-          <ScrollToWizard className="shrink-0 rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white shadow transition hover:bg-brand-dark min-h-[44px] flex items-center">
-            קבלו הערכה עכשיו ←
-          </ScrollToWizard>
-        </div>
-      </section>
-
-      {/* ═══════════════════════ FOOTER ═══════════════════════ */}
-      <footer className="bg-slate-950 py-10 text-center text-sm text-slate-500">
-        <div className="mx-auto max-w-4xl px-5">
-          <div className="mb-4 flex justify-center gap-1 text-xl">
-            🏠
-          </div>
-          <p className="text-slate-400 font-medium">שווי דירה נתניה</p>
-          <p className="mt-2 text-xs leading-relaxed text-slate-600 max-w-lg mx-auto">
-            ההערכה היא אינדיקציה המבוססת על נתוני עסקאות פומביים ואינה תחליף להערכת שמאי מוסמך.
+          <header className="absolute inset-x-0 top-0 z-10 mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-3 px-5 pt-[env(safe-area-inset-top)]">
+            <span className="text-[18px] font-bold">שוויות נתניה</span>
+            <nav className="flex gap-1.5" aria-label="ניווט">
+              <a href="#how" className="gh-pill hidden bg-night/40 text-butter sm:inline-flex">איך זה עובד</a>
+              <ScrollToWizard className="gh-pill bg-sun font-bold text-night">לבדיקת שווי</ScrollToWizard>
+            </nav>
+          </header>
+          <p className="absolute left-5 top-[72px] z-10 max-w-[calc(100%-40px)] text-[12px] text-butter/85">
+            מצוקי נתניה, 2022. צילום: אלדר אלדדי, CC BY-SA 4.0
           </p>
-          <div className="mt-4 flex justify-center gap-1 text-xs">
-            <a href="/privacy" className="transition hover:text-white px-4 py-3 min-h-[44px] flex items-center">מדיניות פרטיות</a>
-            <span className="text-slate-700 flex items-center">·</span>
-            <a href="/terms" className="transition hover:text-white px-4 py-3 min-h-[44px] flex items-center">תנאי שימוש</a>
-          </div>
-          <p className="mt-5 text-xs text-slate-700">© 2026 · כל הזכויות שמורות</p>
         </div>
+
+        {/* phone: the title under the shot, then the valuation. desktop: the title on the shot's lower edge,
+            the valuation card floating beside it, both on the first screen */}
+        <div className="relative z-10 mx-auto max-w-6xl px-5 lg:grid lg:min-h-[100svh] lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)] lg:items-end lg:gap-12 lg:pb-14 lg:pt-24">
+        <div className="-mt-14 lg:mt-0">
+          <h1
+            id="home-h1"
+            className="max-w-[14ch] text-[clamp(44px,12.4vw,60px)] font-extrabold leading-[0.95] tracking-[-0.04em] lg:max-w-none lg:text-[clamp(64px,6.4vw,104px)]"
+          >
+            כמה שווה הנכס שלך?
+          </h1>
+          <p className="mt-4 max-w-[52ch] text-[18px] leading-relaxed lg:text-[21px]">
+            מקלידים כתובת בנתניה ורואים עסקאות אמת שנמכרו בבניין, ברחוב ובסביבה, וטווח שווי לפיהן.
+          </p>
+          <p className="mt-3 text-[15px] text-butter/70">
+            {dealCount > 0 && (
+              <>
+                <span className="font-bold tabular-nums text-butter">{dealCount.toLocaleString("he-IL")}</span> עסקאות אמת ·{" "}
+              </>
+            )}
+            מתווך מורשה · חינם, בלי הרשמה
+          </p>
+        </div>
+
+        {/* ═══════════ THE VALUATION ═══════════ */}
+        <div id="check" className="mt-8 max-w-3xl scroll-mt-6 text-ink lg:mt-0 lg:self-center">
+          <ValuationWizard />
+        </div>
+        </div>
+      </section>
+
+      {/* ═══════════ NETANYA, 1935 ═══════════ */}
+      <section className="mx-auto mt-28 grid max-w-6xl gap-7 px-5 lg:mt-40 lg:grid-cols-12 lg:items-end lg:gap-x-8 lg:gap-y-10" aria-labelledby="then-h">
+        <h2 id="then-h" className="text-[clamp(34px,8vw,72px)] font-extrabold leading-none tracking-[-0.035em] lg:col-span-12">
+          נתניה, 1935.
+        </h2>
+        <figure className="lg:col-span-7 lg:row-start-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/netanya-seashore-1935.jpg"
+            alt="חוף הים בנתניה ב-1935: המצוק והים, בלי בניין אחד"
+            width={1920}
+            height={1280}
+            loading="lazy"
+            className="aspect-[4/3] w-full object-cover"
+          />
+          <figcaption className="mt-2 text-[14px] text-butter/70">חוף הים בנתניה, 1935. צילום: זולטן קלוגר.</figcaption>
+        </figure>
+        <p className="max-w-[30ch] text-[22px] leading-snug lg:col-span-4 lg:col-start-9 lg:row-start-2 lg:self-center lg:text-[26px]">
+          על אותו מצוק עומדים היום מגדלים. תשעים שנה של בנייה, ובכל רחוב נמכרו דירות. כל עסקה כזו מספרת משהו על המחיר של הנכס שלכם.
+        </p>
+        <figure className="w-[72%] justify-self-end lg:col-span-4 lg:col-start-9 lg:row-start-3 lg:w-auto lg:self-start">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/netanya-geva-1935.jpg"
+            alt="שכונת גבע בנתניה ב-1935: בתים ראשונים בין החולות"
+            width={1920}
+            height={1280}
+            loading="lazy"
+            className="aspect-square w-full object-cover"
+          />
+          <figcaption className="mt-2 text-[14px] text-butter/70">שכונת גבע, 1935.</figcaption>
+        </figure>
+        <figure className="lg:col-span-7 lg:col-start-2 lg:row-start-3 lg:mt-20 lg:self-start">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/netanya-general-1935.jpg"
+            alt="מראה כללי של נתניה ב-1935: רחוב רחב ובתים לבנים נמוכים"
+            width={1920}
+            height={1280}
+            loading="lazy"
+            className="aspect-[21/9] w-full object-cover"
+          />
+          <figcaption className="mt-2 text-[14px] text-butter/70">מראה כללי של העיר, 1935.</figcaption>
+        </figure>
+      </section>
+
+      {/* ═══════════ HOW IT WORKS ═══════════ */}
+      <section id="how" className="mx-auto mt-28 max-w-6xl scroll-mt-6 px-5 lg:mt-40" aria-labelledby="how-h">
+        <h2 id="how-h" className="text-[clamp(34px,8vw,72px)] font-extrabold leading-none tracking-[-0.035em]">איך זה עובד</h2>
+        <div className="mt-6 space-y-4 text-[clamp(22px,5.6vw,36px)] font-medium leading-snug">
+          <p className="max-w-[34ch]">מקלידים רחוב ומספר בית בנתניה.</p>
+          <p className="max-w-[34ch]">רואים את העסקאות שנמכרו בבניין, ברחוב ובסביבה, וטווח שווי לפיהן.</p>
+          <p className="max-w-[34ch]">ומחליטים אם לדבר עם מתווך מורשה. רק אם תרצו.</p>
+        </div>
+      </section>
+
+      {/* ═══════════ AGENT ═══════════ */}
+      <section className="mx-auto mt-28 max-w-6xl px-5" aria-labelledby="agent-h">
+        <div className="flex flex-col gap-4 rounded-3xl bg-[#1a1917] p-6 sm:flex-row sm:items-center sm:p-8">
+          <div className="flex-1">
+            <h2 id="agent-h" className="text-[22px] font-extrabold tracking-[-0.02em]">מי מאחורי ההערכה</h2>
+            <p className="mt-1 text-[15px] leading-relaxed text-butter/85">
+              {agentName ? `${agentName}, ` : ""}מתווך מקרקעין מורשה{agentLicense ? ` · רישיון ${agentLicense}` : ""}.
+              הדוח נשלח אליכם ישירות, ואם תרצו, אפשר לעבור עליו יחד.
+            </p>
+          </div>
+          <ScrollToWizard className="gh-pill min-h-[52px] bg-sun px-6 font-bold text-night">לבדיקת שווי</ScrollToWizard>
+        </div>
+      </section>
+
+      {/* ═══════════ FOOTER ═══════════ */}
+      <footer className="mx-auto max-w-6xl px-5 pb-[calc(40px+env(safe-area-inset-bottom))] pt-14 text-xs leading-relaxed text-butter/70">
+        <p className="max-w-[70ch]">
+          ההערכה היא אינדיקציה המבוססת על נתוני עסקאות פומביים ואינה תחליף להערכת שמאי מוסמך.
+        </p>
+        <div className="mt-3 flex gap-1">
+          <a href="/privacy" className="flex min-h-[44px] items-center px-3 first:ps-0 hover:text-butter">מדיניות פרטיות</a>
+          <a href="/terms" className="flex min-h-[44px] items-center px-3 hover:text-butter">תנאי שימוש</a>
+        </div>
+        <div className="mt-2">
+          <p>תמונות, דרך Wikimedia Commons:</p>
+          <ul className="mt-1 space-y-1">
+            {CREDITS.map((c) => (
+              <li key={c.page}>
+                <a href={c.page} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-butter">{c.title}</a>, {c.by},{" "}
+                {c.licenceUrl ? (
+                  <a href={c.licenceUrl} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-butter">{c.licence}</a>
+                ) : (
+                  c.licence
+                )}
+                {c.changed ? `. ${c.changed}.` : "."}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="mt-3">© 2026 · שוויות נתניה</p>
       </footer>
     </main>
   );

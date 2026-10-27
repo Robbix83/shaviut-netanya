@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import type { Deal, Neighborhood, Lead, LeadStatus, TabuStatus } from "./types";
 import { resolveDataSource } from "./config";
+import { withNeighborhoodName, withNeighborhoodTitle } from "./neighborhoodNames";
 
 /**
  * שכבת גישה לנתונים עם שני מימושים:
@@ -62,11 +63,11 @@ async function readJson<T>(file: string, fallback: T): Promise<T> {
 
 class LocalStore implements Store {
   private async deals(): Promise<Deal[]> {
-    if (!_localDeals) _localDeals = await readJson<Deal[]>("deals.json", []);
+    if (!_localDeals) _localDeals = (await readJson<Deal[]>("deals.json", [])).map(withNeighborhoodName);
     return _localDeals;
   }
   private async neigh(): Promise<Neighborhood[]> {
-    if (!_localNeigh) _localNeigh = await readJson<Neighborhood[]>("neighborhoods.json", []);
+    if (!_localNeigh) _localNeigh = (await readJson<Neighborhood[]>("neighborhoods.json", [])).map(withNeighborhoodTitle);
     return _localNeigh;
   }
 
@@ -220,13 +221,13 @@ class SupabaseStore implements Store {
       .eq("settlement", settlement)
       .order("name");
     if (error) throw error;
-    return (data ?? []) as Neighborhood[];
+    return ((data ?? []) as Neighborhood[]).map(withNeighborhoodTitle);
   }
 
   async getNeighborhood(id: string): Promise<Neighborhood | null> {
     const sb = await this.client();
     const { data } = await sb.from(this.table("neighborhoods")).select("*").eq("id", id).maybeSingle();
-    return (data as Neighborhood) ?? null;
+    return data ? withNeighborhoodTitle(data as Neighborhood) : null;
   }
 
   async getDealsByNeighborhood(neighborhoodId: string, q: DealsQuery = {}): Promise<Deal[]> {
@@ -250,7 +251,7 @@ class SupabaseStore implements Store {
       all.push(...page);
       if (page.length < PAGE_SIZE) break;
     }
-    return all;
+    return all.map(withNeighborhoodName);
   }
 
   async getAllDeals(): Promise<Deal[]> {
@@ -269,7 +270,7 @@ class SupabaseStore implements Store {
       all.push(...page);
       if (page.length < PAGE_SIZE) break;
     }
-    return all;
+    return all.map(withNeighborhoodName);
   }
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
