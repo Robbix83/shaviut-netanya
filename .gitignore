@@ -26,6 +26,16 @@ yarn-error.log*
 # local data store (dev harvest output)
 /data/*.json
 !/data/.gitkeep
+# reference files the app reads at runtime (public data) — must ship with every deploy.
+# leads.json (personal data) and deals.json (dev copy; production reads Supabase) stay ignored.
+!/data/street-index.json
+!/data/street-index-extra.json
+!/data/streets.json
+!/data/neighborhoods.json
+!/data/renewal.json
+!/data/poi.json
+!/data/cbs-netanya.json
+!/data/netanya-streets-raw.json
 
 # Supabase production row-content backups (real data dumps, never source)
 /audit/launch/backups/
@@ -55,3 +65,6 @@ C*leadserr.txt
 # Playwright generated output
 test-results/
 playwright-report/
+
+# Backtest per-row output (regenerate with scripts/backtest/run.ts)
+audit/backtest/runs/*/results.json

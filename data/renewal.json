@@ -1,0 +1,485 @@
+{
+  "settlement": "נתניה",
+  "asOf": "2026-06-04",
+  "totalComplexes": 40,
+  "totalAddedUnits": 11879,
+  "matchedToNeighborhood": 24,
+  "withCoords": 38,
+  "complexes": [
+    {
+      "id": 4062,
+      "name": "הרומנים",
+      "street": "הרומנים",
+      "x": 186998,
+      "y": 691257,
+      "added": 792,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4062",
+      "neighborhoodName": null
+    },
+    {
+      "id": 4091,
+      "name": "הרצוג מערב",
+      "street": "הרצוג מערב",
+      "x": 186641,
+      "y": 694228,
+      "added": 109,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4091",
+      "neighborhoodName": "קריית צאנז"
+    },
+    {
+      "id": 4176,
+      "name": "הבית הלבן",
+      "street": "הבית הלבן",
+      "x": 186622,
+      "y": 694345,
+      "added": 0,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4176",
+      "neighborhoodName": null
+    },
+    {
+      "id": 4284,
+      "name": "נורדאו",
+      "street": "נורדאו",
+      "x": 186627,
+      "y": 687405,
+      "added": 489,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4284",
+      "neighborhoodName": "קריית נורדאו"
+    },
+    {
+      "id": 4315,
+      "name": "זלמן שניאור",
+      "street": "זלמן שניאור",
+      "x": 185855,
+      "y": 687786,
+      "added": 384,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4315",
+      "neighborhoodName": null
+    },
+    {
+      "id": 4334,
+      "name": "ש\"י עגנון",
+      "street": "ש י עגנון",
+      "x": 186025,
+      "y": 687796,
+      "added": 664,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4334",
+      "neighborhoodName": "קריית נורדאו"
+    },
+    {
+      "id": 4355,
+      "name": "נורוק טהון",
+      "street": "נורוק טהון",
+      "x": 186610,
+      "y": 694123,
+      "added": 348,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4355",
+      "neighborhoodName": "קריית צאנז"
+    },
+    {
+      "id": 4513,
+      "name": "שדרות ירושלים",
+      "street": "שדרות ירושלים",
+      "x": 186629,
+      "y": 692244,
+      "added": 78,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4513",
+      "neighborhoodName": null
+    },
+    {
+      "id": 4515,
+      "name": "שניאור/שלונסקי",
+      "street": "שניאור/שלונסקי",
+      "x": 186103,
+      "y": 687962,
+      "added": 504,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4515",
+      "neighborhoodName": "גבעת האירוסים"
+    },
+    {
+      "id": 4516,
+      "name": "ברודצקי 16-18",
+      "street": "ברודצקי",
+      "x": 186502,
+      "y": 692224,
+      "added": 140,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4516",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 30830,
+      "name": "הלפרין",
+      "street": "הלפרין",
+      "x": 186063,
+      "y": 691850,
+      "added": 104,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~30830",
+      "neighborhoodName": null
+    },
+    {
+      "id": 31122,
+      "name": "ויצמן סוקולוב",
+      "street": "ויצמן סוקולוב",
+      "x": 187122,
+      "y": 694260,
+      "added": 64,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~31122",
+      "neighborhoodName": null
+    },
+    {
+      "id": 31124,
+      "name": "ויצמן צפון-בארי",
+      "street": "ויצמן צפון-בארי",
+      "x": 187080,
+      "y": 693957,
+      "added": 127,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~31124",
+      "neighborhoodName": "נאות הרצל"
+    },
+    {
+      "id": 31221,
+      "name": "הרב קוק 2 (ההסתדרות)",
+      "street": "הרב קוק",
+      "x": 186589,
+      "y": 693492,
+      "added": 122,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~31221",
+      "neighborhoodName": "קריית צאנז"
+    },
+    {
+      "id": 31769,
+      "name": "אנדריוס",
+      "street": "אנדריוס",
+      "x": 186602,
+      "y": 693636,
+      "added": 241,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~31769",
+      "neighborhoodName": "קריית צאנז"
+    },
+    {
+      "id": 35969,
+      "name": "דורה (רמת ידין)",
+      "street": "דורה (רמת ידין)",
+      "x": 186594,
+      "y": 689841,
+      "added": 257,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~35969",
+      "neighborhoodName": "רמת ידין"
+    },
+    {
+      "id": 5004061,
+      "name": "רזיאל",
+      "street": "רזיאל",
+      "x": 187383,
+      "y": 693150,
+      "added": 98,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5004164",
+      "neighborhoodName": null
+    },
+    {
+      "id": 5005273,
+      "name": "דיזנגוף המייסדים",
+      "street": "דיזנגוף המייסדים",
+      "x": 186543,
+      "y": 693012,
+      "added": 129,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5005273",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 5005628,
+      "name": "גורדון 7-9 נתניה",
+      "street": "גורדון",
+      "x": 186795,
+      "y": 693008,
+      "added": 76,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5005628",
+      "neighborhoodName": "נאות הרצל"
+    },
+    {
+      "id": 5007250,
+      "name": "קצנלסון",
+      "street": "קצנלסון",
+      "x": 186412,
+      "y": 688011,
+      "added": 288,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5007250",
+      "neighborhoodName": "גבעת האירוסים"
+    },
+    {
+      "id": 5009734,
+      "name": "נגב גליל ירושלים",
+      "street": "נגב גליל ירושלים",
+      "x": 186430,
+      "y": 692312,
+      "added": 86,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5009734",
+      "neighborhoodName": null
+    },
+    {
+      "id": 5009760,
+      "name": "שד' בן צבי",
+      "street": "שד' בן צבי",
+      "x": 186306,
+      "y": 689269,
+      "added": 1166,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5009760",
+      "neighborhoodName": null
+    },
+    {
+      "id": 5011095,
+      "name": "אוסישקין - רמז",
+      "street": "אוסישקין - רמז",
+      "x": 186231,
+      "y": 692874,
+      "added": 60,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011095",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 5011110,
+      "name": "העליה",
+      "street": "העליה",
+      "x": 186435,
+      "y": 689242,
+      "added": 504,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011110",
+      "neighborhoodName": null
+    },
+    {
+      "id": 5011132,
+      "name": "הנוטע",
+      "street": "הנוטע",
+      "x": 186630,
+      "y": 692606,
+      "added": 83,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011132",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 5011136,
+      "name": "ד\"ר סטופ 2,4 נתניה",
+      "street": "ד ר סטופ",
+      "x": 186219,
+      "y": 689287,
+      "added": 100,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011136",
+      "neighborhoodName": "נאות שקד"
+    },
+    {
+      "id": 5011140,
+      "name": "גליקסון",
+      "street": "גליקסון",
+      "x": 187870,
+      "y": 693053,
+      "added": 348,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011140",
+      "neighborhoodName": "נאות הרצל"
+    },
+    {
+      "id": 5011153,
+      "name": "שד ירושלים 23/25/27",
+      "street": "שד ירושלים",
+      "x": 186522,
+      "y": 692319,
+      "added": 85,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011153",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 5011159,
+      "name": "סמילנסקי 29-31",
+      "street": "סמילנסקי",
+      "x": 186429,
+      "y": 692517,
+      "added": 73,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011159",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 5011164,
+      "name": "נחום",
+      "street": "נחום",
+      "x": 186792,
+      "y": 689764,
+      "added": 865,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011164",
+      "neighborhoodName": "נאות הרצל"
+    },
+    {
+      "id": 5011377,
+      "name": "ברודצקי",
+      "street": "ברודצקי",
+      "x": 186481,
+      "y": 692142,
+      "added": 200,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011377",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 5018048,
+      "name": "הרב קוק בורוכוב",
+      "street": "הרב קוק בורוכוב",
+      "x": 186584,
+      "y": 693814,
+      "added": 472,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5018048",
+      "neighborhoodName": "קריית צאנז"
+    },
+    {
+      "id": 8001146,
+      "name": "חפציבה",
+      "street": "חפציבה",
+      "x": 189452,
+      "y": 690720,
+      "added": 740,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8001146",
+      "neighborhoodName": null
+    },
+    {
+      "id": 8002044,
+      "name": "יאנוש קורצ'ק",
+      "street": "יאנוש קורצ'ק",
+      "x": 186157,
+      "y": 687377,
+      "added": 899,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8002044",
+      "neighborhoodName": null
+    },
+    {
+      "id": 8002286,
+      "name": "רמת הרצל",
+      "street": "רמת הרצל",
+      "x": 188013,
+      "y": 694196,
+      "added": 370,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8002286",
+      "neighborhoodName": null
+    },
+    {
+      "id": 8002499,
+      "name": "בן יהודה השבעה",
+      "street": "בן יהודה השבעה",
+      "x": 186245,
+      "y": 692076,
+      "added": 0,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8002499",
+      "neighborhoodName": "רמת אפרים"
+    },
+    {
+      "id": 8002501,
+      "name": "התחדשות עירונית - \"מגדלי ירושלים\" נת/מק/59/548",
+      "street": "התחדשות עירונית - מגדלי ירושלים נת/מק/",
+      "x": 188204,
+      "y": 689593,
+      "added": 130,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8002501",
+      "neighborhoodName": "קריית השרון"
+    },
+    {
+      "id": 8002689,
+      "name": "תחנה מרכזית",
+      "street": "תחנה מרכזית",
+      "x": 186914,
+      "y": 692655,
+      "added": 390,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8002689",
+      "neighborhoodName": null
+    },
+    {
+      "id": 8003138,
+      "name": "אבושדיד",
+      "street": "אבושדיד",
+      "x": null,
+      "y": null,
+      "added": 144,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8003138",
+      "neighborhoodName": null
+    },
+    {
+      "id": 8003140,
+      "name": "בן צבי והאר\"י",
+      "street": "בן צבי והאר י",
+      "x": null,
+      "y": null,
+      "added": 150,
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8003140",
+      "neighborhoodName": null
+    }
+  ],
+  "byNeighborhood": {
+    "קריית צאנז": {
+      "complexes": 5,
+      "addedUnits": 1292,
+      "examples": [
+        "הרצוג מערב",
+        "נורוק טהון",
+        "הרב קוק 2 (ההסתדרות)"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4091"
+    },
+    "קריית נורדאו": {
+      "complexes": 2,
+      "addedUnits": 1153,
+      "examples": [
+        "נורדאו",
+        "ש\"י עגנון"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4284"
+    },
+    "גבעת האירוסים": {
+      "complexes": 2,
+      "addedUnits": 792,
+      "examples": [
+        "שניאור/שלונסקי",
+        "קצנלסון"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4515"
+    },
+    "רמת אפרים": {
+      "complexes": 8,
+      "addedUnits": 770,
+      "examples": [
+        "ברודצקי 16-18",
+        "דיזנגוף המייסדים",
+        "אוסישקין - רמז"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~4516"
+    },
+    "נאות הרצל": {
+      "complexes": 4,
+      "addedUnits": 1416,
+      "examples": [
+        "ויצמן צפון-בארי",
+        "גורדון 7-9 נתניה",
+        "גליקסון"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~31124"
+    },
+    "רמת ידין": {
+      "complexes": 1,
+      "addedUnits": 257,
+      "examples": [
+        "דורה (רמת ידין)"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~35969"
+    },
+    "נאות שקד": {
+      "complexes": 1,
+      "addedUnits": 100,
+      "examples": [
+        "ד\"ר סטופ 2,4 נתניה"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~5011136"
+    },
+    "קריית השרון": {
+      "complexes": 1,
+      "addedUnits": 130,
+      "examples": [
+        "התחדשות עירונית - \"מגדלי ירושלים\" נת/מק/59/548"
+      ],
+      "mapLink": "https://www.govmap.gov.il/map.html?lay=ADD_PROJECTS_UR_MUCHRAZ&bs=moch_projects|MISPARPROJECT~8002501"
+    }
+  },
+  "officialMap": "https://www.govmap.gov.il/?layers=ADD_PROJECTS_UR_MUCHRAZ"
+}

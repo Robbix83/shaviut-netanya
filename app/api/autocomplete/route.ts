@@ -23,7 +23,9 @@ async function buildIndex(): Promise<IndexedStreet[]> {
   // מקור ראשי: street-index.json (כל הרחובות הרשמיים + שכונה)
   try {
     const raw = await fs.readFile(path.join(dir, "street-index.json"), "utf8");
-    const arr: any[] = JSON.parse(raw);
+    // + רחובות שיש בהם עסקאות אבל חסרים במרשם (scripts/build-street-index-extra.ts)
+    const extraRaw = await fs.readFile(path.join(dir, "street-index-extra.json"), "utf8").catch(() => "[]");
+    const arr: any[] = [...JSON.parse(raw), ...JSON.parse(extraRaw)];
     const idx = arr
       .filter((s) => s.street)
       .map((s) => ({

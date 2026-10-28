@@ -23,12 +23,12 @@ export interface AddressSuggestion {
 const _cache = new Map<string, { at: number; val: unknown }>();
 const TTL = 1000 * 60 * 30; // 30 דק'
 
-async function cachedFetchJson<T>(url: string): Promise<T | null> {
+async function cachedFetchJson<T>(url: string, timeoutMs = 8000): Promise<T | null> {
   const hit = _cache.get(url);
   if (hit && Date.now() - hit.at < TTL) return hit.val as T;
   try {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 8000);
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
     const res = await fetch(url, { headers: COMMON_HEADERS, signal: ctrl.signal });
     clearTimeout(t);
     if (!res.ok) return null;
@@ -92,11 +92,11 @@ interface DetailsRes {
  * המרת טקסט כתובת לקואורדינטות ITM + תווית.
  * lyrs=16399 מכסה כתובות/רחובות, gid=govmap.
  */
-export async function resolvePoint(query: string): Promise<ResolvedPoint | null> {
+export async function resolvePoint(query: string, timeoutMs?: number): Promise<ResolvedPoint | null> {
   const q = query.trim();
   if (!q) return null;
   const url = `${ES_BASE}/api/DetailsByQuery?query=${encodeURIComponent(q)}&lyrs=16399&gid=govmap`;
-  const data = await cachedFetchJson<DetailsRes>(url);
+  const data = await cachedFetchJson<DetailsRes>(url, timeoutMs);
   if (!data?.data) return null;
   for (const type of data.order || Object.keys(data.data)) {
     const first = data.data[type]?.[0];

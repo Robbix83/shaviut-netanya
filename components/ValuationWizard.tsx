@@ -67,8 +67,9 @@ interface Valuation {
   asOf: string;
   compositeUsed?: boolean;
   plotNotValued?: boolean;
-  /** קרקע: אין אומדן מספרי (הסכומים 0), המתווך בודק אישית */
+  /** קרקע או נכס בבנייה: אין אומדן מספרי (הסכומים 0), המתווך בודק אישית */
   manualReview?: boolean;
+  manualReviewReason?: "land" | "off_plan";
 }
 interface PriceTrend {
   points: { label: string; ppsqm: number }[];
@@ -138,16 +139,26 @@ const VALUE_FACTORS: { key: string; label: string; icon: string; mult: number }[
   { key: "balcony", label: "מרפסת/סוכה", icon: "🪟", mult: 0.04 },
   { key: "needsReno", label: "דרוש שיפוץ", icon: "🧰", mult: -0.1 },
 ];
-/** קרקע: במקום מספר — הסבר קצר שהמתווך בודק אישית */
-function ManualReviewNote() {
+/** קרקע / נכס בבנייה: במקום מספר — הסבר קצר שהמתווך בודק אישית */
+function ManualReviewNote({ reason }: { reason?: "land" | "off_plan" }) {
+  const offPlan = reason === "off_plan";
   return (
     <div className="my-3 space-y-1">
-      <p className="text-2xl font-black tracking-[-0.02em] text-brand sm:text-[1.7rem]">מגרשים דורשים בדיקה אישית</p>
+      <p className="text-2xl font-black tracking-[-0.02em] text-brand sm:text-[1.7rem]">
+        {offPlan ? "נכס בבנייה דורש בדיקה אישית" : "מגרשים דורשים בדיקה אישית"}
+      </p>
       <p className="mx-auto max-w-sm text-sm text-slate-600">
-        מחיר מגרש תלוי בזכויות הבנייה, בתב"ע ובחלקים בבעלות, ואלה לא מופיעים בנתונים הציבוריים. השאירו פרטים ונחזור אליכם עם הערכה.
+        {offPlan
+          ? "מחיר נכס שעוד לא נמסר תלוי בפרויקט, במפרט ובמועד המסירה, ועסקאות יד שנייה בסביבה לא משקפות אותו. השאירו פרטים ונחזור אליכם עם הערכה."
+          : 'מחיר מגרש תלוי בזכויות הבנייה, בתב"ע ובחלקים בבעלות, ואלה לא מופיעים בנתונים הציבוריים. השאירו פרטים ונחזור אליכם עם הערכה.'}
       </p>
     </div>
   );
+}
+/** כותרת קטנה מעל הטווח / ההודעה */
+function resultLabel(v: { manualReview?: boolean; manualReviewReason?: "land" | "off_plan" }) {
+  if (!v.manualReview) return "טווח שווי משוער";
+  return v.manualReviewReason === "off_plan" ? "נכס בבנייה" : "מגרש";
 }
 
 function ValueFactors({ low, high }: { low: number; high: number }) {
@@ -1009,13 +1020,15 @@ export default function ValuationWizard() {
             {/* שנת בנייה — קריטית לדיוק (ישן vs חדש) */}
             <div>
               <label className="field-label">שנת בנייה משוערת <span className="font-normal text-slate-500">(לא חובה)</span></label>
-              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-5">
+              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {[
                   { label: "לפני 1975", value: "1965" },
                   { label: "1975–1990", value: "1982" },
                   { label: "1990–2005", value: "1997" },
                   { label: "2005–2015", value: "2010" },
                   { label: "2015+", value: "2020" },
+                  // שנה עתידית = טרם נמסרה → השרת מחזיר בדיקה אישית במקום מספר
+                  { label: "בבנייה / טרם נמסרה", value: String(new Date().getFullYear() + 1) },
                 ].map((opt) => (
                   <button
                     key={opt.value}
@@ -1082,11 +1095,11 @@ export default function ValuationWizard() {
                 <p className="text-sm font-bold text-ink">{evaluatedAddress}</p>
               )}
               <p className="text-sm font-medium text-slate-600">
-                {valuation.manualReview ? "מגרש" : "טווח שווי משוער"}{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
+                {resultLabel(valuation)}{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
 
               {valuation.manualReview ? (
-                <ManualReviewNote />
+                <ManualReviewNote reason={valuation.manualReviewReason} />
               ) : (
                 <p className="my-3 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-[-0.03em] text-brand tabular-nums sm:text-[2.2rem]">
                   <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
@@ -1427,10 +1440,10 @@ export default function ValuationWizard() {
                 <p className="text-sm font-bold opacity-90">{evaluatedAddress}</p>
               )}
               <p className="text-sm font-semibold opacity-80">
-                {valuation.manualReview ? "מגרש" : "טווח שווי משוער"}{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
+                {resultLabel(valuation)}{valuation.neighborhood ? ` · ${valuation.neighborhood}` : ""}
               </p>
               {valuation.manualReview ? (
-                <ManualReviewNote />
+                <ManualReviewNote reason={valuation.manualReviewReason} />
               ) : (
                 <p className="my-2 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-[-0.03em] text-brand tabular-nums sm:text-4xl">
                   <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>

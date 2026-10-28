@@ -20,7 +20,8 @@ export const runtime = "nodejs";
 async function streetIndexResolve(streetName: string) {
   try {
     const raw = await fs.readFile(path.join(process.cwd(), "data", "street-index.json"), "utf8");
-    const index: any[] = JSON.parse(raw);
+    const extraRaw = await fs.readFile(path.join(process.cwd(), "data", "street-index-extra.json"), "utf8").catch(() => "[]");
+    const index: any[] = [...JSON.parse(raw), ...JSON.parse(extraRaw)];
     const hit = index.find((s) => s.street === streetName && s.neighborhoodId);
     if (hit) return { neighborhoodId: String(hit.neighborhoodId), neighborhoodName: hit.neighborhoodName ?? "" };
   } catch {}

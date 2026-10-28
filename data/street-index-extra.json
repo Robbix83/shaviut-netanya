@@ -1,0 +1,702 @@
+[
+ {
+  "street": "ניצה",
+  "code": null,
+  "neighborhoodId": "65209727",
+  "neighborhoodName": "חוף הים והמלונות",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 822
+ },
+ {
+  "street": "קרל פופר",
+  "code": null,
+  "neighborhoodId": "65210239",
+  "neighborhoodName": "אגם 3 - בתכנון",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 495
+ },
+ {
+  "street": "יהודה הלוי",
+  "code": null,
+  "neighborhoodId": "65210246",
+  "neighborhoodName": "גבע",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 432
+ },
+ {
+  "street": "הגילה",
+  "code": null,
+  "neighborhoodId": "65210195",
+  "neighborhoodName": "נוף הטיילת",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 245
+ },
+ {
+  "street": "טרומפלדור",
+  "code": null,
+  "neighborhoodId": "65210248",
+  "neighborhoodName": "רסקו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 217
+ },
+ {
+  "street": "לבונטין",
+  "code": null,
+  "neighborhoodId": "65210246",
+  "neighborhoodName": "גבע",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 206
+ },
+ {
+  "street": "יוסף לפיד",
+  "code": null,
+  "neighborhoodId": "65210195",
+  "neighborhoodName": "נוף הטיילת",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 200
+ },
+ {
+  "street": "שוהם",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 186
+ },
+ {
+  "street": "יואל סלומון",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 177
+ },
+ {
+  "street": "הסחלב",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 135
+ },
+ {
+  "street": "שטמפפר",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 117
+ },
+ {
+  "street": "עולש מצוי",
+  "code": null,
+  "neighborhoodId": "65210235",
+  "neighborhoodName": "נאות מנחם בגין",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 100
+ },
+ {
+  "street": "חטיבת גבעתי",
+  "code": null,
+  "neighborhoodId": "65210194",
+  "neighborhoodName": "נווה אוז",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 88
+ },
+ {
+  "street": "הגר\"א",
+  "code": null,
+  "neighborhoodId": "65210242",
+  "neighborhoodName": "רמת חן",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 85
+ },
+ {
+  "street": "המתמיד",
+  "code": null,
+  "neighborhoodId": "65209727",
+  "neighborhoodName": "חוף הים והמלונות",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 78
+ },
+ {
+  "street": "לילינבלום",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 67
+ },
+ {
+  "street": "יוסף ספיר",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 60
+ },
+ {
+  "street": "הדליות",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 57
+ },
+ {
+  "street": "מאיר עמית",
+  "code": null,
+  "neighborhoodId": "65210242",
+  "neighborhoodName": "רמת חן",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 51
+ },
+ {
+  "street": "אסף שמחוני",
+  "code": null,
+  "neighborhoodId": "65210248",
+  "neighborhoodName": "רסקו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 46
+ },
+ {
+  "street": "דוד פנקס",
+  "code": null,
+  "neighborhoodId": "65210387",
+  "neighborhoodName": "קריית יהלום",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 40
+ },
+ {
+  "street": "האורזים",
+  "code": null,
+  "neighborhoodId": "65210387",
+  "neighborhoodName": "קריית יהלום",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 40
+ },
+ {
+  "street": "קפלנסקי",
+  "code": null,
+  "neighborhoodId": "65210752",
+  "neighborhoodName": "מכנס",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 40
+ },
+ {
+  "street": "היהלום",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 39
+ },
+ {
+  "street": "החפץ חיים",
+  "code": null,
+  "neighborhoodId": "65210236",
+  "neighborhoodName": "נוף גלים",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 35
+ },
+ {
+  "street": "פרומקין",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 34
+ },
+ {
+  "street": "שער העמק",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 31
+ },
+ {
+  "street": "משה סנה",
+  "code": null,
+  "neighborhoodId": "65210235",
+  "neighborhoodName": "נאות מנחם בגין",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 30
+ },
+ {
+  "street": "הארבל",
+  "code": null,
+  "neighborhoodId": "65209683",
+  "neighborhoodName": "קריית השרון",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 27
+ },
+ {
+  "street": "נר הלילה",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 27
+ },
+ {
+  "street": "סלומון יואל",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 25
+ },
+ {
+  "street": "עציון",
+  "code": null,
+  "neighborhoodId": "65210248",
+  "neighborhoodName": "רסקו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 25
+ },
+ {
+  "street": "תורמוס",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 24
+ },
+ {
+  "street": "המלכים",
+  "code": null,
+  "neighborhoodId": "65209711",
+  "neighborhoodName": "עין התכלת",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 23
+ },
+ {
+  "street": "מוהליבר",
+  "code": null,
+  "neighborhoodId": "65210248",
+  "neighborhoodName": "רסקו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 22
+ },
+ {
+  "street": "סביון",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 19
+ },
+ {
+  "street": "שאול המלך",
+  "code": null,
+  "neighborhoodId": "65209727",
+  "neighborhoodName": "חוף הים והמלונות",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 18
+ },
+ {
+  "street": "ד\"ר שרייבר",
+  "code": null,
+  "neighborhoodId": "65210246",
+  "neighborhoodName": "גבע",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 18
+ },
+ {
+  "street": "ההדס",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 17
+ },
+ {
+  "street": "הרב משה צבי נרייה",
+  "code": null,
+  "neighborhoodId": "65209683",
+  "neighborhoodName": "קריית השרון",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 16
+ },
+ {
+  "street": "המרגניות",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 16
+ },
+ {
+  "street": "קדש",
+  "code": null,
+  "neighborhoodId": "65210248",
+  "neighborhoodName": "רסקו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 16
+ },
+ {
+  "street": "שכטרמן",
+  "code": null,
+  "neighborhoodId": "65210388",
+  "neighborhoodName": "אזור תעשיה קריית אליעזר קפלן",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 16
+ },
+ {
+  "street": "החדווה",
+  "code": null,
+  "neighborhoodId": "65210195",
+  "neighborhoodName": "נוף הטיילת",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 14
+ },
+ {
+  "street": "קק\"ל",
+  "code": null,
+  "neighborhoodId": "65209717",
+  "neighborhoodName": "מרכז העיר",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 13
+ },
+ {
+  "street": "חת\"ם סופר",
+  "code": null,
+  "neighborhoodId": "65210242",
+  "neighborhoodName": "רמת חן",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 13
+ },
+ {
+  "street": "בן אבי",
+  "code": null,
+  "neighborhoodId": "65210243",
+  "neighborhoodName": "מע\"ר - מרכז עירוני ראשי",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 13
+ },
+ {
+  "street": "האומנות",
+  "code": null,
+  "neighborhoodId": "65209689",
+  "neighborhoodName": "אזור תעשיה פנחס ספי",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 12
+ },
+ {
+  "street": "יקינתון",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 11
+ },
+ {
+  "street": "פנקס דוד",
+  "code": null,
+  "neighborhoodId": "65210387",
+  "neighborhoodName": "קריית יהלום",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 10
+ },
+ {
+  "street": "הנגר",
+  "code": null,
+  "neighborhoodId": "65210388",
+  "neighborhoodName": "אזור תעשיה קריית אליעזר קפלן",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 9
+ },
+ {
+  "street": "ליבסקינד",
+  "code": null,
+  "neighborhoodId": "65209736",
+  "neighborhoodName": "רמת אפרים",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 8
+ },
+ {
+  "street": "צבעוני",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 8
+ },
+ {
+  "street": "כפר אורייה",
+  "code": null,
+  "neighborhoodId": "65210196",
+  "neighborhoodName": "מחנה יעקב",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 8
+ },
+ {
+  "street": "חרל\"פ",
+  "code": null,
+  "neighborhoodId": "65210242",
+  "neighborhoodName": "רמת חן",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 8
+ },
+ {
+  "street": "אריה רגב",
+  "code": null,
+  "neighborhoodId": "65209689",
+  "neighborhoodName": "אזור תעשיה פנחס ספי",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 7
+ },
+ {
+  "street": "השקמה",
+  "code": null,
+  "neighborhoodId": "65209711",
+  "neighborhoodName": "עין התכלת",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 7
+ },
+ {
+  "street": "יל\"ג",
+  "code": null,
+  "neighborhoodId": "65210248",
+  "neighborhoodName": "רסקו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 7
+ },
+ {
+  "street": "חיים הזז",
+  "code": null,
+  "neighborhoodId": "65209726",
+  "neighborhoodName": "נאות הרצל",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 6
+ },
+ {
+  "street": "יצחק הנפח",
+  "code": null,
+  "neighborhoodId": "65209726",
+  "neighborhoodName": "נאות הרצל",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 6
+ },
+ {
+  "street": "עירית",
+  "code": null,
+  "neighborhoodId": "65210190",
+  "neighborhoodName": "רמת פולג",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 6
+ },
+ {
+  "street": "שרעבי",
+  "code": null,
+  "neighborhoodId": "65210244",
+  "neighborhoodName": "בן ציון",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 6
+ },
+ {
+  "street": "המחשב",
+  "code": null,
+  "neighborhoodId": "65209689",
+  "neighborhoodName": "אזור תעשיה פנחס ספי",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 5
+ },
+ {
+  "street": "הביכורים",
+  "code": null,
+  "neighborhoodId": "65209711",
+  "neighborhoodName": "עין התכלת",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 4
+ },
+ {
+  "street": "הרב ברוד",
+  "code": null,
+  "neighborhoodId": "65210243",
+  "neighborhoodName": "מע\"ר - מרכז עירוני ראשי",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 4
+ },
+ {
+  "street": "ישעיהו (סי) קנן",
+  "code": null,
+  "neighborhoodId": "65209689",
+  "neighborhoodName": "אזור תעשיה פנחס ספי",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 3
+ },
+ {
+  "street": "מאנה",
+  "code": null,
+  "neighborhoodId": "65209705",
+  "neighborhoodName": "קריית נורדאו",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 3
+ },
+ {
+  "street": "יעבץ",
+  "code": null,
+  "neighborhoodId": "65209726",
+  "neighborhoodName": "נאות הרצל",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 3
+ },
+ {
+  "street": "ראש פנה",
+  "code": null,
+  "neighborhoodId": "65210245",
+  "neighborhoodName": "אבו שדיד",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 3
+ },
+ {
+  "street": "נחמה וינר",
+  "code": null,
+  "neighborhoodId": "65209688",
+  "neighborhoodName": "רמת יגאל ידין - דורה",
+  "x": null,
+  "y": null,
+  "source": "deals",
+  "deals": 2
+ }
+]

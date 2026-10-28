@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const outcome = await resolveAndValuate(body);
+  // asOf הוא כלי לבדיקה לאחור בלבד — לקוח לא קובע את תאריך ההערכה
+  const outcome = await resolveAndValuate({ ...body, asOf: null });
 
   if (!outcome.ok) {
     if (outcome.error === "no_match") {

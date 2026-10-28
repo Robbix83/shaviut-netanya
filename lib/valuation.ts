@@ -95,11 +95,17 @@ const AREA_TOLERANCE_RATIO = 0.5;    // ±50% שטח — מסנן דירות ק�
 const HOUSE_MAX_PPSQM_BUILT = 40_000; // sanity: ₪/מ"ר בנוי > ₪40K לבית = composite לא אמין → fallback
 const FLOOR_TOLERANCE = 2; // ±2 קומות
 
-// רצפת רוחב לטווח המוצג, סביב האומדן האמצעי (מכויל בבדיקה לאחור, 500 חיפושים על נתוני V2, 27.10.2026):
-// טווח האחוזונים לבדו (≈±10%) כלל רק 46% מהמחירים בפועל. ±15% בדירה → 70%; בבתים הסטייה גדולה יותר.
-// קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר, הנכס עובר לבדיקה אישית (manualReview).
+// התאמת זמן: כל עסקת השוואה מוצמדת לתאריך ההערכה לפי מגמת ₪/מ"ר בשכונה (60 ח', אותו סוג נכס).
+// בלי זה עסקאות בנות 5 שנים מושכות את האומדן למטה (בדיקה לאחור: הטיה של ‎−9.6%).
+const TIME_ADJUST = true;
+const TREND_MIN_DEALS = 20;              // פחות עסקאות → בלי התאמה (מגמה לא יציבה)
+const TREND_MAX_ANNUAL = 0.05;           // תקרת שינוי שנתי ±5% (בדיקה לאחור: 15% תיקן יתר — הטיה +7.5%)
+
+// רצפת רוחב לטווח המוצג, סביב האומדן האמצעי. מכויל בבדיקה לאחור ללא זליגה
+// (scripts/backtest, 27.10.2026): בדירות קיימות ±20% מכסה 78% (dev) / 76% (test) מהמחירים בפועל.
+// בבתים הסטייה גדולה יותר. קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר (manualReview).
 const MIN_RANGE_HALF: Record<string, number> = {
-  apartment: 0.15,
+  apartment: 0.2,
   house: 0.25,
 };
 
@@ -111,8 +117,8 @@ const MIN_PPSQM: Record<string, number> = {
   land:        800,  // קרקע חקלאית → סף נמוך יותר
 };
 
-function cutoffDate(months: number): string {
-  const d = new Date();
+function cutoffDate(months: number, asOf?: string | null): string {
+  const d = asOf ? new Date(asOf + "T00:00:00Z") : new Date();
   d.setMonth(d.getMonth() - months);
   return d.toISOString().slice(0, 10);
 }
@@ -124,7 +130,9 @@ function cutoffDate(months: number): string {
  */
 export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   const store = getStore();
-  const asOf = await store.dataAsOf();
+  const dataAsOf = await store.dataAsOf();
+  // בדיקה לאחור: מעריכים "נכון לתאריך" — רק עסקאות שלפניו, וכל חלונות הזמן נספרים ממנו
+  const asOf = input.asOf ?? null;
 
   const ptype = input.propertyType ?? "apartment";
   const isLand = ptype === "land";
@@ -137,28 +145,38 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // lazy cache — store.getAllDeals() נקרא לכל היותר פעם אחת לבקשה
   let _allDealsCache: Deal[] | null = null;
   const lazyAllDeals = async (): Promise<Deal[]> => {
-    if (!_allDealsCache) _allDealsCache = await store.getAllDeals();
+    if (!_allDealsCache) {
+      const all = await store.getAllDeals();
+      _allDealsCache = asOf ? all.filter((d) => d.dealDate < asOf) : all;
+    }
     return _allDealsCache;
+  };
+
+  // עסקאות הרחוב בכל העיר — שאילתה אחת לפי רחוב במקום הורדת כל הטבלה (getAllDeals)
+  let _streetCache: Deal[] | null = null;
+  const lazyStreetDeals = async (): Promise<Deal[]> => {
+    if (!_streetCache) _streetCache = input.streetName ? await store.getDealsByStreet(input.streetName, { asOf }) : [];
+    return _streetCache;
   };
 
   // ===== pool גיאוגרפי: 4 שנים תמיד =====
   // חיפוש בניין/רחוב/רדיוס מחייב היסטוריה של 4 שנים — בניין בודד מוכר נדיר,
   // וחלון קצר יחמיץ עסקאות אמיתיות שם.
-  const pool4yr = (await fetchDeals(input.neighborhoodId, GEO_MONTHS)).filter(
+  const pool4yr = (await fetchDeals(input.neighborhoodId, GEO_MONTHS, asOf)).filter(
     (d) => (d.propertyType ?? "apartment") === ptype,
   );
   const roomSubset4yr =
     !isLand && input.rooms != null
       ? pool4yr.filter((d) => d.rooms != null && Math.abs(d.rooms - input.rooms!) <= 1)
       : pool4yr;
-  const geoPool = roomSubset4yr.length >= MIN_DEALS_FOR_ROOM_FILTER ? roomSubset4yr : pool4yr;
+  let geoPool = roomSubset4yr.length >= MIN_DEALS_FOR_ROOM_FILTER ? roomSubset4yr : pool4yr;
 
   // ===== pool שכונתי: חלון מצומצם (6→12→24→48 ח') =====
   // כשאין קואורדינטות (פולבק לשכונה שלמה) — עדיפות לנתונים עדכניים.
   let deals: Deal[] = geoPool;
   let windowMonths = GEO_MONTHS;
   for (const months of WINDOWS) {
-    const cutoff = cutoffDate(months);
+    const cutoff = cutoffDate(months, asOf);
     const recent = pool4yr.filter((d) => d.dealDate >= cutoff);
     const roomRecent =
       !isLand && input.rooms != null
@@ -270,7 +288,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // שנפתר (השגוי) היה בעצמו שכונה גדולה/מאוכלסת (למשל "עובד בן עמי" 45 — 500 עסקאות
   // בשכונה, 0 מהן ברחוב המבוקש) — למרות שאפס מועמדים רלוונטיים נמצאו בפועל.
   if (compSearchScope === "neighborhood" && inputStreetNorm) {
-    const allCityDeals = await lazyAllDeals();
+    const allCityDeals = await lazyStreetDeals();
     const cityPool = allCityDeals.filter((d) => (d.propertyType ?? "apartment") === ptype);
     const cityBuilding = ageFilter(byBuildingNumber(cityPool), AGE_TOLERANCES.building);
     if (cityBuilding.length >= MIN_DEALS_FOR_ESTIMATE) {
@@ -363,7 +381,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
     if (deals.length < MIN_DEALS_FOR_ESTIMATE || prePpsqm.length < MIN_DEALS_FOR_ESTIMATE) {
       const allDeals = await lazyAllDeals();
-      const cutoff = cutoffDate(GEO_MONTHS);
+      const cutoff = cutoffDate(GEO_MONTHS, asOf);
       const typeFiltered = allDeals.filter(
         (d) => (d.propertyType ?? "apartment") === ptype && d.dealDate >= cutoff,
       );
@@ -413,6 +431,15 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     if (areaFiltered.length >= MIN_DEALS_FOR_ESTIMATE) deals = areaFiltered;
   }
 
+  // התאמת זמן לפני חישוב האחוזונים (גם ל-geoPool, שמשמש את מודל ה-composite)
+  let trendAnnual = 0;
+  if (TIME_ADJUST) {
+    trendAnnual = annualTrend(pool4yr, minPpsqm);
+    const ref = asOf ?? new Date().toISOString().slice(0, 10);
+    deals = deals.map((d) => adjustToDate(d, trendAnnual, ref));
+    geoPool = geoPool.map((d) => adjustToDate(d, trendAnnual, ref));
+  }
+
   const ppsqm = deals
     .map((d) => d.pricePerSqm)
     .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
@@ -423,7 +450,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // אם pool הסופי (אחרי כל ה-filtering) לא מכיל עסקאות ממספר הבית המדויק,
   // חפש בכל עסקאות העיר — כדי שה-comparable deals תמיד יציגו את הבניין הספציפי
   // (גם אם שכונתו שונה ב-DB, או אם הוא נסנן ע"י פילטר גודל/קומה).
-  let displayDeals = deals;
+  let displayDeals = deals.map(original);
   if (input.houseNumber && inputStreetNorm) {
     const ihn = parseInt(input.houseNumber);
     if (!isNaN(ihn)) {
@@ -435,8 +462,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
         return !isNaN(dhn) && dhn === ihn;
       });
       if (!hasExact) {
-        const cutoff = cutoffDate(GEO_MONTHS);
-        const allD = await lazyAllDeals();
+        const cutoff = cutoffDate(GEO_MONTHS, asOf);
+        const allD = await lazyStreetDeals();
         const cityExact = allD.filter(d => {
           if ((d.propertyType ?? 'apartment') !== ptype) return false;
           if (d.dealDate < cutoff) return false;
@@ -448,9 +475,9 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
         });
         if (cityExact.length > 0) {
           const key = (d: Deal) => `${d.dealDate}|${d.price}|${d.street}|${d.houseNumber}`;
-          const existing = new Set(deals.map(key));
+          const existing = new Set(displayDeals.map(key));
           const fresh = cityExact.filter(d => !existing.has(key(d)));
-          if (fresh.length > 0) displayDeals = [...fresh, ...deals];
+          if (fresh.length > 0) displayDeals = [...fresh, ...displayDeals];
         }
       }
     }
@@ -547,8 +574,12 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     ppsHigh = Math.max(ppsHigh, Math.round(ppsMid * (1 + minHalf)));
   }
 
-  // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה
-  const manualReview = isLand;
+  // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה.
+  // בבנייה (שנת בנייה אחרי שנת ההערכה): בבדיקה לאחור האומדן יצא נמוך ב-31%–39% בחציון
+  // (מחירי קבלן לא דומים לעסקאות יד-שנייה) — גם כאן בדיקה אישית במקום מספר.
+  const valuationYear = Number((asOf ?? new Date().toISOString()).slice(0, 4));
+  const isOffPlan = !isLand && input.yearBuilt != null && input.yearBuilt > valuationYear;
+  const manualReview = isLand || isOffPlan;
   if (manualReview) {
     estLow = estMid = estHigh = 0;
     ppsLow = ppsMid = ppsHigh = 0;
@@ -568,11 +599,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     floorAdjusted: floorFiltered,
     compRadiusMeters,
     compSearchScope,
-    priceTrend: computeTrend(
-      (await fetchDeals(input.neighborhoodId, 24)).filter(
-        (d) => (d.propertyType ?? "apartment") === ptype,
-      ),
-    ),
+    // 24 החודשים האחרונים מתוך ה-pool שכבר נטען (60 ח', אותו סוג) — בלי שאילתה נוספת
+    priceTrend: computeTrend(pool4yr.filter((d) => d.dealDate >= cutoffDate(24, asOf))),
     neighborhood: input.neighborhood ?? null,
     // עסקאות השוואה: displayDeals כולל עסקאות בניין מדויקות גם ממקורות מחוץ לשכונה
     comparableDeals: buildComparableDeals(displayDeals, input, ptype, compRadiusMeters),
@@ -581,9 +609,10 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     renewal: isLand ? null : await renewalFor(input.neighborhood ?? null, input.streetX, input.streetY),
     // בית/קרקע: הבדיקה לאחור הראתה סטייה גבוהה — תמיד ביטחון נמוך
     confidence: ptype === "apartment" ? confidenceFromCount(basedOn) : "low",
-    asOf,
+    asOf: dataAsOf,
     compositeUsed,
     manualReview,
+    manualReviewReason: isLand ? "land" : isOffPlan ? "off_plan" : undefined,
     plotNotValued: ptype === "house" && (input.plotSqm ?? 0) > 200 && !compositeUsed,
   };
   return valuation;
@@ -601,8 +630,8 @@ function sizeDistance(d: Deal, input: PropertyInput, isLand: boolean): number {
   return 0.55 * builtD + 0.45 * plotD;
 }
 
-async function fetchDeals(neighborhoodId: string, months: number): Promise<Deal[]> {
-  return getStore().getDealsByNeighborhood(neighborhoodId, { monthsBack: months });
+async function fetchDeals(neighborhoodId: string, months: number, asOf?: string | null): Promise<Deal[]> {
+  return getStore().getDealsByNeighborhood(neighborhoodId, { monthsBack: months, asOf });
 }
 
 /** בוחר עד 12 עסקאות הכי רלוונטיות להצגה (אותו סוג נכס), דומות בגודל/חדרים, עדכניות */
@@ -896,4 +925,34 @@ export function percentile(values: number[], p: number): number {
   const high = Math.ceil(rank);
   if (low === high) return sorted[low];
   return sorted[low] + (rank - low) * (sorted[high] - sorted[low]);
+}
+
+/** קצב שינוי שנתי של ₪/מ"ר (שיפוע לוג-ליניארי), או 0 כשאין מספיק עסקאות. */
+export function annualTrend(deals: Deal[], minPpsqm: number): number {
+  const pts = deals
+    .filter((d) => d.pricePerSqm != null && d.pricePerSqm >= minPpsqm && isFinite(d.pricePerSqm) && d.dealDate)
+    .map((d) => ({ t: Date.parse(d.dealDate) / (365.25 * 864e5), y: Math.log(d.pricePerSqm!) }));
+  if (pts.length < TREND_MIN_DEALS) return 0;
+  const mt = pts.reduce((a, p) => a + p.t, 0) / pts.length;
+  const my = pts.reduce((a, p) => a + p.y, 0) / pts.length;
+  let num = 0, den = 0;
+  for (const p of pts) { num += (p.t - mt) * (p.y - my); den += (p.t - mt) ** 2; }
+  if (den === 0) return 0;
+  const g = Math.exp(num / den) - 1;
+  return Math.max(-TREND_MAX_ANNUAL, Math.min(TREND_MAX_ANNUAL, g));
+}
+
+/** עותק מותאם-זמן → העסקה המקורית (לתצוגה מציגים תמיד את המחיר האמיתי) */
+const ORIGINAL = new WeakMap<Deal, Deal>();
+const original = (d: Deal): Deal => ORIGINAL.get(d) ?? d;
+
+/** מעתיק עסקה עם ₪/מ"ר ומחיר מוצמדים לתאריך היעד לפי קצב שנתי g. */
+function adjustToDate(d: Deal, g: number, refISO: string): Deal {
+  if (!g) return d;
+  const years = (Date.parse(refISO) - Date.parse(d.dealDate)) / (365.25 * 864e5);
+  if (!(years > 0)) return d;
+  const f = Math.pow(1 + g, years);
+  const adj = { ...d, price: Math.round(d.price * f), pricePerSqm: d.pricePerSqm != null ? Math.round(d.pricePerSqm * f) : d.pricePerSqm };
+  ORIGINAL.set(adj, original(d));
+  return adj;
 }

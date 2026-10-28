@@ -1,0 +1,7712 @@
+[
+  {
+    "street": "אבא הלל סילבר",
+    "code": 101,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187708,
+    "y": 693065
+  },
+  {
+    "street": "אביעד",
+    "code": 704,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אבן גבירול",
+    "code": 602,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186718,
+    "y": 691096
+  },
+  {
+    "street": "אבן עזרא",
+    "code": 603,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186903,
+    "y": 691174
+  },
+  {
+    "street": "אבנר בן נר",
+    "code": 103,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187748,
+    "y": 693419
+  },
+  {
+    "street": "אבנר חי שאקי",
+    "code": 859,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186341,
+    "y": 690062
+  },
+  {
+    "street": "אבנר מאיר",
+    "code": 102,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188269,
+    "y": 692455
+  },
+  {
+    "street": "אברבנאל",
+    "code": 601,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187261,
+    "y": 691752
+  },
+  {
+    "street": "אברהם זכות (זקוטו)",
+    "code": 722,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אברהם חיים לודיוב",
+    "code": 591,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186779,
+    "y": 692004
+  },
+  {
+    "street": "אברהם מנוחין",
+    "code": 568,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186462,
+    "y": 690816
+  },
+  {
+    "street": "אברהם סוצקבר",
+    "code": 717,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אברהם פרידמן",
+    "code": 1005,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אדית פיאף",
+    "code": 374,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187738,
+    "y": 693268
+  },
+  {
+    "street": "אדם הכהן",
+    "code": 981,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186095,
+    "y": 687387
+  },
+  {
+    "street": "אדמונית",
+    "code": 1071,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185939,
+    "y": 686562
+  },
+  {
+    "street": "אדר",
+    "code": 1226,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188079,
+    "y": 689118
+  },
+  {
+    "street": "אהבת הארץ",
+    "code": 282,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189038,
+    "y": 691656
+  },
+  {
+    "street": "אהוד בן גרא",
+    "code": 105,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187937,
+    "y": 693499
+  },
+  {
+    "street": "אהרון",
+    "code": 604,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187155,
+    "y": 692185
+  },
+  {
+    "street": "אהרונוביץ",
+    "code": 801,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189279,
+    "y": 691738
+  },
+  {
+    "street": "אהרוני יצחק",
+    "code": 639,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187223,
+    "y": 691812
+  },
+  {
+    "street": "אהרן אמיר",
+    "code": 732,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אוגוסט רנואר",
+    "code": 581,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188631,
+    "y": 689492
+  },
+  {
+    "street": "אווה גרדנר",
+    "code": 372,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188876,
+    "y": 691155
+  },
+  {
+    "street": "אולפן בן יהודה",
+    "code": 810,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 184898,
+    "y": 686328
+  },
+  {
+    "street": "אוסישקין",
+    "code": 401,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186225,
+    "y": 692711
+  },
+  {
+    "street": "אוסקר שינדלר",
+    "code": 529,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186101,
+    "y": 690599
+  },
+  {
+    "street": "אופיר שיקה",
+    "code": 349,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אורגד",
+    "code": 187,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188181,
+    "y": 694547
+  },
+  {
+    "street": "אורט",
+    "code": 840,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188410,
+    "y": 691518
+  },
+  {
+    "street": "אורי אורבך",
+    "code": 690,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186430,
+    "y": 690273
+  },
+  {
+    "street": "אז תעשייה עש ספיר",
+    "code": 6509,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אחד העם",
+    "code": 402,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186955,
+    "y": 692572
+  },
+  {
+    "street": "אחי דקר",
+    "code": 234,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186642,
+    "y": 694916
+  },
+  {
+    "street": "אחימאיר",
+    "code": 446,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186289,
+    "y": 691988
+  },
+  {
+    "street": "אחרית הימים",
+    "code": 605,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187195,
+    "y": 695302
+  },
+  {
+    "street": "איברהם לינקולן",
+    "code": 1046,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אידה קוק",
+    "code": 336,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 189153,
+    "y": 689540
+  },
+  {
+    "street": "איטה קאליש",
+    "code": 473,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אייזיק ניוטון",
+    "code": 893,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186713,
+    "y": 688426
+  },
+  {
+    "street": "איילת השחר",
+    "code": 297,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187735,
+    "y": 691274
+  },
+  {
+    "street": "איין ראנד",
+    "code": 389,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186366,
+    "y": 687256
+  },
+  {
+    "street": "אייר",
+    "code": 1228,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188478,
+    "y": 689300
+  },
+  {
+    "street": "איכילוב",
+    "code": 244,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186858,
+    "y": 693980
+  },
+  {
+    "street": "אילאיל",
+    "code": 298,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 188091,
+    "y": 691764
+  },
+  {
+    "street": "אילנה רובינא",
+    "code": 574,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186058,
+    "y": 690890
+  },
+  {
+    "street": "אימבר",
+    "code": 340,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187107,
+    "y": 693341
+  },
+  {
+    "street": "אינגריד ברגמן",
+    "code": 370,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189052,
+    "y": 691237
+  },
+  {
+    "street": "אינשטיין",
+    "code": 106,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188021,
+    "y": 694128
+  },
+  {
+    "street": "איסר הראל",
+    "code": 144,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188091,
+    "y": 693807
+  },
+  {
+    "street": "אירוס הארגמן",
+    "code": 1101,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 185730,
+    "y": 688108
+  },
+  {
+    "street": "אירנה סנדלר",
+    "code": 536,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186172,
+    "y": 690533
+  },
+  {
+    "street": "אלול",
+    "code": 1231,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אלומות",
+    "code": 803,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189716,
+    "y": 691874
+  },
+  {
+    "street": "אלון צבי",
+    "code": 407,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 186973,
+    "y": 692556
+  },
+  {
+    "street": "אלוני אבא",
+    "code": 651,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187433,
+    "y": 691992
+  },
+  {
+    "street": "אלחריזי",
+    "code": 644,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186829,
+    "y": 691094
+  },
+  {
+    "street": "אלי ויזל",
+    "code": 451,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186004,
+    "y": 690314
+  },
+  {
+    "street": "אלי כהן",
+    "code": 168,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187435,
+    "y": 692636
+  },
+  {
+    "street": "אליאב לובה",
+    "code": 1013,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185801,
+    "y": 689733
+  },
+  {
+    "street": "אליהו הגלעדי",
+    "code": 140,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187362,
+    "y": 692829
+  },
+  {
+    "street": "אליהו התשבי",
+    "code": 901,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186776,
+    "y": 689182
+  },
+  {
+    "street": "אליהו עטיה",
+    "code": 124,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187586,
+    "y": 693122
+  },
+  {
+    "street": "אלינור אוסטרום",
+    "code": 686,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186175,
+    "y": 688846
+  },
+  {
+    "street": "אליס מונרו",
+    "code": 689,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186168,
+    "y": 687849
+  },
+  {
+    "street": "אליס פון-באטנברג",
+    "code": 899,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186116,
+    "y": 690721
+  },
+  {
+    "street": "אלישע",
+    "code": 902,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186781,
+    "y": 689046
+  },
+  {
+    "street": "אלכסנדר בל",
+    "code": 895,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186729,
+    "y": 688830
+  },
+  {
+    "street": "אלכסנדר ינאי",
+    "code": 621,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186893,
+    "y": 691263
+  },
+  {
+    "street": "אלמ פרידן בן ציון",
+    "code": 1039,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186197,
+    "y": 689701
+  },
+  {
+    "street": "אלמוג",
+    "code": 199,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186792,
+    "y": 695275
+  },
+  {
+    "street": "אלנקווה אפרים",
+    "code": 1003,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186012,
+    "y": 689039
+  },
+  {
+    "street": "אלעזר דוד",
+    "code": 1114,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אלפרד נובל",
+    "code": 894,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188429,
+    "y": 691058
+  },
+  {
+    "street": "אלקלעי",
+    "code": 107,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 188065,
+    "y": 693373
+  },
+  {
+    "street": "אמה לזרוס",
+    "code": 728,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אמה תלמי",
+    "code": 474,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אמי נתר",
+    "code": 464,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אמנון ותמר",
+    "code": 1068,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 185949,
+    "y": 686971
+  },
+  {
+    "street": "אמנון ליפקין שחק",
+    "code": 572,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186184,
+    "y": 691192
+  },
+  {
+    "street": "אמרי יוסף",
+    "code": 167,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187359,
+    "y": 692961
+  },
+  {
+    "street": "אנדה עמיר",
+    "code": 1158,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187734,
+    "y": 693860
+  },
+  {
+    "street": "אנדריוס",
+    "code": 201,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186536,
+    "y": 693561
+  },
+  {
+    "street": "אנה פרנק",
+    "code": 900,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186203,
+    "y": 690768
+  },
+  {
+    "street": "אנטוורפן",
+    "code": 202,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187327,
+    "y": 694489
+  },
+  {
+    "street": "אנטון ברוקנר",
+    "code": 384,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186447,
+    "y": 693426
+  },
+  {
+    "street": "אנילביץ",
+    "code": 635,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187543,
+    "y": 692083
+  },
+  {
+    "street": "אנצו סירני",
+    "code": 1054,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185629,
+    "y": 686444
+  },
+  {
+    "street": "אנשי החיל",
+    "code": 590,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186079,
+    "y": 689608
+  },
+  {
+    "street": "אסיף",
+    "code": 196,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187845,
+    "y": 689392
+  },
+  {
+    "street": "אסנת בראזני",
+    "code": 729,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אסתר בקר",
+    "code": 697,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אסתר המלכה",
+    "code": 870,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188699,
+    "y": 690697
+  },
+  {
+    "street": "אסתר רזיאל-נאור",
+    "code": 468,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אפרים",
+    "code": 642,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187281,
+    "y": 691991
+  },
+  {
+    "street": "אפרים קישון",
+    "code": 867,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 184735,
+    "y": 686724
+  },
+  {
+    "street": "אפשטיין",
+    "code": 978,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186061,
+    "y": 687503
+  },
+  {
+    "street": "אצג",
+    "code": 1157,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187739,
+    "y": 693809
+  },
+  {
+    "street": "אצי",
+    "code": 274,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187702,
+    "y": 694588
+  },
+  {
+    "street": "אצל",
+    "code": 503,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187142,
+    "y": 691589
+  },
+  {
+    "street": "אקסודוס",
+    "code": 1132,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185242,
+    "y": 689184
+  },
+  {
+    "street": "אריה לייב יפה",
+    "code": 997,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 185761,
+    "y": 687745
+  },
+  {
+    "street": "אריה רייכמן",
+    "code": 595,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "אריק לביא",
+    "code": 358,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185390,
+    "y": 687581
+  },
+  {
+    "street": "ארלוזורוב",
+    "code": 802,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188932,
+    "y": 691153
+  },
+  {
+    "street": "ארליך שמחה",
+    "code": 1020,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185884,
+    "y": 689618
+  },
+  {
+    "street": "ארן זלמן",
+    "code": 995,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186054,
+    "y": 687624
+  },
+  {
+    "street": "ארצי שרמן",
+    "code": 1042,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185948,
+    "y": 689958
+  },
+  {
+    "street": "אשר",
+    "code": 1217,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188054,
+    "y": 689499
+  },
+  {
+    "street": "אשרה אלקיים-רונן",
+    "code": 480,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "באך",
+    "code": 381,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186834,
+    "y": 693838
+  },
+  {
+    "street": "בארון דבורה",
+    "code": 1153,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187862,
+    "y": 693868
+  },
+  {
+    "street": "בארי",
+    "code": 303,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187104,
+    "y": 693720
+  },
+  {
+    "street": "בגין מנחם",
+    "code": 1079,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185474,
+    "y": 686763
+  },
+  {
+    "street": "בובליק גדליהו",
+    "code": 804,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189700,
+    "y": 691581
+  },
+  {
+    "street": "בובר",
+    "code": 181,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187802,
+    "y": 694059
+  },
+  {
+    "street": "בוכנר יהודה",
+    "code": 862,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188829,
+    "y": 690666
+  },
+  {
+    "street": "בוסל",
+    "code": 805,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188857,
+    "y": 691223
+  },
+  {
+    "street": "בורגנסקי ישראל",
+    "code": 553,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186175,
+    "y": 691565
+  },
+  {
+    "street": "בורוכוב",
+    "code": 304,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186679,
+    "y": 693725
+  },
+  {
+    "street": "בטהובן",
+    "code": 378,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188499,
+    "y": 690943
+  },
+  {
+    "street": "ביאליק",
+    "code": 441,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186340,
+    "y": 693189
+  },
+  {
+    "street": "בילו",
+    "code": 956,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186409,
+    "y": 689100
+  },
+  {
+    "street": "בילי הולידיי",
+    "code": 375,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187794,
+    "y": 693252
+  },
+  {
+    "street": "בילינסון",
+    "code": 305,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186839,
+    "y": 693789
+  },
+  {
+    "street": "בית גיל הזהב",
+    "code": 231,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בית חלוצות",
+    "code": 435,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בית פלדמן",
+    "code": 449,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בכר שמחה",
+    "code": 857,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189675,
+    "y": 691874
+  },
+  {
+    "street": "בלוז פסקל",
+    "code": 914,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בלומנפלד",
+    "code": 960,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185641,
+    "y": 689543
+  },
+  {
+    "street": "בלפור",
+    "code": 247,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187315,
+    "y": 694558
+  },
+  {
+    "street": "בלקינד נעמן",
+    "code": 171,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187624,
+    "y": 692707
+  },
+  {
+    "street": "בלקני פנחס",
+    "code": 660,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188335,
+    "y": 691023
+  },
+  {
+    "street": "בן איש חי",
+    "code": 267,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186963,
+    "y": 694707
+  },
+  {
+    "street": "בן אליעזר",
+    "code": 444,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 186791,
+    "y": 691828
+  },
+  {
+    "street": "בן חנן יצחק",
+    "code": 848,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189609,
+    "y": 690906
+  },
+  {
+    "street": "בן יהודה",
+    "code": 505,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186245,
+    "y": 692076
+  },
+  {
+    "street": "בן יוסף שלמה",
+    "code": 643,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187065,
+    "y": 691694
+  },
+  {
+    "street": "בן מאיר ישראל",
+    "code": 846,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189537,
+    "y": 691131
+  },
+  {
+    "street": "בן נתן רפאל",
+    "code": 1237,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188282,
+    "y": 690551
+  },
+  {
+    "street": "בן עטר חיים",
+    "code": 556,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186721,
+    "y": 691443
+  },
+  {
+    "street": "בן ציון",
+    "code": 506,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186668,
+    "y": 691425
+  },
+  {
+    "street": "בן שלום עובדיה",
+    "code": 628,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186696,
+    "y": 691267
+  },
+  {
+    "street": "בנאי יוסי",
+    "code": 356,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185451,
+    "y": 687053
+  },
+  {
+    "street": "בנג'מין ד'יזראלי",
+    "code": 1041,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187934,
+    "y": 688531
+  },
+  {
+    "street": "בני בנימין",
+    "code": 1130,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185348,
+    "y": 689227
+  },
+  {
+    "street": "בני יששכר",
+    "code": 272,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186634,
+    "y": 694459
+  },
+  {
+    "street": "בניהו יומטוביאן",
+    "code": 700,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בנין המשטרה",
+    "code": 158,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בעל התניא",
+    "code": 1036,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186446,
+    "y": 689006
+  },
+  {
+    "street": "בקמן",
+    "code": 403,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186643,
+    "y": 693065
+  },
+  {
+    "street": "בר אילן",
+    "code": 306,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187311,
+    "y": 693554
+  },
+  {
+    "street": "בר גיורא",
+    "code": 669,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בר יהודה",
+    "code": 947,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186559,
+    "y": 687660
+  },
+  {
+    "street": "בר יוחאי",
+    "code": 185,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187988,
+    "y": 694205
+  },
+  {
+    "street": "בר כוכבא",
+    "code": 307,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187432,
+    "y": 693760
+  },
+  {
+    "street": "בר לב חיים",
+    "code": 1111,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185770,
+    "y": 689579
+  },
+  {
+    "street": "ברודצקי",
+    "code": 507,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186572,
+    "y": 692271
+  },
+  {
+    "street": "ברוריה",
+    "code": 903,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186941,
+    "y": 689449
+  },
+  {
+    "street": "ברוש",
+    "code": 1252,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188409,
+    "y": 689517
+  },
+  {
+    "street": "ברט אהרון",
+    "code": 104,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187183,
+    "y": 693028
+  },
+  {
+    "street": "ברכה ואריה סגלסון",
+    "code": 890,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188150,
+    "y": 694499
+  },
+  {
+    "street": "ברכה צפירה",
+    "code": 293,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ברכה שמעון",
+    "code": 190,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187905,
+    "y": 693392
+  },
+  {
+    "street": "ברכת הארץ",
+    "code": 466,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ברמן בני",
+    "code": 351,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185596,
+    "y": 687400
+  },
+  {
+    "street": "ברנר",
+    "code": 308,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186815,
+    "y": 693539
+  },
+  {
+    "street": "ברק בן אבינועם",
+    "code": 108,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187887,
+    "y": 693334
+  },
+  {
+    "street": "ברקת ראובן",
+    "code": 404,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187119,
+    "y": 692759
+  },
+  {
+    "street": "בשביס זינגר",
+    "code": 180,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "בת חן",
+    "code": 1244,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188688,
+    "y": 689798
+  },
+  {
+    "street": "בתיה גור",
+    "code": 476,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ג'ו ליברמן",
+    "code": 463,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "גאולה כהן",
+    "code": 147,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187392,
+    "y": 691231
+  },
+  {
+    "street": "גאון בני",
+    "code": 1035,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187226,
+    "y": 686971
+  },
+  {
+    "street": "גבורי ישראל",
+    "code": 1015,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187058,
+    "y": 687347
+  },
+  {
+    "street": "גבורי ניצנים",
+    "code": 162,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188125,
+    "y": 692549
+  },
+  {
+    "street": "גבע",
+    "code": 508,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187168,
+    "y": 692291
+  },
+  {
+    "street": "גבעת האירוסים",
+    "code": 6587,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 185730,
+    "y": 688108
+  },
+  {
+    "street": "גבעת חיים",
+    "code": 309,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186766,
+    "y": 693649
+  },
+  {
+    "street": "גד",
+    "code": 1216,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188204,
+    "y": 689593
+  },
+  {
+    "street": "גדעון",
+    "code": 109,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187866,
+    "y": 693277
+  },
+  {
+    "street": "גוטמכר אליהו",
+    "code": 806,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189783,
+    "y": 691574
+  },
+  {
+    "street": "גוטמן נחום",
+    "code": 1152,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187827,
+    "y": 693840
+  },
+  {
+    "street": "גולדברג לאה",
+    "code": 1150,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187877,
+    "y": 693845
+  },
+  {
+    "street": "גולדמינץ",
+    "code": 953,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185424,
+    "y": 689616
+  },
+  {
+    "street": "גולומב",
+    "code": 311,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187449,
+    "y": 694005
+  },
+  {
+    "street": "גולי קניה",
+    "code": 656,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 187139,
+    "y": 691247
+  },
+  {
+    "street": "גוסטב מאהלר",
+    "code": 383,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186466,
+    "y": 693514
+  },
+  {
+    "street": "גור מרדכי",
+    "code": 994,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185614,
+    "y": 686807
+  },
+  {
+    "street": "גורדון",
+    "code": 310,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186838,
+    "y": 693326
+  },
+  {
+    "street": "גלילי ישראל",
+    "code": 1055,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185569,
+    "y": 686346
+  },
+  {
+    "street": "גליקסון",
+    "code": 110,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187559,
+    "y": 692985
+  },
+  {
+    "street": "גרונר דב",
+    "code": 533,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186938,
+    "y": 691645
+  },
+  {
+    "street": "גרטה גרבו",
+    "code": 371,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188994,
+    "y": 691312
+  },
+  {
+    "street": "גרינבוים",
+    "code": 958,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186093,
+    "y": 689086
+  },
+  {
+    "street": "גרינברג",
+    "code": 706,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189645,
+    "y": 691431
+  },
+  {
+    "street": "גרינוולד",
+    "code": 855,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "גרנדוס",
+    "code": 204,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187676,
+    "y": 694331
+  },
+  {
+    "street": "גרץ",
+    "code": 808,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189794,
+    "y": 691902
+  },
+  {
+    "street": "דב רובינשטיין",
+    "code": 479,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דב שילנסקי",
+    "code": 934,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186294,
+    "y": 687631
+  },
+  {
+    "street": "דבורה",
+    "code": 111,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188430,
+    "y": 692538
+  },
+  {
+    "street": "דבורה דרכלר",
+    "code": 727,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דבורה ליפשיץ",
+    "code": 598,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דבורה פוגל",
+    "code": 584,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186977,
+    "y": 691555
+  },
+  {
+    "street": "דברי חיים",
+    "code": 205,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186765,
+    "y": 694677
+  },
+  {
+    "street": "דובנוב",
+    "code": 809,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189540,
+    "y": 691952
+  },
+  {
+    "street": "דוד אבידן",
+    "code": 929,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 188005,
+    "y": 691443
+  },
+  {
+    "street": "דוד המלך",
+    "code": 405,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186224,
+    "y": 693234
+  },
+  {
+    "street": "דודו דותן",
+    "code": 360,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185226,
+    "y": 687028
+  },
+  {
+    "street": "דווייט אייזנהאואר",
+    "code": 948,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 185675,
+    "y": 688280
+  },
+  {
+    "street": "דוכיפת",
+    "code": 834,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189141,
+    "y": 690617
+  },
+  {
+    "street": "דולפין",
+    "code": 154,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186706,
+    "y": 695379
+  },
+  {
+    "street": "דון יוסף הנשיא",
+    "code": 606,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186954,
+    "y": 690886
+  },
+  {
+    "street": "דונה גרציה",
+    "code": 637,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186913,
+    "y": 690861
+  },
+  {
+    "street": "דורה מ סוכנות",
+    "code": 6581,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דורה צריפים",
+    "code": 6595,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דורי יעקב",
+    "code": 1112,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185770,
+    "y": 689490
+  },
+  {
+    "street": "דיזנגוף",
+    "code": 406,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186406,
+    "y": 692858
+  },
+  {
+    "street": "דייויד איימס",
+    "code": 151,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187882,
+    "y": 688056
+  },
+  {
+    "street": "דיין שמואל",
+    "code": 828,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188679,
+    "y": 690942
+  },
+  {
+    "street": "דימיטר פשב",
+    "code": 880,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185899,
+    "y": 690401
+  },
+  {
+    "street": "דניאל",
+    "code": 904,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186740,
+    "y": 689054
+  },
+  {
+    "street": "דן",
+    "code": 1219,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188195,
+    "y": 689455
+  },
+  {
+    "street": "דנקנר",
+    "code": 538,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 185918,
+    "y": 692334
+  },
+  {
+    "street": "דניס גינסברג",
+    "code": 685,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186240,
+    "y": 688779
+  },
+  {
+    "street": "דר אבו שדיד אברהם",
+    "code": 502,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186327,
+    "y": 691802
+  },
+  {
+    "street": "דר דב יוסף",
+    "code": 885,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186318,
+    "y": 690510
+  },
+  {
+    "street": "דר ניסן נצר",
+    "code": 459,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דר יוסף בורג",
+    "code": 928,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188101,
+    "y": 694354
+  },
+  {
+    "street": "דרבן עמר חיים",
+    "code": 245,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187447,
+    "y": 694533
+  },
+  {
+    "street": "דר פרח יהודה",
+    "code": 1008,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188118,
+    "y": 689958
+  },
+  {
+    "street": "דרך ארץ",
+    "code": 467,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "דרך אריאל שרון",
+    "code": 153,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188955,
+    "y": 691450
+  },
+  {
+    "street": "דרך דגניה",
+    "code": 847,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188332,
+    "y": 689991
+  },
+  {
+    "street": "דרך הירדן",
+    "code": 112,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188428,
+    "y": 692327
+  },
+  {
+    "street": "דרך הפארק",
+    "code": 826,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188863,
+    "y": 689730
+  },
+  {
+    "street": "ה-93",
+    "code": 655,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187484,
+    "y": 692148
+  },
+  {
+    "street": "האדמור מויז'ניץ",
+    "code": 443,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186786,
+    "y": 692241
+  },
+  {
+    "street": "האוניברסיטה",
+    "code": 877,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188678,
+    "y": 690391
+  },
+  {
+    "street": "האורג",
+    "code": 708,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188408,
+    "y": 691700
+  },
+  {
+    "street": "האורן",
+    "code": 1246,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188481,
+    "y": 689859
+  },
+  {
+    "street": "האחוה",
+    "code": 561,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185949,
+    "y": 691669
+  },
+  {
+    "street": "האיריסים",
+    "code": 967,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185204,
+    "y": 686441
+  },
+  {
+    "street": "האלה",
+    "code": 1247,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188427,
+    "y": 689857
+  },
+  {
+    "street": "האניה ארינפורה",
+    "code": 232,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186666,
+    "y": 694889
+  },
+  {
+    "street": "האצטדיון",
+    "code": 1038,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187444,
+    "y": 688841
+  },
+  {
+    "street": "הארז",
+    "code": 1243,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188625,
+    "y": 689722
+  },
+  {
+    "street": "הארי",
+    "code": 607,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187380,
+    "y": 690971
+  },
+  {
+    "street": "האתרוג",
+    "code": 246,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186986,
+    "y": 695334
+  },
+  {
+    "street": "הבונים",
+    "code": 1017,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187159,
+    "y": 687444
+  },
+  {
+    "street": "הברבור",
+    "code": 853,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189126,
+    "y": 690015
+  },
+  {
+    "street": "הבריגדה היהודית",
+    "code": 1115,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185563,
+    "y": 689259
+  },
+  {
+    "street": "הגאולה",
+    "code": 652,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186812,
+    "y": 691313
+  },
+  {
+    "street": "הגביש",
+    "code": 1024,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187389,
+    "y": 688452
+  },
+  {
+    "street": "הגוזל",
+    "code": 836,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189351,
+    "y": 690451
+  },
+  {
+    "street": "הגולן",
+    "code": 1200,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188060,
+    "y": 690598
+  },
+  {
+    "street": "הגלבוע",
+    "code": 509,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186547,
+    "y": 692382
+  },
+  {
+    "street": "הגליל",
+    "code": 510,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186477,
+    "y": 692305
+  },
+  {
+    "street": "הגפן",
+    "code": 208,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187168,
+    "y": 695161
+  },
+  {
+    "street": "הגר ברוך",
+    "code": 812,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189398,
+    "y": 691110
+  },
+  {
+    "street": "הדודאים",
+    "code": 1064,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186117,
+    "y": 686823
+  },
+  {
+    "street": "הדיצה",
+    "code": 564,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185771,
+    "y": 691439
+  },
+  {
+    "street": "הדף היומי",
+    "code": 269,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 187070,
+    "y": 694600
+  },
+  {
+    "street": "הדקל",
+    "code": 1248,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188425,
+    "y": 689779
+  },
+  {
+    "street": "הדרור",
+    "code": 835,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189168,
+    "y": 690454
+  },
+  {
+    "street": "ההגנה",
+    "code": 312,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187559,
+    "y": 693970
+  },
+  {
+    "street": "ההסתדרות",
+    "code": 540,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186622,
+    "y": 693410
+  },
+  {
+    "street": "ההרדוף",
+    "code": 985,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185174,
+    "y": 686496
+  },
+  {
+    "street": "הוז דב",
+    "code": 122,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187867,
+    "y": 693662
+  },
+  {
+    "street": "הויסמנס קמיל",
+    "code": 210,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187239,
+    "y": 694462
+  },
+  {
+    "street": "הורדים",
+    "code": 990,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185288,
+    "y": 686456
+  },
+  {
+    "street": "הזוהר",
+    "code": 1092,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185624,
+    "y": 690624
+  },
+  {
+    "street": "הזית",
+    "code": 211,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187324,
+    "y": 695313
+  },
+  {
+    "street": "הזמיר",
+    "code": 832,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189159,
+    "y": 690253
+  },
+  {
+    "street": "החוזה מלובלין",
+    "code": 261,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186712,
+    "y": 694359
+  },
+  {
+    "street": "החיטה",
+    "code": 212,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186705,
+    "y": 695100
+  },
+  {
+    "street": "החלוץ הלוחם",
+    "code": 200,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187747,
+    "y": 694522
+  },
+  {
+    "street": "החסידה",
+    "code": 851,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189056,
+    "y": 690137
+  },
+  {
+    "street": "החצבים",
+    "code": 987,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185270,
+    "y": 686260
+  },
+  {
+    "street": "החרוב",
+    "code": 213,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187253,
+    "y": 695073
+  },
+  {
+    "street": "החשמונאים",
+    "code": 313,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187249,
+    "y": 693302
+  },
+  {
+    "street": "החשמל",
+    "code": 1044,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187201,
+    "y": 688240
+  },
+  {
+    "street": "היאור",
+    "code": 289,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185299,
+    "y": 688638
+  },
+  {
+    "street": "הידידות",
+    "code": 562,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185951,
+    "y": 691564
+  },
+  {
+    "street": "היהלומן אברהמס",
+    "code": 501,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186464,
+    "y": 691028
+  },
+  {
+    "street": "היינריך הינה",
+    "code": 387,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 186097,
+    "y": 686593
+  },
+  {
+    "street": "היצירה",
+    "code": 1019,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186871,
+    "y": 686945
+  },
+  {
+    "street": "הכובשים",
+    "code": 341,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187437,
+    "y": 694109
+  },
+  {
+    "street": "הכרמל",
+    "code": 539,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186567,
+    "y": 692468
+  },
+  {
+    "street": "הלבנון",
+    "code": 113,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187629,
+    "y": 693183
+  },
+  {
+    "street": "הלילך",
+    "code": 991,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185300,
+    "y": 686560
+  },
+  {
+    "street": "הלן בן-עטר",
+    "code": 460,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "המגיד",
+    "code": 115,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187543,
+    "y": 693191
+  },
+  {
+    "street": "המדע",
+    "code": 1026,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187487,
+    "y": 688573
+  },
+  {
+    "street": "המורן",
+    "code": 1242,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188775,
+    "y": 689783
+  },
+  {
+    "street": "המחקר",
+    "code": 1027,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187564,
+    "y": 688673
+  },
+  {
+    "street": "המייסדים",
+    "code": 409,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186613,
+    "y": 692956
+  },
+  {
+    "street": "המכביה",
+    "code": 926,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187542,
+    "y": 688972
+  },
+  {
+    "street": "המליץ",
+    "code": 116,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187574,
+    "y": 693188
+  },
+  {
+    "street": "המלכה אלנה",
+    "code": 156,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186163,
+    "y": 690737
+  },
+  {
+    "street": "המסגר",
+    "code": 844,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188629,
+    "y": 691966
+  },
+  {
+    "street": "המעפילים",
+    "code": 410,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186203,
+    "y": 693438
+  },
+  {
+    "street": "המרד",
+    "code": 347,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187403,
+    "y": 693385
+  },
+  {
+    "street": "המרכבה",
+    "code": 711,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188299,
+    "y": 691278
+  },
+  {
+    "street": "הנביאים",
+    "code": 906,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186668,
+    "y": 689303
+  },
+  {
+    "street": "הנגב",
+    "code": 511,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186386,
+    "y": 692261
+  },
+  {
+    "street": "הנדל",
+    "code": 380,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186800,
+    "y": 693936
+  },
+  {
+    "street": "הנוטע",
+    "code": 412,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186657,
+    "y": 692637
+  },
+  {
+    "street": "הנרי קיסנג'ר",
+    "code": 1043,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "הנרקיס",
+    "code": 215,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186946,
+    "y": 695257
+  },
+  {
+    "street": "הנשר",
+    "code": 849,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189079,
+    "y": 690386
+  },
+  {
+    "street": "הס משה",
+    "code": 413,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187041,
+    "y": 692540
+  },
+  {
+    "street": "הספורטאי",
+    "code": 634,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187334,
+    "y": 691062
+  },
+  {
+    "street": "העומר",
+    "code": 216,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186568,
+    "y": 695190
+  },
+  {
+    "street": "הענבל",
+    "code": 1249,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188477,
+    "y": 689784
+  },
+  {
+    "street": "הפועל הצעיר",
+    "code": 833,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189237,
+    "y": 691591
+  },
+  {
+    "street": "הפלדה",
+    "code": 837,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188700,
+    "y": 691726
+  },
+  {
+    "street": "הפרגים",
+    "code": 1072,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 186058,
+    "y": 686791
+  },
+  {
+    "street": "הצור והגל",
+    "code": 290,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185276,
+    "y": 688519
+  },
+  {
+    "street": "הצורן",
+    "code": 1028,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187530,
+    "y": 688381
+  },
+  {
+    "street": "הצפירה",
+    "code": 117,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187603,
+    "y": 693186
+  },
+  {
+    "street": "הקבלה",
+    "code": 1093,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185663,
+    "y": 690700
+  },
+  {
+    "street": "הקדר",
+    "code": 842,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188595,
+    "y": 692152
+  },
+  {
+    "street": "הקונגרס הציוני",
+    "code": 1051,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "הר מירון",
+    "code": 1203,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188106,
+    "y": 690711
+  },
+  {
+    "street": "הר ציון",
+    "code": 541,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186446,
+    "y": 692436
+  },
+  {
+    "street": "הרב אבו חצירה",
+    "code": 937,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186641,
+    "y": 688075
+  },
+  {
+    "street": "הרב אהרונסון",
+    "code": 545,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186430,
+    "y": 690843
+  },
+  {
+    "street": "הרב איפרגן שלום",
+    "code": 1236,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188483,
+    "y": 689370
+  },
+  {
+    "street": "הרב אליהו מרדכי",
+    "code": 663,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 187182,
+    "y": 691253
+  },
+  {
+    "street": "הרב גולד",
+    "code": 807,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189351,
+    "y": 690775
+  },
+  {
+    "street": "הרב הלברשטם ברוך",
+    "code": 260,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186637,
+    "y": 694307
+  },
+  {
+    "street": "הרב זוארץ פריגיה",
+    "code": 824,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189588,
+    "y": 691220
+  },
+  {
+    "street": "הרב טביב",
+    "code": 514,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186632,
+    "y": 691392
+  },
+  {
+    "street": "הרב טייב חי",
+    "code": 266,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186866,
+    "y": 694734
+  },
+  {
+    "street": "הרב יאנה",
+    "code": 1208,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188491,
+    "y": 690584
+  },
+  {
+    "street": "הרב יוסף וברכה קאפח",
+    "code": 148,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187291,
+    "y": 691305
+  },
+  {
+    "street": "הרב יצחק הלוי",
+    "code": 919,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186445,
+    "y": 687341
+  },
+  {
+    "street": "הרב משה צבי נריה",
+    "code": 1235,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "הרב נסים יצחק",
+    "code": 662,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "הרב עמיאל",
+    "code": 544,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186500,
+    "y": 690915
+  },
+  {
+    "street": "הרב פרידר אברהם",
+    "code": 548,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186372,
+    "y": 690802
+  },
+  {
+    "street": "הרב קוק",
+    "code": 323,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186502,
+    "y": 693419
+  },
+  {
+    "street": "הרב קלישר",
+    "code": 137,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187399,
+    "y": 693018
+  },
+  {
+    "street": "הרב ריינס",
+    "code": 138,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187541,
+    "y": 693498
+  },
+  {
+    "street": "הרב רפאל",
+    "code": 933,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186663,
+    "y": 688046
+  },
+  {
+    "street": "הרב שמעון גבאי",
+    "code": 525,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186729,
+    "y": 691960
+  },
+  {
+    "street": "הרופאה רבקה",
+    "code": 332,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187484,
+    "y": 693480
+  },
+  {
+    "street": "הרינה",
+    "code": 565,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185763,
+    "y": 691307
+  },
+  {
+    "street": "הרכב",
+    "code": 838,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188440,
+    "y": 691335
+  },
+  {
+    "street": "הרעות",
+    "code": 560,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186019,
+    "y": 691588
+  },
+  {
+    "street": "הרצוג",
+    "code": 250,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186762,
+    "y": 694290
+  },
+  {
+    "street": "הרקפת",
+    "code": 221,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187042,
+    "y": 695056
+  },
+  {
+    "street": "השבעה",
+    "code": 415,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186145,
+    "y": 692054
+  },
+  {
+    "street": "השופטים",
+    "code": 119,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187642,
+    "y": 693441
+  },
+  {
+    "street": "השושנה",
+    "code": 222,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186931,
+    "y": 695078
+  },
+  {
+    "street": "השחר",
+    "code": 285,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189109,
+    "y": 691869
+  },
+  {
+    "street": "השיאים",
+    "code": 957,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187447,
+    "y": 687949
+  },
+  {
+    "street": "השילוח",
+    "code": 118,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187655,
+    "y": 693177
+  },
+  {
+    "street": "השיש",
+    "code": 839,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188418,
+    "y": 691609
+  },
+  {
+    "street": "השעורה",
+    "code": 223,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186804,
+    "y": 695090
+  },
+  {
+    "street": "השקד",
+    "code": 219,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187288,
+    "y": 695388
+  },
+  {
+    "street": "התאנה",
+    "code": 224,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187410,
+    "y": 695255
+  },
+  {
+    "street": "התהילה",
+    "code": 1091,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185578,
+    "y": 690425
+  },
+  {
+    "street": "התלתן",
+    "code": 1251,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188751,
+    "y": 689302
+  },
+  {
+    "street": "התמר",
+    "code": 225,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187606,
+    "y": 695541
+  },
+  {
+    "street": "התנועה הציונית",
+    "code": 252,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187479,
+    "y": 694607
+  },
+  {
+    "street": "התקומה",
+    "code": 121,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "התרופה",
+    "code": 1022,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187242,
+    "y": 687741
+  },
+  {
+    "street": "וולך יונה",
+    "code": 1154,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187801,
+    "y": 693900
+  },
+  {
+    "street": "וילפריד ישראל",
+    "code": 278,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186059,
+    "y": 690431
+  },
+  {
+    "street": "וינסנט ואן גוך",
+    "code": 579,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188367,
+    "y": 689316
+  },
+  {
+    "street": "ויס יעקב",
+    "code": 616,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187109,
+    "y": 691770
+  },
+  {
+    "street": "ויסבורג",
+    "code": 650,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187068,
+    "y": 691902
+  },
+  {
+    "street": "ויתקין",
+    "code": 815,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189190,
+    "y": 691731
+  },
+  {
+    "street": "ולוס",
+    "code": 1133,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185126,
+    "y": 688640
+  },
+  {
+    "street": "וריאן פריי",
+    "code": 879,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185924,
+    "y": 690580
+  },
+  {
+    "street": "זבולון",
+    "code": 1215,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188100,
+    "y": 689671
+  },
+  {
+    "street": "ז'בוטינסקי",
+    "code": 512,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 185979,
+    "y": 692134
+  },
+  {
+    "street": "זהרה לביטוב",
+    "code": 688,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "זהבית",
+    "code": 1073,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 186075,
+    "y": 686561
+  },
+  {
+    "street": "זומרשטיין",
+    "code": 256,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186900,
+    "y": 694145
+  },
+  {
+    "street": "זייד אלכסנדר",
+    "code": 816,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188986,
+    "y": 691049
+  },
+  {
+    "street": "זמבה",
+    "code": 817,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189598,
+    "y": 691622
+  },
+  {
+    "street": "זמר נעורים",
+    "code": 283,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189056,
+    "y": 691593
+  },
+  {
+    "street": "זנגביל",
+    "code": 314,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187139,
+    "y": 693193
+  },
+  {
+    "street": "חבצלת החוף",
+    "code": 1104,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 185815,
+    "y": 688024
+  },
+  {
+    "street": "חבקוק",
+    "code": 908,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186951,
+    "y": 689350
+  },
+  {
+    "street": "חוף גולדמינץ",
+    "code": 6590,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "חורגין",
+    "code": 705,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189587,
+    "y": 691465
+  },
+  {
+    "street": "חזני",
+    "code": 970,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186316,
+    "y": 687375
+  },
+  {
+    "street": "חטיבת אלכסנדרוני",
+    "code": 1033,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186201,
+    "y": 689622
+  },
+  {
+    "street": "חטיבת הראל",
+    "code": 1030,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185944,
+    "y": 689845
+  },
+  {
+    "street": "חטיבת קריתי",
+    "code": 1031,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185727,
+    "y": 689810
+  },
+  {
+    "street": "חיה בם",
+    "code": 586,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186675,
+    "y": 693472
+  },
+  {
+    "street": "חיה ורד",
+    "code": 477,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "חיטמן עוזי",
+    "code": 350,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185222,
+    "y": 687633
+  },
+  {
+    "street": "חיים סוויד",
+    "code": 390,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "חייקה גרוסמן",
+    "code": 552,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186468,
+    "y": 690956
+  },
+  {
+    "street": "חלמונית",
+    "code": 1066,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 186173,
+    "y": 686702
+  },
+  {
+    "street": "חנה למדן",
+    "code": 398,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "חנה מרון",
+    "code": 365,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 184719,
+    "y": 687213
+  },
+  {
+    "street": "חרצית",
+    "code": 1102,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186190,
+    "y": 688205
+  },
+  {
+    "street": "חשון",
+    "code": 1222,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188177,
+    "y": 689307
+  },
+  {
+    "street": "טבת",
+    "code": 1224,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187985,
+    "y": 689314
+  },
+  {
+    "street": "טהון יהושע",
+    "code": 254,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186696,
+    "y": 694134
+  },
+  {
+    "street": "טיומקין",
+    "code": 619,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187087,
+    "y": 691977
+  },
+  {
+    "street": "טרובדור",
+    "code": 286,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187718,
+    "y": 691512
+  },
+  {
+    "street": "טשרניחובסקי",
+    "code": 515,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186439,
+    "y": 692039
+  },
+  {
+    "street": "יאיר",
+    "code": 516,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186424,
+    "y": 691910
+  },
+  {
+    "street": "יאנוש בן גל",
+    "code": 559,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186380,
+    "y": 691397
+  },
+  {
+    "street": "יגאל אלון",
+    "code": 570,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186025,
+    "y": 691107
+  },
+  {
+    "street": "יד חרוצים",
+    "code": 963,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187430,
+    "y": 687585
+  },
+  {
+    "street": "יהודה",
+    "code": 1213,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188026,
+    "y": 689725
+  },
+  {
+    "street": "יהודה הנשיא",
+    "code": 316,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186753,
+    "y": 693894
+  },
+  {
+    "street": "יהודה עמיחי",
+    "code": 733,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187898,
+    "y": 691371
+  },
+  {
+    "street": "יהודית שמחוני",
+    "code": 735,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "יהושע בן נון",
+    "code": 125,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187609,
+    "y": 693463
+  },
+  {
+    "street": "יואב",
+    "code": 126,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187684,
+    "y": 693439
+  },
+  {
+    "street": "יודפת",
+    "code": 518,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186058,
+    "y": 691303
+  },
+  {
+    "street": "יוהאן ואן הולסט",
+    "code": 881,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186022,
+    "y": 690438
+  },
+  {
+    "street": "יוחנן בדר",
+    "code": 886,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186324,
+    "y": 690601
+  },
+  {
+    "street": "יוחנן הסנדלר",
+    "code": 173,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187890,
+    "y": 693743
+  },
+  {
+    "street": "יונה",
+    "code": 911,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187157,
+    "y": 689471
+  },
+  {
+    "street": "יוסי בן יוסי",
+    "code": 620,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186971,
+    "y": 691288
+  },
+  {
+    "street": "יוסף",
+    "code": 1220,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188083,
+    "y": 689384
+  },
+  {
+    "street": "יוסף סמיה",
+    "code": 858,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189463,
+    "y": 691571
+  },
+  {
+    "street": "יוסף רוט",
+    "code": 277,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187359,
+    "y": 691454
+  },
+  {
+    "street": "יוספטל",
+    "code": 165,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 187699,
+    "y": 692716
+  },
+  {
+    "street": "יורדי הים",
+    "code": 1134,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "יחזקאל",
+    "code": 931,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186661,
+    "y": 689585
+  },
+  {
+    "street": "יחיא הלוי",
+    "code": 551,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186777,
+    "y": 691069
+  },
+  {
+    "street": "ילין",
+    "code": 128,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187362,
+    "y": 693038
+  },
+  {
+    "street": "יעל אשת חבר הקיני",
+    "code": 872,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188547,
+    "y": 690723
+  },
+  {
+    "street": "יסעור",
+    "code": 197,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187832,
+    "y": 689044
+  },
+  {
+    "street": "יעל לוטן",
+    "code": 472,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "יעקב אליאב",
+    "code": 935,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185987,
+    "y": 690067
+  },
+  {
+    "street": "יפה ירקוני",
+    "code": 363,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 184775,
+    "y": 687184
+  },
+  {
+    "street": "יעקב חזן",
+    "code": 1058,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185714,
+    "y": 689370
+  },
+  {
+    "street": "יצחק (איזי) דורות",
+    "code": 714,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188679,
+    "y": 691239
+  },
+  {
+    "street": "יפעת",
+    "code": 193,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187880,
+    "y": 690318
+  },
+  {
+    "street": "יצחק חסון",
+    "code": 692,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185927,
+    "y": 690116
+  },
+  {
+    "street": "יצחק חופי",
+    "code": 799,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189604,
+    "y": 691097
+  },
+  {
+    "street": "יצחק כהן",
+    "code": 455,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186523,
+    "y": 691155
+  },
+  {
+    "street": "יצחק נבון",
+    "code": 397,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189925,
+    "y": 691871
+  },
+  {
+    "street": "יצחק שמיר",
+    "code": 396,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ירמיהו",
+    "code": 912,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186561,
+    "y": 689631
+  },
+  {
+    "street": "ישעיהו",
+    "code": 913,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186509,
+    "y": 689646
+  },
+  {
+    "street": "ישעיהו ריקלין",
+    "code": 691,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186450,
+    "y": 690088
+  },
+  {
+    "street": "ישראל אלדד",
+    "code": 673,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187073,
+    "y": 691485
+  },
+  {
+    "street": "יששכר",
+    "code": 1214,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188205,
+    "y": 689715
+  },
+  {
+    "street": "יששכר בורנשטיין",
+    "code": 482,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "כוכב הצפון",
+    "code": 333,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188021,
+    "y": 694373
+  },
+  {
+    "street": "כוכבי השביט",
+    "code": 577,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185779,
+    "y": 690865
+  },
+  {
+    "street": "ככר הבנים",
+    "code": 6006,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ככר העצמאות",
+    "code": 6001,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186189,
+    "y": 692977
+  },
+  {
+    "street": "ככר מטלון",
+    "code": 6007,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ככר ציון",
+    "code": 6003,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ככר שתיים",
+    "code": 6004,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "כסלו",
+    "code": 1223,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188089,
+    "y": 689423
+  },
+  {
+    "street": "כפר עידוד",
+    "code": 638,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "כפר תבור",
+    "code": 998,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186104,
+    "y": 687729
+  },
+  {
+    "street": "לאונרדו דה וינצ'י",
+    "code": 337,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188536,
+    "y": 691067
+  },
+  {
+    "street": "לבון פנחס",
+    "code": 993,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186410,
+    "y": 687697
+  },
+  {
+    "street": "לבנון חיים",
+    "code": 163,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188515,
+    "y": 692432
+  },
+  {
+    "street": "לבנת הספיר",
+    "code": 465,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "לוחמי גליפולי",
+    "code": 268,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "לוטם",
+    "code": 1060,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185756,
+    "y": 686834
+  },
+  {
+    "street": "לוי אשכול",
+    "code": 999,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185876,
+    "y": 689459
+  },
+  {
+    "street": "לוי שושן",
+    "code": 920,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186566,
+    "y": 687471
+  },
+  {
+    "street": "לויתן",
+    "code": 157,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186813,
+    "y": 695345
+  },
+  {
+    "street": "לחי",
+    "code": 641,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187463,
+    "y": 691641
+  },
+  {
+    "street": "ליבר זאב",
+    "code": 1234,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188099,
+    "y": 689674
+  },
+  {
+    "street": "לידיה ליטביאק",
+    "code": 578,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185764,
+    "y": 689774
+  },
+  {
+    "street": "לינדון ג'ונסון",
+    "code": 1047,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187274,
+    "y": 688449
+  },
+  {
+    "street": "לישנסקי",
+    "code": 166,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187518,
+    "y": 692809
+  },
+  {
+    "street": "לנה קיכלר-זילברמן",
+    "code": 414,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185927,
+    "y": 691527
+  },
+  {
+    "street": "לסקוב חיים",
+    "code": 1053,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185526,
+    "y": 686565
+  },
+  {
+    "street": "מאיר דגן",
+    "code": 557,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186297,
+    "y": 691535
+  },
+  {
+    "street": "מאיר זורע",
+    "code": 889,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188098,
+    "y": 694517
+  },
+  {
+    "street": "מאיר שמגר",
+    "code": 393,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מאירוביץ",
+    "code": 421,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186698,
+    "y": 692580
+  },
+  {
+    "street": "מארי קירי",
+    "code": 683,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186474,
+    "y": 688472
+  },
+  {
+    "street": "מארק שאגל",
+    "code": 730,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מבוא פורר שלום",
+    "code": 345,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187489,
+    "y": 694000
+  },
+  {
+    "street": "מגורי חיים כהן",
+    "code": 141,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186149,
+    "y": 689451
+  },
+  {
+    "street": "מדע האביב",
+    "code": 682,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188463,
+    "y": 690518
+  },
+  {
+    "street": "מודעי יצחק",
+    "code": 1120,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185445,
+    "y": 688933
+  },
+  {
+    "street": "מול עמנואל",
+    "code": 228,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186422,
+    "y": 693824
+  },
+  {
+    "street": "מונטיפיורי",
+    "code": 818,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189664,
+    "y": 691712
+  },
+  {
+    "street": "מוסינזון יגאל",
+    "code": 1151,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187768,
+    "y": 693868
+  },
+  {
+    "street": "מוצארט",
+    "code": 379,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186649,
+    "y": 694038
+  },
+  {
+    "street": "מורדי הגטאות",
+    "code": 623,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187393,
+    "y": 692126
+  },
+  {
+    "street": "מוריה",
+    "code": 230,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187201,
+    "y": 694781
+  },
+  {
+    "street": "מזאה",
+    "code": 192,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187921,
+    "y": 694399
+  },
+  {
+    "street": "מחנה יעקב",
+    "code": 6582,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מטולה",
+    "code": 164,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188668,
+    "y": 692575
+  },
+  {
+    "street": "מטרופוליס",
+    "code": 198,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187803,
+    "y": 689219
+  },
+  {
+    "street": "מיכל",
+    "code": 979,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186114,
+    "y": 687470
+  },
+  {
+    "street": "מימון",
+    "code": 258,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186902,
+    "y": 694770
+  },
+  {
+    "street": "מישל באקוס",
+    "code": 249,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מכון וינגייט",
+    "code": 952,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 184775,
+    "y": 685270
+  },
+  {
+    "street": "מכנס גד",
+    "code": 422,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186037,
+    "y": 692726
+  },
+  {
+    "street": "מלאכי",
+    "code": 916,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186814,
+    "y": 689644
+  },
+  {
+    "street": "מלון הנסיכה",
+    "code": 436,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מלון כרמל",
+    "code": 537,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מלחמת ששת הימים",
+    "code": 344,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187000,
+    "y": 693145
+  },
+  {
+    "street": "מלכה רופא",
+    "code": 696,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מלכת שבא",
+    "code": 587,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186550,
+    "y": 693973
+  },
+  {
+    "street": "מנדלי מוכר ספרים",
+    "code": 944,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186630,
+    "y": 687900
+  },
+  {
+    "street": "מנור אהוד",
+    "code": 352,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185018,
+    "y": 687055
+  },
+  {
+    "street": "מנלה גד",
+    "code": 1029,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187165,
+    "y": 687998
+  },
+  {
+    "street": "מסילות",
+    "code": 918,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 187076,
+    "y": 689482
+  },
+  {
+    "street": "מסריק",
+    "code": 233,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187783,
+    "y": 694482
+  },
+  {
+    "street": "מעלה רחבעם זאבי",
+    "code": 535,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 185890,
+    "y": 692540
+  },
+  {
+    "street": "מעלות אילת",
+    "code": 251,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186038,
+    "y": 693067
+  },
+  {
+    "street": "מעלות הרב לאו",
+    "code": 320,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186623,
+    "y": 693716
+  },
+  {
+    "street": "מעפילי אגוז",
+    "code": 1062,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185948,
+    "y": 686804
+  },
+  {
+    "street": "מפי",
+    "code": 1014,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187055,
+    "y": 686837
+  },
+  {
+    "street": "מקדונלד",
+    "code": 423,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186382,
+    "y": 693365
+  },
+  {
+    "street": "מראת הפלאים",
+    "code": 281,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189102,
+    "y": 691731
+  },
+  {
+    "street": "מריה קוטרבה",
+    "code": 452,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186142,
+    "y": 690260
+  },
+  {
+    "street": "מרדכי גרינטל",
+    "code": 573,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186389,
+    "y": 691343
+  },
+  {
+    "street": "מרים בן-פורת",
+    "code": 599,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "מרסל ניניו בוגר",
+    "code": 800,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189261,
+    "y": 691436
+  },
+  {
+    "street": "מרשל פייר קניג",
+    "code": 1090,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185678,
+    "y": 690516
+  },
+  {
+    "street": "מרק אברהם",
+    "code": 820,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189458,
+    "y": 691177
+  },
+  {
+    "street": "משה לב-עמי",
+    "code": 941,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187332,
+    "y": 691839
+  },
+  {
+    "street": "משה וילנסקי",
+    "code": 364,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 184887,
+    "y": 687097
+  },
+  {
+    "street": "משה קוטלר",
+    "code": 392,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "משה רוזנברג",
+    "code": 677,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187350,
+    "y": 691370
+  },
+  {
+    "street": "משכנות זבולון המר",
+    "code": 6508,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "משעול קיפניס",
+    "code": 1011,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186337,
+    "y": 687088
+  },
+  {
+    "street": "משעול תמר",
+    "code": 362,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187183,
+    "y": 693845
+  },
+  {
+    "street": "מתתיהו הכהן",
+    "code": 342,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187239,
+    "y": 693247
+  },
+  {
+    "street": "נאות בגין",
+    "code": 6589,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "נאות התכלת",
+    "code": 241,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186864,
+    "y": 694697
+  },
+  {
+    "street": "נאות פנחס רוזן",
+    "code": 6511,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "נווה עוז",
+    "code": 6591,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "נווה שלום",
+    "code": 243,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187003,
+    "y": 694867
+  },
+  {
+    "street": "נועה",
+    "code": 335,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 187887,
+    "y": 690488
+  },
+  {
+    "street": "נוף חפר",
+    "code": 6518,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "נורדאו",
+    "code": 938,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186728,
+    "y": 687751
+  },
+  {
+    "street": "נורוק",
+    "code": 259,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186596,
+    "y": 694089
+  },
+  {
+    "street": "נחום ניר רפאלקס",
+    "code": 887,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186248,
+    "y": 690614
+  },
+  {
+    "street": "נחל עוז",
+    "code": 856,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "נחמה ליפשיץ",
+    "code": 575,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186054,
+    "y": 691052
+  },
+  {
+    "street": "נחמיה",
+    "code": 923,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186868,
+    "y": 689275
+  },
+  {
+    "street": "נינה סימון",
+    "code": 376,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187849,
+    "y": 693237
+  },
+  {
+    "street": "ניניו",
+    "code": 170,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188052,
+    "y": 693864
+  },
+  {
+    "street": "ניסנבוים",
+    "code": 132,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187424,
+    "y": 692977
+  },
+  {
+    "street": "נלי זקש",
+    "code": 684,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186069,
+    "y": 688231
+  },
+  {
+    "street": "נעמה",
+    "code": 195,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187849,
+    "y": 689683
+  },
+  {
+    "street": "נפתלי",
+    "code": 1218,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188015,
+    "y": 689440
+  },
+  {
+    "street": "נרי יצחק",
+    "code": 811,
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189262,
+    "y": 690256
+  },
+  {
+    "street": "נתן אלתרמן המשורר",
+    "code": 982,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186009,
+    "y": 687397
+  },
+  {
+    "street": "נתן יונתן",
+    "code": 357,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 184994,
+    "y": 687352
+  },
+  {
+    "street": "נתן ילין מור",
+    "code": 675,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187393,
+    "y": 691623
+  },
+  {
+    "street": "סאלי ביין",
+    "code": 716,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "סבידור מנחם",
+    "code": 1052,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185715,
+    "y": 686519
+  },
+  {
+    "street": "סולד הנריאטה",
+    "code": 1007,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186065,
+    "y": 689188
+  },
+  {
+    "street": "סופיה לורן",
+    "code": 369,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189095,
+    "y": 691179
+  },
+  {
+    "street": "סטופ",
+    "code": 961,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186097,
+    "y": 689281
+  },
+  {
+    "street": "סטפן צוייג",
+    "code": 385,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186017,
+    "y": 686965
+  },
+  {
+    "street": "סיגלית",
+    "code": 1069,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185870,
+    "y": 686684
+  },
+  {
+    "street": "סיוון",
+    "code": 1229,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "סילברשטיין צבי",
+    "code": 248,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186516,
+    "y": 694780
+  },
+  {
+    "street": "סימני דרך",
+    "code": 299,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 187980,
+    "y": 692099
+  },
+  {
+    "street": "סירקין",
+    "code": 822,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189604,
+    "y": 691926
+  },
+  {
+    "street": "סלבדור דאלי",
+    "code": 582,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "סמ סטודיו",
+    "code": 416,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "סמ עולי סידקוב",
+    "code": 636,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "סמטת האצטרובל",
+    "code": 458,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187564,
+    "y": 695464
+  },
+  {
+    "street": "סמילנסקי",
+    "code": 521,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186303,
+    "y": 692401
+  },
+  {
+    "street": "סנש חנה",
+    "code": 626,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187559,
+    "y": 692280
+  },
+  {
+    "street": "סעדיה גאון",
+    "code": 236,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186827,
+    "y": 694467
+  },
+  {
+    "street": "סר ניקולס וינטון",
+    "code": 869,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186157,
+    "y": 690413
+  },
+  {
+    "street": "עגנון",
+    "code": 973,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186101,
+    "y": 687619
+  },
+  {
+    "street": "עדנה סולודר",
+    "code": 469,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "עובדיה אברהם הכהן",
+    "code": 823,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189801,
+    "y": 691431
+  },
+  {
+    "street": "עודד קוגמן",
+    "code": 594,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "עולי הגרדום",
+    "code": 133,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187544,
+    "y": 692699
+  },
+  {
+    "street": "עזרא",
+    "code": 925,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186781,
+    "y": 689268
+  },
+  {
+    "street": "עטרי שוש",
+    "code": 361,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185034,
+    "y": 686622
+  },
+  {
+    "street": "עלי גנים",
+    "code": 681,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188958,
+    "y": 691114
+  },
+  {
+    "street": "עלי שלכת",
+    "code": 300,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187929,
+    "y": 691145
+  },
+  {
+    "street": "עמוס מנור",
+    "code": 715,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 188798,
+    "y": 691425
+  },
+  {
+    "street": "עמוס קינן",
+    "code": 674,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187380,
+    "y": 691730
+  },
+  {
+    "street": "עמק חפר",
+    "code": 135,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187776,
+    "y": 694211
+  },
+  {
+    "street": "עמר ג'ו",
+    "code": 348,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 184801,
+    "y": 686917
+  },
+  {
+    "street": "ענבל פרלמוטר",
+    "code": 737,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "עץ הכוכבים",
+    "code": 461,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "עקבא סודק",
+    "code": 569,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פאוול פרנקל",
+    "code": 275,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187571,
+    "y": 694630
+  },
+  {
+    "street": "פארק שיאים",
+    "code": 6535,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פוליאקוב ישראל",
+    "code": 354,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185253,
+    "y": 687429
+  },
+  {
+    "street": "פיירברג",
+    "code": 179,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187862,
+    "y": 693047
+  },
+  {
+    "street": "פיכמן",
+    "code": 542,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186091,
+    "y": 692228
+  },
+  {
+    "street": "פינסקר",
+    "code": 425,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186888,
+    "y": 692587
+  },
+  {
+    "street": "פיקאסו",
+    "code": 583,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188541,
+    "y": 689466
+  },
+  {
+    "street": "פלורנס קאהן",
+    "code": 726,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פלמח",
+    "code": 321,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187449,
+    "y": 693871
+  },
+  {
+    "street": "פנינה רזניק",
+    "code": 736,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פנצ'ו",
+    "code": 1131,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185358,
+    "y": 689394
+  },
+  {
+    "street": "פעמון הזכוכית",
+    "code": 296,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187791,
+    "y": 691652
+  },
+  {
+    "street": "פעמונית",
+    "code": 1075,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186093,
+    "y": 686923
+  },
+  {
+    "street": "פרדי",
+    "code": 270,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פרוג שמעון",
+    "code": 172,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187838,
+    "y": 692981
+  },
+  {
+    "street": "פרופ' אפרים קציר",
+    "code": 470,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פרופ' משה ארנס",
+    "code": 738,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "פרופס אהרון צבי",
+    "code": 971,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186257,
+    "y": 691910
+  },
+  {
+    "street": "פרח הלוטוס",
+    "code": 680,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186443,
+    "y": 687383
+  },
+  {
+    "street": "פרידה אדם",
+    "code": 391,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185964,
+    "y": 690301
+  },
+  {
+    "street": "פרידר עמנואל",
+    "code": 318,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187411,
+    "y": 693583
+  },
+  {
+    "street": "פרנץ אופנהיימר",
+    "code": 712,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188496,
+    "y": 691171
+  },
+  {
+    "street": "פרנק פולר",
+    "code": 883,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185822,
+    "y": 690224
+  },
+  {
+    "street": "פתח תקוה",
+    "code": 627,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 186993,
+    "y": 692082
+  },
+  {
+    "street": "צ'יאונה סוגיהארה",
+    "code": 143,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185856,
+    "y": 690874
+  },
+  {
+    "street": "צאלון",
+    "code": 1245,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188720,
+    "y": 689710
+  },
+  {
+    "street": "צבי מויססקו",
+    "code": 905,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186884,
+    "y": 688802
+  },
+  {
+    "street": "צהלה",
+    "code": 567,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185792,
+    "y": 691149
+  },
+  {
+    "street": "צור צבי",
+    "code": 667,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186828,
+    "y": 690692
+  },
+  {
+    "street": "ציפורן",
+    "code": 1076,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185986,
+    "y": 686516
+  },
+  {
+    "street": "ציר טנצר",
+    "code": 841,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189731,
+    "y": 692068
+  },
+  {
+    "street": "קאפח יחיא",
+    "code": 550,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186850,
+    "y": 691064
+  },
+  {
+    "street": "קדיש לוז",
+    "code": 915,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188123,
+    "y": 694310
+  },
+  {
+    "street": "קדושי בלזן",
+    "code": 160,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187752,
+    "y": 693219
+  },
+  {
+    "street": "קהילת צפת",
+    "code": 1094,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185576,
+    "y": 690244
+  },
+  {
+    "street": "קדמה",
+    "code": 145,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188737,
+    "y": 692545
+  },
+  {
+    "street": "קורין אלאל",
+    "code": 295,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "קומוי נתן",
+    "code": 1021,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186769,
+    "y": 688094
+  },
+  {
+    "street": "קיש",
+    "code": 324,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187345,
+    "y": 693913
+  },
+  {
+    "street": "קלוזנר יוסף",
+    "code": 873,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188158,
+    "y": 690359
+  },
+  {
+    "street": "קניון השרון",
+    "code": 640,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "קפלן",
+    "code": 827,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189490,
+    "y": 691842
+  },
+  {
+    "street": "קפקא",
+    "code": 854,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187888,
+    "y": 694043
+  },
+  {
+    "street": "קצנלסון יצחק",
+    "code": 943,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186358,
+    "y": 688002
+  },
+  {
+    "street": "קראוזה",
+    "code": 437,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186544,
+    "y": 692735
+  },
+  {
+    "street": "קריניצי",
+    "code": 992,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186150,
+    "y": 688950
+  },
+  {
+    "street": "קרית יהלום",
+    "code": 6505,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "קרית השרון",
+    "code": 6506,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188247,
+    "y": 690568
+  },
+  {
+    "street": "קרל לוץ",
+    "code": 874,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185866,
+    "y": 690307
+  },
+  {
+    "street": "קרית יצחק רבין",
+    "code": 6504,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "קרליבך",
+    "code": 427,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186107,
+    "y": 692400
+  },
+  {
+    "street": "קרמניאן משה",
+    "code": 189,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186168,
+    "y": 692923
+  },
+  {
+    "street": "ראובן",
+    "code": 1210,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187119,
+    "y": 692759
+  },
+  {
+    "street": "ראול ולנברג",
+    "code": 531,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186224,
+    "y": 690233
+  },
+  {
+    "street": "רבי טרפון",
+    "code": 227,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 187106,
+    "y": 694542
+  },
+  {
+    "street": "ראשון לציון",
+    "code": 428,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186115,
+    "y": 692702
+  },
+  {
+    "street": "רבי מאיר",
+    "code": 229,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 187016,
+    "y": 694500
+  },
+  {
+    "street": "רבן גמליאל",
+    "code": 136,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187941,
+    "y": 693812
+  },
+  {
+    "street": "רבקה אליצור",
+    "code": 724,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רדק",
+    "code": 629,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186951,
+    "y": 691494
+  },
+  {
+    "street": "רוזה לוקסמבורג",
+    "code": 388,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186272,
+    "y": 687127
+  },
+  {
+    "street": "רוברט סטיבנסון",
+    "code": 734,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188052,
+    "y": 691827
+  },
+  {
+    "street": "רוטנברג",
+    "code": 949,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186445,
+    "y": 687417
+  },
+  {
+    "street": "רונית מטלון",
+    "code": 475,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רופין ארתור",
+    "code": 966,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186487,
+    "y": 687474
+  },
+  {
+    "street": "רות ביידר גינסבורג",
+    "code": 576,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186297,
+    "y": 690540
+  },
+  {
+    "street": "רות לינדנר",
+    "code": 721,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רותם",
+    "code": 1103,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186051,
+    "y": 688031
+  },
+  {
+    "street": "רזניק דוד",
+    "code": 1110,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185555,
+    "y": 689040
+  },
+  {
+    "street": "רחבת כצנלסון ראובן",
+    "code": 450,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רחה פריאר",
+    "code": 152,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185962,
+    "y": 690610
+  },
+  {
+    "street": "רחל ברכות",
+    "code": 588,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186260,
+    "y": 692230
+  },
+  {
+    "street": "רחל פרנקלין",
+    "code": 798,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186715,
+    "y": 688495
+  },
+  {
+    "street": "רחל צברי",
+    "code": 478,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רחל שטראוס",
+    "code": 597,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ריבלין",
+    "code": 326,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186772,
+    "y": 693327
+  },
+  {
+    "street": "רייך לאון",
+    "code": 255,
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186800,
+    "y": 694122
+  },
+  {
+    "street": "רייך בני",
+    "code": 1232,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188260,
+    "y": 689103
+  },
+  {
+    "street": "רייק חביבה",
+    "code": 630,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187498,
+    "y": 692217
+  },
+  {
+    "street": "רלף קליין",
+    "code": 713,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188433,
+    "y": 690983
+  },
+  {
+    "street": "רם ברוך",
+    "code": 530,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 185819,
+    "y": 691928
+  },
+  {
+    "street": "רמבם",
+    "code": 631,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186951,
+    "y": 691344
+  },
+  {
+    "street": "רמבן",
+    "code": 632,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187137,
+    "y": 691521
+  },
+  {
+    "street": "רמז דוד",
+    "code": 429,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186459,
+    "y": 692638
+  },
+  {
+    "street": "רמת הגולן",
+    "code": 445,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רמת ידין",
+    "code": 6596,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186776,
+    "y": 689182
+  },
+  {
+    "street": "רמת נורדאו",
+    "code": 6584,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "רפאל איתן",
+    "code": 658,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186822,
+    "y": 690589
+  },
+  {
+    "street": "רצועת החוף והמלונות",
+    "code": 6515,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש גן ברכה",
+    "code": 6516,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש דורה יבנה",
+    "code": 6597,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש דורה קבלנים",
+    "code": 6599,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש דיור לעולה",
+    "code": 6586,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש הפומז",
+    "code": 6524,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש הפועלים",
+    "code": 6525,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש מחנה מעבר",
+    "code": 6501,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש מכנס",
+    "code": 6529,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש עין התכלת",
+    "code": 6530,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש עמידר",
+    "code": 6612,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש צאל",
+    "code": 6614,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש ציונים כלליים",
+    "code": 6615,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש רסקו",
+    "code": 6531,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "ש שמשון",
+    "code": 6617,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שבזי",
+    "code": 526,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186578,
+    "y": 691261
+  },
+  {
+    "street": "שבח",
+    "code": 648,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 186899,
+    "y": 691700
+  },
+  {
+    "street": "שבטי ישראל",
+    "code": 1209,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188144,
+    "y": 689845
+  },
+  {
+    "street": "שד אליעזר",
+    "code": 703,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שד בן גוריון",
+    "code": 996,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185531,
+    "y": 689399
+  },
+  {
+    "street": "שד בן צבי",
+    "code": 609,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "רמת ידין",
+    "x": 186452,
+    "y": 689645
+  },
+  {
+    "street": "שד גולדה מאיר",
+    "code": 1001,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186376,
+    "y": 687190
+  },
+  {
+    "street": "שד ויצמן",
+    "code": 417,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 186965,
+    "y": 693532
+  },
+  {
+    "street": "שד ירושלים",
+    "code": 419,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186404,
+    "y": 692366
+  },
+  {
+    "street": "שד לנטוס טום",
+    "code": 1260,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187920,
+    "y": 689936
+  },
+  {
+    "street": "שד עובד בן עמי",
+    "code": 1078,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 185473,
+    "y": 690366
+  },
+  {
+    "street": "שד עין התכלת",
+    "code": 237,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187140,
+    "y": 695151
+  },
+  {
+    "street": "שד שמשון",
+    "code": 149,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187924,
+    "y": 693443
+  },
+  {
+    "street": "שדה יצחק",
+    "code": 159,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187258,
+    "y": 694183
+  },
+  {
+    "street": "שדרת האגמים",
+    "code": 661,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186042,
+    "y": 688583
+  },
+  {
+    "street": "שוב דוד",
+    "code": 527,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186504,
+    "y": 692130
+  },
+  {
+    "street": "שוורצבארד שלום",
+    "code": 265,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187787,
+    "y": 695475
+  },
+  {
+    "street": "שולמית",
+    "code": 1050,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 184911,
+    "y": 686343
+  },
+  {
+    "street": "שולמית לסקוב",
+    "code": 596,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שומרון דן",
+    "code": 657,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 187140,
+    "y": 690786
+  },
+  {
+    "street": "שזר זלמן",
+    "code": 983,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 185571,
+    "y": 686930
+  },
+  {
+    "street": "שטייגר",
+    "code": 161,
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188275,
+    "y": 692523
+  },
+  {
+    "street": "שטנד",
+    "code": 975,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 185938,
+    "y": 687612
+  },
+  {
+    "street": "שטריקר",
+    "code": 974,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 185990,
+    "y": 687648
+  },
+  {
+    "street": "שיטרית",
+    "code": 950,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186518,
+    "y": 687579
+  },
+  {
+    "street": "שיפר יעקב",
+    "code": 976,
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 185884,
+    "y": 687576
+  },
+  {
+    "street": "שירת הספנים",
+    "code": 294,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "גלי הים",
+    "x": 185246,
+    "y": 688599
+  },
+  {
+    "street": "שכ אבו שדיד",
+    "code": 6521,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ בן ציון",
+    "code": 6580,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ גבע ב",
+    "code": 6651,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ האגם",
+    "code": 6601,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ נאות גולדה",
+    "code": 6575,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ נאות שקד",
+    "code": 6588,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ נוה איתמר",
+    "code": 6619,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ נווה שלום",
+    "code": 6577,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ עיר ימים",
+    "code": 6600,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ נוף",
+    "code": 6652,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ פרדס הגדוד",
+    "code": 6533,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכ רמת חן",
+    "code": 6654,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שכונת המדע",
+    "code": 6517,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "שלום עליכם",
+    "code": 946,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186486,
+    "y": 688271
+  },
+  {
+    "street": "שלמה המלך",
+    "code": 240,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186497,
+    "y": 693915
+  },
+  {
+    "street": "שלונסקי",
+    "code": 968,
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186321,
+    "y": 688065
+  },
+  {
+    "street": "שמואל",
+    "code": 930,
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188679,
+    "y": 690942
+  },
+  {
+    "street": "שמואל הנציב",
+    "code": 327,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מערב מרכז העיר",
+    "x": 186702,
+    "y": 693193
+  },
+  {
+    "street": "שמורת אגם החולה",
+    "code": 600,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186145,
+    "y": 688880
+  },
+  {
+    "street": "שמורת נחל בניאס",
+    "code": 665,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186162,
+    "y": 688687
+  },
+  {
+    "street": "שמורת נחל דולב",
+    "code": 664,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186164,
+    "y": 688706
+  },
+  {
+    "street": "שמורת נחל עמוד",
+    "code": 666,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186103,
+    "y": 688347
+  },
+  {
+    "street": "שמורת נחל שורק",
+    "code": 646,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186298,
+    "y": 688421
+  },
+  {
+    "street": "שמורת נחל שניר",
+    "code": 611,
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186124,
+    "y": 688436
+  },
+  {
+    "street": "שמעון",
+    "code": 1211,
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187905,
+    "y": 693392
+  },
+  {
+    "street": "שמעון ויזנטל",
+    "code": 868,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "כוכב הים",
+    "x": 186091,
+    "y": 690791
+  },
+  {
+    "street": "שנירר שרה",
+    "code": 645,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187499,
+    "y": 691795
+  },
+  {
+    "street": "שער הגיא",
+    "code": 433,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186755,
+    "y": 692712
+  },
+  {
+    "street": "שער עובד",
+    "code": 558,
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186548,
+    "y": 691349
+  },
+  {
+    "street": "שפוני גדעון",
+    "code": 1012,
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 186708,
+    "y": 695273
+  },
+  {
+    "street": "שפינוזה",
+    "code": 184,
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 188136,
+    "y": 694175
+  },
+  {
+    "street": "שפירא אברהם",
+    "code": 528,
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 186869,
+    "y": 692205
+  },
+  {
+    "street": "שפירא משה",
+    "code": 328,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187291,
+    "y": 693604
+  },
+  {
+    "street": "שפרינצק",
+    "code": 831,
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים (שיכון ותיקים)",
+    "x": 189397,
+    "y": 691246
+  },
+  {
+    "street": "שץ גרשון",
+    "code": 555,
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186377,
+    "y": 691583
+  },
+  {
+    "street": "שרה לבני",
+    "code": 454,
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187319,
+    "y": 691607
+  },
+  {
+    "street": "שרת",
+    "code": 329,
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "צפון מזרח מרכז העיר",
+    "x": 187349,
+    "y": 693994
+  },
+  {
+    "street": "שרי זכריה",
+    "code": 334,
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187384,
+    "y": 694582
+  },
+  {
+    "street": "תהילה מטמון",
+    "code": 739,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "תדהר",
+    "code": 1254,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188457,
+    "y": 689572
+  },
+  {
+    "street": "תומס אדיסון",
+    "code": 896,
+    "neighborhoodId": "",
+    "neighborhoodName": "",
+    "x": null,
+    "y": null
+  },
+  {
+    "street": "תל חי",
+    "code": 440,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186528,
+    "y": 692845
+  },
+  {
+    "street": "תנועת נוער ציוני",
+    "code": 1009,
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186010,
+    "y": 689203
+  },
+  {
+    "street": "תמוז",
+    "code": 1230,
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188527,
+    "y": 689315
+  },
+  {
+    "street": "תרצה אתר",
+    "code": 367,
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "רמת פולג",
+    "x": 184844,
+    "y": 686552
+  },
+  {
+    "street": "תפארת בנים",
+    "code": 447,
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186262,
+    "y": 692892
+  },
+  {
+    "street": "האגמים",
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186040.876,
+    "y": 688582.055
+  },
+  {
+    "street": "בן צבי",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186417.386,
+    "y": 689298.86
+  },
+  {
+    "street": "שמורת נחל בשור",
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186405.744,
+    "y": 688390.886
+  },
+  {
+    "street": "שמורת נחל ערוגות",
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186206.318,
+    "y": 688436.813
+  },
+  {
+    "street": "אגם כינרת",
+    "neighborhoodId": "66239255",
+    "neighborhoodName": "אגמים",
+    "x": 186286.427,
+    "y": 688586.45
+  },
+  {
+    "street": "הרימון",
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187647.566,
+    "y": 695469.877
+  },
+  {
+    "street": "הגדוד העברי",
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187128.611,
+    "y": 694983.806
+  },
+  {
+    "street": "הכלנית",
+    "neighborhoodId": "66239259",
+    "neighborhoodName": "עין התכלת",
+    "x": 187075.944,
+    "y": 695274.494
+  },
+  {
+    "street": "אהוד מנור",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185036.495,
+    "y": 687044.269
+  },
+  {
+    "street": "בני ברמן",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185596.327,
+    "y": 687388.653
+  },
+  {
+    "street": "עוזי חיטמן",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185255.685,
+    "y": 687617.501
+  },
+  {
+    "street": "משפחת מלבסקי",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185490.965,
+    "y": 687127.102
+  },
+  {
+    "street": "זלמן שז\"ר",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185570.327,
+    "y": 686932.253
+  },
+  {
+    "street": "דגניה",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188327.719,
+    "y": 690017.718
+  },
+  {
+    "street": "האלונים",
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 188778.671,
+    "y": 690029.768
+  },
+  {
+    "street": "טום לנטוס",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 187960.722,
+    "y": 690051.638
+  },
+  {
+    "street": "שבט",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188120.975,
+    "y": 689845.548
+  },
+  {
+    "street": "אברהם שפיגלמן",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188255.642,
+    "y": 690583.415
+  },
+  {
+    "street": "תאשור",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188357.312,
+    "y": 690004.245
+  },
+  {
+    "street": "ד\"ר יהודה פרח",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188122.514,
+    "y": 690024.762
+  },
+  {
+    "street": "זאב ליבר",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188125.976,
+    "y": 689818.582
+  },
+  {
+    "street": "הגלעד",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188222.75,
+    "y": 690660.622
+  },
+  {
+    "street": "הר שגיא",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188123.439,
+    "y": 690459.993
+  },
+  {
+    "street": "נופר",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188420.311,
+    "y": 690177.868
+  },
+  {
+    "street": "שפיגלמן אברהם",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188233.734,
+    "y": 690543.769
+  },
+  {
+    "street": "בני רייך",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188280.278,
+    "y": 689213.786
+  },
+  {
+    "street": "תשרי",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188166.235,
+    "y": 689931.281
+  },
+  {
+    "street": "הפארק",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188878.331,
+    "y": 689783.015
+  },
+  {
+    "street": "הרב שמואל הרטום",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188623.23,
+    "y": 690615.292
+  },
+  {
+    "street": "הרב שלום איפרגן",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188448.966,
+    "y": 689504.868
+  },
+  {
+    "street": "חשוון",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188192.043,
+    "y": 689533.143
+  },
+  {
+    "street": "החרמון",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188149.494,
+    "y": 690633.115
+  },
+  {
+    "street": "הבשן",
+    "neighborhoodId": "66239241",
+    "neighborhoodName": "קריית השרון",
+    "x": 188178.611,
+    "y": 690488.277
+  },
+  {
+    "street": "קרן היסוד",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186022.062,
+    "y": 687764.704
+  },
+  {
+    "street": "יעקב שיפר",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 185881.928,
+    "y": 687576.7
+  },
+  {
+    "street": "שניאור זלמן",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 185900.194,
+    "y": 687819.012
+  },
+  {
+    "street": "יאנוש קורצ'אק",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186141.852,
+    "y": 687362.099
+  },
+  {
+    "street": "פנחס לבון",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186414.007,
+    "y": 687709.833
+  },
+  {
+    "street": "שטרית",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186517.608,
+    "y": 687577.959
+  },
+  {
+    "street": "גולדה מאיר",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186374.893,
+    "y": 687192.184
+  },
+  {
+    "street": "אד\"ם הכהן",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186078.848,
+    "y": 687409.271
+  },
+  {
+    "street": "ויסלברגר",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186306.99,
+    "y": 687819.737
+  },
+  {
+    "street": "נתן קומוי",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186771.674,
+    "y": 688107.432
+  },
+  {
+    "street": "פרץ",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186599.023,
+    "y": 687784.757
+  },
+  {
+    "street": "זלמן שניאור",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186016.019,
+    "y": 687823.627
+  },
+  {
+    "street": "יצחק קצנלסון",
+    "neighborhoodId": "65867396",
+    "neighborhoodName": "גבעת האירוסים",
+    "x": 186360.155,
+    "y": 688003.411
+  },
+  {
+    "street": "אריה לוין",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186515.459,
+    "y": 687325.671
+  },
+  {
+    "street": "ארתור רופין",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186483.482,
+    "y": 687479.142
+  },
+  {
+    "street": "השחף",
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189191.583,
+    "y": 690298.272
+  },
+  {
+    "street": "התור",
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 189232.217,
+    "y": 690180.316
+  },
+  {
+    "street": "השיזף",
+    "neighborhoodId": "66239257",
+    "neighborhoodName": "קריית רבין",
+    "x": 188978.316,
+    "y": 689736.303
+  },
+  {
+    "street": "הרב ברוך הלברשטם",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186552.379,
+    "y": 694335.762
+  },
+  {
+    "street": "רבי עקיבא",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 187045.709,
+    "y": 694394.132
+  },
+  {
+    "street": "עובדיה מברטנורא",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186936.922,
+    "y": 694444.533
+  },
+  {
+    "street": "חב\"ד",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 187042.193,
+    "y": 694664.286
+  },
+  {
+    "street": "סוקולוב",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187420.323,
+    "y": 694286.198
+  },
+  {
+    "street": "ד\"ר יוסף בורג",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187853.491,
+    "y": 694324.787
+  },
+  {
+    "street": "ז'ילבר",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187526.336,
+    "y": 694429.11
+  },
+  {
+    "street": "קמיל הויסמנס",
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187233.516,
+    "y": 694452.025
+  },
+  {
+    "street": "הולנד",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187545.489,
+    "y": 694677.426
+  },
+  {
+    "street": "ד\"ר חיים בן עמר",
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187444.334,
+    "y": 694527.586
+  },
+  {
+    "street": "הפרדס",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187171.41,
+    "y": 694455.338
+  },
+  {
+    "street": "צרפת",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187502.166,
+    "y": 694536.448
+  },
+  {
+    "street": "צ'רצ'יל",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187315.972,
+    "y": 694412.929
+  },
+  {
+    "street": "הפלמ\"ח",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187502.51,
+    "y": 693814.32
+  },
+  {
+    "street": "מזא\"ה",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187926.023,
+    "y": 694401.053
+  },
+  {
+    "street": "רות המואבייה",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188616.504,
+    "y": 690696.303
+  },
+  {
+    "street": "הרב טולדנו",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188952.932,
+    "y": 690664.122
+  },
+  {
+    "street": "דוד הנזיר כהן",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188887.236,
+    "y": 690662.283
+  },
+  {
+    "street": "משה הלוי לוין",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188762.369,
+    "y": 690668.526
+  },
+  {
+    "street": "יהודה בוכנר",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188826.29,
+    "y": 690665.47
+  },
+  {
+    "street": "כהן דוד הנזיר",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188874.642,
+    "y": 690646.382
+  },
+  {
+    "street": "יצחק בן חנן",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189620.234,
+    "y": 690965.912
+  },
+  {
+    "street": "הרב פריגיה זוארץ",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189622.859,
+    "y": 691180.253
+  },
+  {
+    "street": "הרב יעקב רקח",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189715.391,
+    "y": 691277.412
+  },
+  {
+    "street": "שמואל דיין",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188683.351,
+    "y": 690950.2
+  },
+  {
+    "street": "שרה מלכין",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189429.993,
+    "y": 691657.951
+  },
+  {
+    "street": "נויפלד",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189264.884,
+    "y": 690994.201
+  },
+  {
+    "street": "ישראל בן מאיר",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189559.139,
+    "y": 691149.722
+  },
+  {
+    "street": "מיכאל",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189207.978,
+    "y": 691333.145
+  },
+  {
+    "street": "צירלסון",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189155.02,
+    "y": 690761.17
+  },
+  {
+    "street": "השומר",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 188906.881,
+    "y": 690811.576
+  },
+  {
+    "street": "אלכסנדר זייד",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189036.76,
+    "y": 691113.327
+  },
+  {
+    "street": "גדליהו בובליק",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189692.064,
+    "y": 691563.133
+  },
+  {
+    "street": "שמואל לנדאו",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189354.33,
+    "y": 690940.634
+  },
+  {
+    "street": "ההשכלה",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189055.93,
+    "y": 690715.592
+  },
+  {
+    "street": "שח\"ל (לנדאו שמואל)",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189244.886,
+    "y": 691421.809
+  },
+  {
+    "street": "אליהו גוטמכר",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189815.91,
+    "y": 691613.999
+  },
+  {
+    "street": "הרב יהודה אונטרמן",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 188788.291,
+    "y": 690781.736
+  },
+  {
+    "street": "רזיאל",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187356.475,
+    "y": 693085.544
+  },
+  {
+    "street": "נעמן בלקינד",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187624.594,
+    "y": 692708.583
+  },
+  {
+    "street": "פינס",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187214.4,
+    "y": 693101.98
+  },
+  {
+    "street": "דב הוז",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187876.9,
+    "y": 693677.124
+  },
+  {
+    "street": "פרופ' שור",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187976.468,
+    "y": 694035.897
+  },
+  {
+    "street": "צבי פרץ חיות",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187916.398,
+    "y": 694106.378
+  },
+  {
+    "street": "מינץ",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187460.276,
+    "y": 692717.021
+  },
+  {
+    "street": "הרצל",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187216.769,
+    "y": 692624.608
+  },
+  {
+    "street": "מנדלסון",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187884.529,
+    "y": 694121.391
+  },
+  {
+    "street": "רחל המשוררת",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187768.672,
+    "y": 693756.352
+  },
+  {
+    "street": "יפתח הגלעדי",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187943.452,
+    "y": 693569.474
+  },
+  {
+    "street": "לאה גולדברג",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187873.735,
+    "y": 693839.417
+  },
+  {
+    "street": "אצ\"ג",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187728.9,
+    "y": 693815.288
+  },
+  {
+    "street": "יותם",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187660.655,
+    "y": 693523.672
+  },
+  {
+    "street": "התקופה",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187670.141,
+    "y": 693179.735
+  },
+  {
+    "street": "התנאים",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187977.222,
+    "y": 693929.323
+  },
+  {
+    "street": "פרישמן",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187879.69,
+    "y": 693094.942
+  },
+  {
+    "street": "שמשון",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187922.565,
+    "y": 693447.795
+  },
+  {
+    "street": "איינשטיין",
+    "neighborhoodId": "66239286",
+    "neighborhoodName": "כוכב הצפון",
+    "x": 187944.79,
+    "y": 694141.69
+  },
+  {
+    "street": "נחום גוטמן",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187819.668,
+    "y": 693841.781
+  },
+  {
+    "street": "יונה וולך",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187800.833,
+    "y": 693896.746
+  },
+  {
+    "street": "שמורק",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186273.742,
+    "y": 689278.945
+  },
+  {
+    "street": "מוצקין",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185916.335,
+    "y": 689337.841
+  },
+  {
+    "street": "חיים כהן-מגורי",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186144.872,
+    "y": 689448.993
+  },
+  {
+    "street": "שמחה ארליך",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185888.925,
+    "y": 689616.028
+  },
+  {
+    "street": "מכלוף מרואני",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186079.196,
+    "y": 689016.546
+  },
+  {
+    "street": "אפרים אלנקווה",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186015.882,
+    "y": 689038.791
+  },
+  {
+    "street": "משמר הירדן",
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188427.818,
+    "y": 692733.981
+  },
+  {
+    "street": "וולפסון",
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188418.386,
+    "y": 692700.88
+  },
+  {
+    "street": "גיבורי ניצנים",
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188124.417,
+    "y": 692543.563
+  },
+  {
+    "street": "מאיר אבנר",
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188252.267,
+    "y": 692456.782
+  },
+  {
+    "street": "חיים לבנון",
+    "neighborhoodId": "65867357",
+    "neighborhoodName": "נווה איתמר",
+    "x": 188514.749,
+    "y": 692429.057
+  },
+  {
+    "street": "פתח תקווה",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187029.277,
+    "y": 692063.528
+  },
+  {
+    "street": "הל\"ה",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187227.92,
+    "y": 692242.969
+  },
+  {
+    "street": "המהר\"ל מפראג",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187267.501,
+    "y": 691716.579
+  },
+  {
+    "street": "הטורים",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187288.634,
+    "y": 691755.523
+  },
+  {
+    "street": "אצ\"ל",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187140.888,
+    "y": 691649.759
+  },
+  {
+    "street": "שלמה בן יוסף",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187097.13,
+    "y": 691754.113
+  },
+  {
+    "street": "יצחק אהרוני",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187236.041,
+    "y": 691850.881
+  },
+  {
+    "street": "חביבה רייק",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187439.147,
+    "y": 692168.862
+  },
+  {
+    "street": "רד\"ק",
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186980.308,
+    "y": 691554.867
+  },
+  {
+    "street": "הפורצים",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187288.409,
+    "y": 692240.454
+  },
+  {
+    "street": "הצנחנים",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187268.545,
+    "y": 692237.458
+  },
+  {
+    "street": "רמב\"ן",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187158.215,
+    "y": 691684.735
+  },
+  {
+    "street": "בר גיורה",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187294.201,
+    "y": 691879.864
+  },
+  {
+    "street": "ניל\"י",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187244.039,
+    "y": 692014.389
+  },
+  {
+    "street": "יעקב וייס",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187122.196,
+    "y": 691795.937
+  },
+  {
+    "street": "לח\"י",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187428.177,
+    "y": 691728.483
+  },
+  {
+    "street": "סטרומה",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187322.512,
+    "y": 692157.14
+  },
+  {
+    "street": "דב גרונר",
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186984.531,
+    "y": 691709.112
+  },
+  {
+    "street": "חנה סנש",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187544.457,
+    "y": 692268.662
+  },
+  {
+    "street": "רש\"י",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187188.666,
+    "y": 691751.589
+  },
+  {
+    "street": "הרב משולם ראט",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186434.664,
+    "y": 690775.561
+  },
+  {
+    "street": "גרשון ש\"ץ",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186350.97,
+    "y": 691584.53
+  },
+  {
+    "street": "אייזיק רמבה",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186472.24,
+    "y": 691456.2
+  },
+  {
+    "street": "בנימין",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186520.79,
+    "y": 691665.477
+  },
+  {
+    "street": "אמנון ליפקין-שחק",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186138.027,
+    "y": 691236.255
+  },
+  {
+    "street": "בן אב\"י",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186210.611,
+    "y": 691756.23
+  },
+  {
+    "street": "חיים בן עטר",
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186724.012,
+    "y": 691444.709
+  },
+  {
+    "street": "רמב\"ם",
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186987.543,
+    "y": 691329.405
+  },
+  {
+    "street": "הקליר",
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 187127.09,
+    "y": 691077.69
+  },
+  {
+    "street": "האר\"י",
+    "neighborhoodId": "66239287",
+    "neighborhoodName": "נוף השרון",
+    "x": 187353.514,
+    "y": 690983.394
+  },
+  {
+    "street": "עובדיה בן שלום",
+    "neighborhoodId": "67468648",
+    "neighborhoodName": "רמת חן",
+    "x": 186700.37,
+    "y": 691264.918
+  },
+  {
+    "street": "ירמיהו הלפרן",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186059.356,
+    "y": 691864.25
+  },
+  {
+    "street": "ח\"ן",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186112.849,
+    "y": 692311.025
+  },
+  {
+    "street": "הלפרין ירמיהו",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186034.83,
+    "y": 691845.73
+  },
+  {
+    "street": "ירושלים",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186372.82,
+    "y": 692380.287
+  },
+  {
+    "street": "אהרון צבי פרופס",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186259.194,
+    "y": 691908.165
+  },
+  {
+    "street": "זמנהוף",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186484.935,
+    "y": 691831.374
+  },
+  {
+    "street": "ד\"ר אברהם אבו שדיד",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186324.437,
+    "y": 691801.748
+  },
+  {
+    "street": "ראש פינה",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186331.593,
+    "y": 692168.477
+  },
+  {
+    "street": "ד\"ר אבו שדיד אברהם",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186316.714,
+    "y": 691808.756
+  },
+  {
+    "street": "אמבר",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186965.0,
+    "y": 693532.0
+  },
+  {
+    "street": "אהרון ברט",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186965.0,
+    "y": 693532.0
+  },
+  {
+    "street": "פלמ\"ח",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186965.0,
+    "y": 693532.0
+  },
+  {
+    "street": "ויצמן",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186965.0,
+    "y": 693532.0
+  },
+  {
+    "street": "משה שפירא",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186965.0,
+    "y": 693532.0
+  },
+  {
+    "street": "אח\"י דקר",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186642.0,
+    "y": 694916.0
+  },
+  {
+    "street": "החלוצים",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 186973.0,
+    "y": 692556.0
+  },
+  {
+    "street": "זלמן ארן",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186054.0,
+    "y": 687624.0
+  },
+  {
+    "street": "ארצ'י שרמן",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185948.0,
+    "y": 689958.0
+  },
+  {
+    "street": "מנחם בגין",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185474.0,
+    "y": 686763.0
+  },
+  {
+    "street": "ישראל בורגנסקי",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186175.0,
+    "y": 691565.0
+  },
+  {
+    "street": "פנחס בלקני",
+    "neighborhoodId": "65867903",
+    "neighborhoodName": "משכנות זבולון",
+    "x": 188335.0,
+    "y": 691023.0
+  },
+  {
+    "street": "בן-אליעזר",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 186791.0,
+    "y": 691828.0
+  },
+  {
+    "street": "שמעון ברכה",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187905.0,
+    "y": 693392.0
+  },
+  {
+    "street": "ראובן ברקת",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187119.0,
+    "y": 692759.0
+  },
+  {
+    "street": "בני גאון",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187226.0,
+    "y": 686971.0
+  },
+  {
+    "street": "גיבורי ישראל",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187059.656,
+    "y": 687348.59
+  },
+  {
+    "street": "המלאכה",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 187058.0,
+    "y": 687347.0
+  },
+  {
+    "street": "מרדכי גור",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185614.0,
+    "y": 686807.0
+  },
+  {
+    "street": "ישראל גלילי",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185569.0,
+    "y": 686346.0
+  },
+  {
+    "street": "יעקב דורי",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185770.0,
+    "y": 689490.0
+  },
+  {
+    "street": "אריאל שרון",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 188955.0,
+    "y": 691450.0
+  },
+  {
+    "street": "האחווה",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185949.0,
+    "y": 691669.0
+  },
+  {
+    "street": "האונייה ארינפורה",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186666.0,
+    "y": 694889.0
+  },
+  {
+    "street": "ברוך הגר",
+    "neighborhoodId": "66239240",
+    "neighborhoodName": "נאות גנים",
+    "x": 189398.0,
+    "y": 691110.0
+  },
+  {
+    "street": "הוורדים",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185288.0,
+    "y": 686456.0
+  },
+  {
+    "street": "המיסדים",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186613.0,
+    "y": 692956.0
+  },
+  {
+    "street": "המכבייה",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 187542.0,
+    "y": 688972.0
+  },
+  {
+    "street": "משה הס",
+    "neighborhoodId": "66239237",
+    "neighborhoodName": "רמת אפרים",
+    "x": 187041.0,
+    "y": 692540.0
+  },
+  {
+    "street": "הרב אברהם פרידר",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 186372.0,
+    "y": 690802.0
+  },
+  {
+    "street": "תחכמוני",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186729.0,
+    "y": 691960.0
+  },
+  {
+    "street": "חטיבת קרייתי",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185727.0,
+    "y": 689810.0
+  },
+  {
+    "street": "יהושע טהון",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186696.0,
+    "y": 694134.0
+  },
+  {
+    "street": "העצמאות",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186189.0,
+    "y": 692977.0
+  },
+  {
+    "street": "חיים לסקוב",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185526.0,
+    "y": 686565.0
+  },
+  {
+    "street": "שלום פורר",
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187489.0,
+    "y": 694000.0
+  },
+  {
+    "street": "יצחק מודעי",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185445.0,
+    "y": 688933.0
+  },
+  {
+    "street": "עמנואל מול",
+    "neighborhoodId": "66239254",
+    "neighborhoodName": "מרכז העיר צפון",
+    "x": 186422.0,
+    "y": 693824.0
+  },
+  {
+    "street": "יגאל מוסינזון",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187768.0,
+    "y": 693868.0
+  },
+  {
+    "street": "מיכ\"ל",
+    "neighborhoodId": "66239243",
+    "neighborhoodName": "קריית נורדאו",
+    "x": 186114.0,
+    "y": 687470.0
+  },
+  {
+    "street": "גד מכנס",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 186037.0,
+    "y": 692726.0
+  },
+  {
+    "street": "מנחם סבידור",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185715.0,
+    "y": 686519.0
+  },
+  {
+    "street": "שמעון פרוג",
+    "neighborhoodId": "66239239",
+    "neighborhoodName": "נאות הרצל",
+    "x": 187838.0,
+    "y": 692981.0
+  },
+  {
+    "street": "דוד רזניק",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185555.0,
+    "y": 689040.0
+  },
+  {
+    "street": "לאון רייך",
+    "neighborhoodId": "65867363",
+    "neighborhoodName": "קריית צאנז",
+    "x": 186800.0,
+    "y": 694122.0
+  },
+  {
+    "street": "ברוך רם",
+    "neighborhoodId": "67468658",
+    "neighborhoodName": "מרכז העיר דרום",
+    "x": 185819.0,
+    "y": 691928.0
+  },
+  {
+    "street": "נצח ישראל",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "עלייה",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "קדושי עיראק",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "נחום",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "ועידת הלסינקי",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "עליה",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "חולדה",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 186776.0,
+    "y": 689182.0
+  },
+  {
+    "street": "בן גוריון",
+    "neighborhoodId": "65867837",
+    "neighborhoodName": "נאות שקד",
+    "x": 185531.0,
+    "y": 689399.0
+  },
+  {
+    "street": "עובד בן עמי",
+    "neighborhoodId": "66239231",
+    "neighborhoodName": "נוף הטיילת",
+    "x": 185473.0,
+    "y": 690366.0
+  },
+  {
+    "street": "יצחק שדה",
+    "neighborhoodId": "66239285",
+    "neighborhoodName": "פרדס הגדוד",
+    "x": 187258.0,
+    "y": 694183.0
+  },
+  {
+    "street": "שז\"ר זלמן",
+    "neighborhoodId": "66239260",
+    "neighborhoodName": "עיר ימים",
+    "x": 185571.0,
+    "y": 686930.0
+  }
+]

@@ -46,6 +46,16 @@ function makeSupabaseMock(tables: Record<string, any[]>) {
           state.filters.push((r) => r[col] != null && r[col] >= val);
           return builder;
         },
+        lt(col: string, val: string | number) {
+          state.filters.push((r) => r[col] != null && r[col] < val);
+          return builder;
+        },
+        // PostgREST ILIKE as SupabaseStore.getDealsByStreet uses it: "%text%", with \ escaping % _ \
+        ilike(col: string, pattern: string) {
+          const needle = pattern.slice(1, -1).replace(/\\(.)/g, "$1").toLowerCase();
+          state.filters.push((r) => r[col] != null && String(r[col]).toLowerCase().includes(needle));
+          return builder;
+        },
         lte(col: string, val: string | number) {
           state.filters.push((r) => r[col] != null && r[col] <= val);
           return builder;
@@ -134,6 +144,12 @@ function makeDeal(overrides: Partial<Record<string, unknown>>) {
 }
 
 let mockClient: ReturnType<typeof makeSupabaseMock>;
+
+// govmap geocoding is network — keep these tests offline and deterministic
+vi.mock("@/lib/govmap", async (orig) => ({
+  ...(await orig<typeof import("@/lib/govmap")>()),
+  resolvePoint: async () => null,
+}));
 
 vi.mock("@supabase/supabase-js", () => ({
   createClient: () => mockClient,

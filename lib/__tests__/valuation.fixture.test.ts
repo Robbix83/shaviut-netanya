@@ -6,8 +6,9 @@ import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 // No houseNumber/streetName → no network geocode.
 // The clock is frozen: valuate() picks its deal windows relative to today, so without a
 // fixed date the pinned numbers drift as time passes.
-// Re-pinned 27.10.2026 after the backtest-calibrated range floor (apartment ±15%, house ±25%)
-// and manual review for land — the middle estimate is unchanged by those (see fixture B).
+// Re-pinned 27.10.2026 (VE-1) after changes measured with scripts/backtest: comparables are
+// adjusted to the valuation date by the neighbourhood's ₪/m² trend (capped ±5%/yr), and the
+// apartment range floor is ±20% (house ±25%); land returns no number (manual review).
 process.env.DATA_SOURCE = "local";
 
 import { valuate } from "@/lib/valuation";
@@ -34,12 +35,12 @@ describe("valuation math is unchanged (characterization)", () => {
       floor: 3,
     } as any);
     expect(v).not.toBeNull();
-    expect(v!.estimateLow).toBe(2128000);
-    expect(v!.estimateMid).toBe(2504000);
-    expect(v!.estimateHigh).toBe(2880000);
+    expect(v!.estimateLow).toBe(2006000);
+    expect(v!.estimateMid).toBe(2507000);
+    expect(v!.estimateHigh).toBe(3008000);
     expect(v!.basedOnDeals).toBe(4);
     expect(v!.confidence).toBe("low");
-    expect(v!.pricePerSqmMid).toBe(25035);
+    expect(v!.pricePerSqmMid).toBe(25066);
   });
 
   it("fixture B — קריית השרון, 3 rooms, 80 sqm", async () => {
@@ -53,12 +54,12 @@ describe("valuation math is unchanged (characterization)", () => {
       floor: 2,
     } as any);
     expect(v).not.toBeNull();
-    expect(v!.estimateLow).toBe(1697000);
-    expect(v!.estimateMid).toBe(1996000);
-    expect(v!.estimateHigh).toBe(2295000);
+    expect(v!.estimateLow).toBe(1611000);
+    expect(v!.estimateMid).toBe(2014000);
+    expect(v!.estimateHigh).toBe(2417000);
     expect(v!.basedOnDeals).toBe(6);
     expect(v!.confidence).toBe("low");
-    expect(v!.pricePerSqmMid).toBe(24948);
+    expect(v!.pricePerSqmMid).toBe(25178);
   });
 
   it("fixture C — פרדס הגדוד, plot 500 sqm → manual review, no number", async () => {
@@ -82,5 +83,26 @@ describe("valuation math is unchanged (characterization)", () => {
     expect(v!.pricePerSqmMid).toBe(0);
     expect(v!.confidence).toBe("low");
     expect(v!.comparableDeals.length).toBeGreaterThan(0);
+  });
+
+  const agamim = {
+    ...base, neighborhoodId: "66239255", neighborhood: "אגמים", propertyType: "apartment",
+    rooms: 4, areaSqm: 100, floor: 3,
+  };
+
+  it("fixture D — build year after the valuation year → off-plan manual review, no number", async () => {
+    const v = await valuate({ ...agamim, yearBuilt: 2027 } as any);
+    expect(v).not.toBeNull();
+    expect(v!.manualReview).toBe(true);
+    expect(v!.manualReviewReason).toBe("off_plan");
+    expect(v!.estimateMid).toBe(0);
+    expect(v!.pricePerSqmMid).toBe(0);
+  });
+
+  it("fixture E — build year equal to the valuation year still gets a number", async () => {
+    const v = await valuate({ ...agamim, yearBuilt: 2026 } as any);
+    expect(v).not.toBeNull();
+    expect(v!.manualReview).toBe(false);
+    expect(v!.estimateMid).toBeGreaterThan(0);
   });
 });

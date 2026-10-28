@@ -9,6 +9,7 @@
 import { resolvePoint, itmDistance } from "@/lib/govmap";
 import { valuate } from "@/lib/valuation";
 import { getStore } from "@/lib/store";
+import { resolveDatasetNeighborhood } from "@/lib/neighborhoodResolution";
 import type { Neighborhood, Valuation } from "@/lib/types";
 
 export interface ValuationInput {
@@ -24,40 +25,51 @@ export interface ValuationInput {
   streetName?: string | null;
   streetX?: number | null;
   streetY?: number | null;
+  /** בדיקה לאחור בלבד (ראו PropertyInput.asOf). נתיבי ה-API מאפסים אותו — לקוח לא קובע אותו */
+  asOf?: string | null;
 }
 
 export type ValuationOutcome =
   | { ok: true; valuation: Valuation; neighborhoodId: string; neighborhoodName: string | null }
   | { ok: false; error: "no_match" | "insufficient_data" };
 
+export interface ResolveOptions {
+  /** false = לא פונים ל-govmap; משתמשים ב-streetX/streetY שהתקבלו (בדיקה לאחור — בלי רשת) */
+  geocode?: boolean;
+}
+
 /** מזהה שכונה + (אופציונלי) גיאוקוד + חישוב שווי — מסלול יחיד, סמכותי בצד-שרת. */
-export async function resolveAndValuate(input: ValuationInput): Promise<ValuationOutcome> {
+export async function resolveAndValuate(input: ValuationInput, opts: ResolveOptions = {}): Promise<ValuationOutcome> {
   const store = getStore();
   const neighborhoods = await store.listNeighborhoods("נתניה");
 
-  // 1) זיהוי השכונה
-  let neighborhoodId = input.neighborhoodId || null;
-  let neighborhoodName: string | null = null;
-
-  if (!neighborhoodId && input.query) {
-    neighborhoodId = await resolveNeighborhoodId(input.query, neighborhoods);
-  }
-  if (neighborhoodId) {
-    neighborhoodName = neighborhoods.find((n) => n.id === neighborhoodId)?.name ?? null;
-  }
-  if (!neighborhoodId) return { ok: false, error: "no_match" };
-
-  // 2) קואורדינטות: גיאוקוד מדויק כשיש מספר בית + שם רחוב
+  // 1) קואורדינטות. הדפדפן כבר מגאקד את הכתובת המלאה באותה שאילתת govmap ושולח x,y;
+  //    בשרת מגאקדים רק כשלא הגיעו קואורדינטות, ובזמן קצוב קצר — govmap חוסם/לא עונה
+  //    לשרתים רבים (נמדד: כישלון אחרי 2–5.6 שנ'), וזה היה עיקר זמן התגובה.
   let streetX = input.streetX ?? null;
   let streetY = input.streetY ?? null;
-  if (input.houseNumber && input.streetName) {
+  if (opts.geocode !== false && input.houseNumber && input.streetName && (streetX == null || streetY == null)) {
     const fullAddr = `${input.streetName} ${input.houseNumber} נתניה`;
-    const precise = await resolvePoint(fullAddr);
+    const precise = await resolvePoint(fullAddr, 2500);
     if (precise) {
       streetX = precise.x;
       streetY = precise.y;
     }
   }
+
+  // 2) זיהוי השכונה במאגר הפעיל: מזהה הלקוח נשמר רק אם המאגר מכיר אותו
+  //    (data/street-index.json מחזיק מזהי V1; ב-V2 הם לא קיימים) — אחרת לפי עסקאות הרחוב עצמן
+  const knownIds = new Set(neighborhoods.map((n) => n.id));
+  let { id: neighborhoodId } = await resolveDatasetNeighborhood(
+    { neighborhoodId: input.neighborhoodId, streetName: input.streetName, houseNumber: input.houseNumber, streetX, streetY, asOf: input.asOf },
+    knownIds,
+    store,
+  );
+  if (!neighborhoodId && input.query) {
+    neighborhoodId = await resolveNeighborhoodId(input.query, neighborhoods);
+  }
+  if (!neighborhoodId) return { ok: false, error: "no_match" };
+  const neighborhoodName = neighborhoods.find((n) => n.id === neighborhoodId)?.name ?? null;
 
   // 3) חישוב השווי (המתמטיקה ב-lib/valuation.ts — ללא שינוי)
   const valuation = await valuate({
@@ -73,6 +85,7 @@ export async function resolveAndValuate(input: ValuationInput): Promise<Valuatio
     streetName: input.streetName ?? null,
     streetX,
     streetY,
+    asOf: input.asOf ?? null,
   });
 
   if (!valuation) return { ok: false, error: "insufficient_data" };

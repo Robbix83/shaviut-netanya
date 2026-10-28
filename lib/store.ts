@@ -20,12 +20,16 @@ export interface DealsQuery {
   /** סינון לפי טווח חדרים (לדמיון) */
   roomsMin?: number;
   roomsMax?: number;
+  /** "נכון לתאריך" (בדיקה לאחור): רק עסקאות שלפניו, ו-monthsBack נספר ממנו. ריק = היום */
+  asOf?: string | null;
 }
 
 export interface Store {
   listNeighborhoods(settlement: string): Promise<Neighborhood[]>;
   getNeighborhood(id: string): Promise<Neighborhood | null>;
   getDealsByNeighborhood(neighborhoodId: string, q?: DealsQuery): Promise<Deal[]>;
+  /** עסקאות ברחוב (התאמת שם אחרי הסרת שד'/רחוב, כמו במנוע) — לזיהוי שכונה מהנתונים עצמם */
+  getDealsByStreet(street: string, q?: DealsQuery): Promise<Deal[]>;
   /** כל העסקאות — לשימוש בחיפוש שכונה לפי קואורדינטות */
   getAllDeals(): Promise<Deal[]>;
   /** סטטיסטיקות לדף הבית — ללא העמסת כל העסקאות כמערך ל-caller */
@@ -83,10 +87,11 @@ class LocalStore implements Store {
 
   async getDealsByNeighborhood(neighborhoodId: string, q: DealsQuery = {}): Promise<Deal[]> {
     const all = await this.deals();
-    const cutoff = q.monthsBack ? monthsAgoISO(q.monthsBack) : null;
+    const cutoff = q.monthsBack ? monthsAgoISO(q.monthsBack, q.asOf) : null;
     return all.filter((d) => {
       if (d.neighborhoodId !== neighborhoodId) return false;
       if (cutoff && d.dealDate < cutoff) return false;
+      if (q.asOf && d.dealDate >= q.asOf) return false;
       if (q.roomsMin != null && (d.rooms ?? 0) < q.roomsMin) return false;
       if (q.roomsMax != null && (d.rooms ?? 99) > q.roomsMax) return false;
       return true;
@@ -95,6 +100,10 @@ class LocalStore implements Store {
 
   async getAllDeals(): Promise<Deal[]> {
     return this.deals();
+  }
+
+  async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {
+    return filterByStreet(await this.deals(), street, q);
   }
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
@@ -242,7 +251,8 @@ class SupabaseStore implements Store {
     const all: Deal[] = [];
     for (let offset = 0; ; offset += PAGE_SIZE) {
       let query = sb.from(this.table("deals")).select("*").eq("neighborhoodId", neighborhoodId).order("id");
-      if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack));
+      if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack, q.asOf));
+      if (q.asOf) query = query.lt("dealDate", q.asOf);
       if (q.roomsMin != null) query = query.gte("rooms", q.roomsMin);
       if (q.roomsMax != null) query = query.lte("rooms", q.roomsMax);
       const { data, error } = await query.range(offset, offset + PAGE_SIZE - 1);
@@ -271,6 +281,26 @@ class SupabaseStore implements Store {
       if (page.length < PAGE_SIZE) break;
     }
     return all.map(withNeighborhoodName);
+  }
+
+  async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {
+    const core = normalizeStreetName(street);
+    if (!core) return [];
+    const sb = await this.client();
+    // אין אינדקס על street: סריקה אחת בצד השרת (ilike), ואז אותו כלל התאמה כמו במנוע
+    const pattern = `%${core.replace(/[\\%_]/g, (c) => "\\" + c)}%`;
+    const PAGE_SIZE = 1000;
+    const all: Deal[] = [];
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      let query = sb.from(this.table("deals")).select("*").ilike("street", pattern).order("id");
+      if (q.asOf) query = query.lt("dealDate", q.asOf);
+      const { data, error } = await query.range(offset, offset + PAGE_SIZE - 1);
+      if (error) throw error;
+      const page = (data ?? []) as Deal[];
+      all.push(...page);
+      if (page.length < PAGE_SIZE) break;
+    }
+    return filterByStreet(all.map(withNeighborhoodName), street, q);
   }
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
@@ -368,8 +398,26 @@ class SupabaseStore implements Store {
 
 // ---------- helpers ----------
 
-function monthsAgoISO(months: number): string {
-  const d = new Date();
+const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח')\s*/i;
+/** אותה נורמליזציה כמו ב-lib/valuation.ts: בלי שד'/שדרות/רחוב/רח' */
+export function normalizeStreetName(s: string): string {
+  return s.replace(STREET_PREFIX, "").trim();
+}
+
+/** כלל ההתאמה של המנוע: שם זהה אחרי נורמליזציה, או שם ה-DB חלק מהשם שהוזן (לא להפך) */
+function filterByStreet(deals: Deal[], street: string, q: DealsQuery): Deal[] {
+  const want = normalizeStreetName(street);
+  if (!want) return [];
+  return deals.filter((d) => {
+    if (!d.street) return false;
+    if (q.asOf && d.dealDate >= q.asOf) return false;
+    const ds = normalizeStreetName(d.street);
+    return ds !== "" && (ds === want || want.includes(ds));
+  });
+}
+
+function monthsAgoISO(months: number, asOf?: string | null): string {
+  const d = asOf ? new Date(asOf + "T00:00:00Z") : new Date();
   d.setMonth(d.getMonth() - months);
   return d.toISOString().slice(0, 10);
 }
@@ -381,4 +429,74 @@ export function getStore(): Store {
   const mode = resolveDataSource(process.env);
   _store = mode === "supabase" ? new SupabaseStore() : new LocalStore();
   return _store;
+}
+
+// ---------- מימוש בזיכרון (backtest / בדיקות) ----------
+
+/**
+ * Store לקריאה בלבד מעל מערכים שכבר בזיכרון — לבדיקה לאחור (scripts/backtest) ולבדיקות.
+ * מתודות הלידים זורקות: אסור שבדיקה לאחור תכתוב ליד.
+ * `hide` מסתיר עסקאות לפי id (leave-one-out) בלי לבנות את המערך מחדש.
+ */
+export class MemoryStore implements Store {
+  readonly hide = new Set<string>();
+  constructor(private readonly deals: Deal[], private readonly neighborhoods: Neighborhood[]) {}
+
+  private visible(): Deal[] {
+    return this.hide.size ? this.deals.filter((d) => !this.hide.has(d.id)) : this.deals;
+  }
+
+  async listNeighborhoods(settlement: string): Promise<Neighborhood[]> {
+    return this.neighborhoods.filter((n) => n.settlement === settlement);
+  }
+
+  async getNeighborhood(id: string): Promise<Neighborhood | null> {
+    return this.neighborhoods.find((n) => n.id === id) ?? null;
+  }
+
+  async getDealsByNeighborhood(neighborhoodId: string, q: DealsQuery = {}): Promise<Deal[]> {
+    const cutoff = q.monthsBack ? monthsAgoISO(q.monthsBack, q.asOf) : null;
+    return this.visible().filter((d) => {
+      if (d.neighborhoodId !== neighborhoodId) return false;
+      if (cutoff && d.dealDate < cutoff) return false;
+      if (q.asOf && d.dealDate >= q.asOf) return false;
+      if (q.roomsMin != null && (d.rooms ?? 0) < q.roomsMin) return false;
+      if (q.roomsMax != null && (d.rooms ?? 99) > q.roomsMax) return false;
+      return true;
+    });
+  }
+
+  async getAllDeals(): Promise<Deal[]> {
+    return this.visible();
+  }
+
+  async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {
+    return filterByStreet(this.visible(), street, q);
+  }
+
+  async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
+    const all = this.visible();
+    return { dealCount: all.length, neighborhoodCount: new Set(all.map((d) => d.neighborhoodId).filter(Boolean)).size };
+  }
+
+  async dataAsOf(): Promise<string> {
+    const all = this.visible();
+    if (!all.length) return new Date().toISOString().slice(0, 10);
+    return all.reduce((max, d) => (d.dealDate > max ? d.dealDate : max), all[0].dealDate);
+  }
+
+  private readOnly(): never {
+    throw new Error("MemoryStore is read-only (backtest/test store)");
+  }
+  async insertLead(): Promise<Lead> { return this.readOnly(); }
+  async getLeads(): Promise<Lead[]> { return []; }
+  async countLeads(): Promise<number> { return 0; }
+  async updateLeadStatus(): Promise<void> { return this.readOnly(); }
+  async updateTabuStatus(): Promise<void> { return this.readOnly(); }
+  async optOutByPhone(): Promise<boolean> { return this.readOnly(); }
+}
+
+/** מחליף את ה-store של התהליך (בדיקה לאחור ובדיקות בלבד). null → נבחר מחדש לפי הסביבה. */
+export function setStoreForTesting(store: Store | null): void {
+  _store = store;
 }
