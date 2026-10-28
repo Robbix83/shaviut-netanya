@@ -108,6 +108,11 @@ const MIN_RANGE_HALF: Record<string, number> = {
   apartment: 0.2,
   house: 0.25,
 };
+// תקרת רוחב לדירות. בבדיקה לאחור 7%–8% מהחיפושים יצאו מעל ±25%, ושם הסטייה החציונית 17%–60%.
+// החיתוך עולה רק כ-0.5 נק' כיסוי (77.7%→77.2% dev, 76.0%→75.9% test). בתים: לא נמדד — בלי תקרה.
+const MAX_RANGE_HALF: Record<string, number> = {
+  apartment: 0.25,
+};
 
 // סף מינימום ₪/מ"ר לפי סוג נכס — מסנן עסקאות חלקיות/זכויות שנדל"ן מפרסם ביחד
 // עם עסקאות שוק רגילות (מכירת 25% מדירה, העברות בין קרובים בתמורה סמלית וכו')
@@ -573,6 +578,18 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     ppsLow = Math.min(ppsLow, Math.round(ppsMid * (1 - minHalf)));
     ppsHigh = Math.max(ppsHigh, Math.round(ppsMid * (1 + minHalf)));
   }
+  // תקרת רוחב: פיזור גדול בעסקאות ההשוואה לא מוצג כטווח של מיליון ומעלה — חותכים ל-±MAX_RANGE_HALF
+  // ומורידים ביטחון לנמוך (הפיזור עצמו הוא הסימן שהאומדן פחות בטוח)
+  const maxHalf = MAX_RANGE_HALF[ptype];
+  let rangeCapped = false;
+  if (maxHalf && estMid! > 0) {
+    const capLow = round(estMid! * (1 - maxHalf)), capHigh = round(estMid! * (1 + maxHalf));
+    if (estLow! < capLow || estHigh! > capHigh) rangeCapped = true;
+    estLow = Math.max(estLow!, capLow);
+    estHigh = Math.min(estHigh!, capHigh);
+    ppsLow = Math.max(ppsLow, Math.round(ppsMid * (1 - maxHalf)));
+    ppsHigh = Math.min(ppsHigh, Math.round(ppsMid * (1 + maxHalf)));
+  }
 
   // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה.
   // בבנייה (שנת בנייה אחרי שנת ההערכה): בבדיקה לאחור האומדן יצא נמוך ב-31%–39% בחציון
@@ -608,7 +625,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     // התחדשות עירונית רלוונטית לדירות/בתים (לא לקרקע ריקה) — לפי מרחק מהכתובת
     renewal: isLand ? null : await renewalFor(input.neighborhood ?? null, input.streetX, input.streetY),
     // בית/קרקע: הבדיקה לאחור הראתה סטייה גבוהה — תמיד ביטחון נמוך
-    confidence: ptype === "apartment" ? confidenceFromCount(basedOn) : "low",
+    confidence: ptype === "apartment" && !rangeCapped ? confidenceFromCount(basedOn) : "low",
     asOf: dataAsOf,
     compositeUsed,
     manualReview,

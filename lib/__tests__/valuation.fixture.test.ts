@@ -105,4 +105,14 @@ describe("valuation math is unchanged (characterization)", () => {
     expect(v!.manualReview).toBe(false);
     expect(v!.estimateMid).toBeGreaterThan(0);
   });
+  it("apartment ranges never exceed ±25% around the mid (MAX_RANGE_HALF)", async () => {
+    for (const [id, name] of [["66239255", "אגמים"], ["66239241", "קריית השרון"]]) {
+      for (const rooms of [2, 3, 4, 5]) {
+        const v = await valuate({ ...base, neighborhoodId: id, neighborhood: name, propertyType: "apartment", rooms, areaSqm: rooms * 25, floor: 2 } as any);
+        if (!v || !v.estimateMid) continue;
+        expect(v.estimateHigh - v.estimateMid).toBeLessThanOrEqual(v.estimateMid * 0.25 + 1000);
+        expect(v.estimateMid - v.estimateLow).toBeLessThanOrEqual(v.estimateMid * 0.25 + 1000);
+      }
+    }
+  });
 });

@@ -86,3 +86,10 @@ A build year after the valuation year now returns manual review with no number, 
 | After skipping the server geocode | **0.84 s** | **1.0 s** | 2.6 s |
 
 govmap refuses or ignores requests from this server; each attempt failed after 2–5.6 s. The browser already geocodes the full address, so the server now geocodes only when no coordinates arrive, with a 2.5 s timeout.
+
+### Range cap ±25% for apartments (`rc4-dev`, `rc4-test`, 2026-10-28)
+
+- **Before the cap:** 7–8% of apartment searches showed a range wider than ±25%, sometimes over ₪1M on a ₪2.4M flat. Those were also the least accurate searches, with a median error of 17%–60%.
+- **The cap:** ranges are now cut at ±25% around the mid, and those searches are marked low confidence.
+- **Cost:** coverage moved from 77.7% to 77.2% on dev and from 76.0% to 75.9% on test.
+- **Check:** after the cap the widest apartment range is ±25.0%, and none is wider.
