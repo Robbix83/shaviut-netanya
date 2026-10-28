@@ -1028,7 +1028,7 @@ export default function ValuationWizard() {
                   { label: "2005–2015", value: "2010" },
                   { label: "2015+", value: "2020" },
                   // שנה עתידית = טרם נמסרה → השרת מחזיר בדיקה אישית במקום מספר
-                  { label: "בבנייה / טרם נמסרה", value: String(new Date().getFullYear() + 1) },
+                  { label: "בבנייה", value: String(new Date().getFullYear() + 1) },
                 ].map((opt) => (
                   <button
                     key={opt.value}

@@ -56,6 +56,14 @@ The test half is harder because a third of its sales are off-plan, so the target
 | Off-plan sales (built after the sale year) | dev | 74 | 39.4% | −39.4% | 35% | 38% |
 | Off-plan sales | test | 265 | 32.9% | −31.1% | 27% | 29% |
 
+### Off-plan manual review (`rc3-dev`, `rc3-test`, 2026-10-28)
+
+A build year after the valuation year now returns manual review with no number, the same as land.
+
+- **Off-plan:** all of them (74 dev, 265 test) go to manual review, so no off-plan search shows a number.
+- **Existing homes:** numbers are unchanged, at 10.6% / +1.4% on dev and 10.5% / +5.3% on test.
+- **Wizard:** the "בבנייה" option sends the year after the current one.
+
 ## Experiments kept and rejected (dev split, pipeline track)
 
 | Experiment | Median APE | Bias | Mean APE | Decision |
