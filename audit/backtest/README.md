@@ -93,3 +93,15 @@ govmap refuses or ignores requests from this server; each attempt failed after 2
 - **The cap:** ranges are now cut at ±25% around the mid, and those searches are marked low confidence.
 - **Cost:** coverage moved from 77.7% to 77.2% on dev and from 76.0% to 75.9% on test.
 - **Check:** after the cap the widest apartment range is ±25.0%, and none is wider.
+
+### Honest "same building" label + ±15% floor for same-building apartments (`rc5-dev`, `rc5-test`, 2026-10-30)
+
+- **Label fix:** `building` scope now requires every comparable to carry the searched house number.
+  - Before, the 60 m geo tier could tag a street segment as "the same building" when the browser sent only the street's point. For example, ויצמן 82 was labelled building from deals at 62–108.
+  - The city-wide fallback (±12 numbers) is now labelled `street`.
+  - On rand1000, 744 → 498 searches are labelled building, and the estimate is unchanged (MdAPE 10.6%).
+- **Floor:**
+  - **Same-building apartments:** the minimum range is ±15% (was ±20%), because a ~₪900K range looked unprofessional when the building's deals agree.
+  - **Same-building coverage:** 73% dev / 72% test, down from 82% / 81%.
+  - **Floors tried:** ±15%, ±12.5% and ±10%. ±15% was chosen by the user.
+- **Overall:** MdAPE 10.6% dev / 10.6% test, price in range 70% / 70%.

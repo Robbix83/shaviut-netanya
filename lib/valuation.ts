@@ -108,6 +108,9 @@ const MIN_RANGE_HALF: Record<string, number> = {
   apartment: 0.2,
   house: 0.25,
 };
+// דירה עם עסקאות מאותו בניין (אותו מספר בית): רצפה צרה יותר. בדיקה לאחור 30.10.2026: ±15% מכסה
+// 73% (dev) / 72% (test) מהמחירים בפועל לעומת 82% / 81% ב-±20%; האומדן עצמו לא משתנה (MdAPE 9%).
+const MIN_RANGE_HALF_BUILDING_APARTMENT = 0.15;
 // תקרת רוחב לדירות. בבדיקה לאחור 7%–8% מהחיפושים יצאו מעל ±25%, ושם הסטייה החציונית 17%–60%.
 // החיתוך עולה רק כ-0.5 נק' כיסוי (77.7%→77.2% dev, 76.0%→75.9% test). בתים: לא נמדד — בלי תקרה.
 const MAX_RANGE_HALF: Record<string, number> = {
@@ -295,10 +298,13 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   if (compSearchScope === "neighborhood" && inputStreetNorm) {
     const allCityDeals = await lazyStreetDeals();
     const cityPool = allCityDeals.filter((d) => (d.propertyType ?? "apartment") === ptype);
+    // ±12 house numbers is the street, not the building (same rule as the neighbourhood tier above)
     const cityBuilding = ageFilter(byBuildingNumber(cityPool), AGE_TOLERANCES.building);
     if (cityBuilding.length >= MIN_DEALS_FOR_ESTIMATE) {
       deals = cityBuilding;
-      compSearchScope = "building";
+      const inputHn = parseInt(input.houseNumber ?? "");
+      compSearchScope =
+        !isNaN(inputHn) && cityBuilding.every((d) => parseInt(d.houseNumber ?? "") === inputHn) ? "building" : "street";
       compRadiusMeters = null;
       windowMonths = GEO_MONTHS;
     } else {
@@ -343,11 +349,16 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
           const ds = normalizeStreet(d.street);
           return ds === inputStreetNorm || inputStreetNorm.includes(ds);
         });
+      // the input x,y can be the street's point, not the house (the browser geocode failed), so 60m
+      // around it is not "the same building": with a house number, every deal must carry that number
+      const inputHn = parseInt(input.houseNumber ?? "");
+      const allSameNumber =
+        isNaN(inputHn) || inBuilding.every((d) => parseInt(d.houseNumber ?? "") === inputHn);
       if (inBuilding.length >= MIN_DEALS_FOR_ESTIMATE) {
         deals = inBuilding.concat(unlocated);
         compRadiusMeters = BUILDING_RADIUS;
-        // אם כל העסקאות הן מאותו רחוב → building; אחרת → radius (כנה יותר)
-        compSearchScope = allSameStreet ? "building" : "radius";
+        // same street and same number → building; same street only → street; otherwise → radius (כנה יותר)
+        compSearchScope = allSameStreet ? (allSameNumber ? "building" : "street") : "radius";
         windowMonths = GEO_MONTHS;
       }
     }
@@ -571,7 +582,9 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   }
 
   // רצפת רוחב: הטווח לא צר מ-±MIN_RANGE_HALF סביב האמצע (האמצע עצמו לא משתנה)
-  const minHalf = MIN_RANGE_HALF[ptype];
+  const minHalf = ptype === "apartment" && compSearchScope === "building"
+    ? MIN_RANGE_HALF_BUILDING_APARTMENT
+    : MIN_RANGE_HALF[ptype];
   if (minHalf && estMid! > 0) {
     estLow = Math.min(estLow!, round(estMid! * (1 - minHalf)));
     estHigh = Math.max(estHigh!, round(estMid! * (1 + minHalf)));
