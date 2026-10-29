@@ -44,7 +44,7 @@ export const viewport: Viewport = {
   // אין חסימת זום (נגישות). זום אוטומטי של iOS נמנע כי כל שדות הקלט ≥16px.
   interactiveWidget: "resizes-content",
   viewportFit: "cover",
-  themeColor: "#0c0c0b",
+  themeColor: "#ffffff",
 };
 
 const jsonLd = {
@@ -136,7 +136,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-butter text-ink antialiased">
+      <body className="min-h-screen bg-white text-ink antialiased">
         <Analytics />
         {children}
         <WhatsAppButton />

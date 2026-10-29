@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // פריים: near-black cinema, warm paper, sunset orange
+        // direction A ("חוף נקי"): white ground, black controls, one sunset orange
         brand: {
           DEFAULT: "#c2410c",   // deep sunset orange: white text on it passes AA
           dark: "#9a3412",
@@ -19,9 +19,9 @@ export default {
         },
         ink: "#0c0c0b",
         butter: {
-          DEFAULT: "#f3efe7",   // warm paper ground (light pages, wizard surfaces)
-          soft: "#f7f4ee",      // lighter surface on the paper
-          deep: "#e7e0d3",      // tone step (chips, tracks)
+          DEFAULT: "#f4f4f5",   // neutral light ground (light pages, wizard surfaces)
+          soft: "#f6f6f7",      // card surface on white
+          deep: "#e8e8ea",      // tone step (chips, tracks)
         },
         sun: "#ff8a3d",         // the bright sunset: the homepage's own action
         night: "#0c0c0b",       // the cinema ground of the homepage
@@ -31,7 +31,7 @@ export default {
         sans: ["Rubik", "system-ui", "Arial", "sans-serif"],
       },
       boxShadow: {
-        card: "0 24px 60px -30px rgba(0,0,0,0.6)",
+        card: "0 24px 60px -30px rgba(0,0,0,0.35)",
         glow: "0 0 40px rgba(13,62,251,0.35)",
         "glow-lg": "0 0 60px rgba(13,62,251,0.5)",
       },

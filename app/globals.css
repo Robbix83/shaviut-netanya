@@ -10,7 +10,7 @@
   --brand-dark: #9a3412;
   --brand-glow: #c2410c;
   --hero-dark: #060d24;
-  --butter: #f3efe7;
+  --butter: #f4f4f5;
   --sun: #ff8a3d;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -66,7 +66,7 @@ input[type="number"] {
 
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 rounded-full
-           bg-brand px-6 py-3.5 text-base font-bold text-white
+           bg-ink px-6 py-3.5 text-base font-semibold text-white
            disabled:cursor-not-allowed disabled:opacity-50;
     min-height: 52px;
     transition: transform 160ms var(--ease-out), background-color 160ms ease;
@@ -82,7 +82,7 @@ input[type="number"] {
   .btn-ghost:active { transform: scale(0.97); }
 
   @media (hover: hover) and (pointer: fine) {
-    .btn-primary:hover:not(:disabled) { @apply bg-brand-dark; }
+    .btn-primary:hover:not(:disabled) { @apply bg-black; }
     .btn-ghost:hover { @apply bg-butter-deep; }
   }
 
