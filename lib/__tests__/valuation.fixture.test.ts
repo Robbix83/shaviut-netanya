@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 // adjusted to the valuation date by the neighbourhood's ₪/m² trend (capped ±5%/yr), and the
 // apartment range floor is ±20% (house ±25%); land returns no number (manual review).
 // Re-pinned 30.10.2026 (rc7): apartments use the adjusted, weighted comparison (appraiseApartment),
-// with a range capped at ±10% and a ₪1M gap.
+// with a range capped at ±10% and a ₪1M gap; deals move to the valuation date by the market index.
 process.env.DATA_SOURCE = "local";
 
 import { valuate, appraiseApartment, uniqueDeals } from "@/lib/valuation";
@@ -82,12 +82,12 @@ describe("valuation math is unchanged (characterization)", () => {
       floor: 3,
     } as any);
     expect(v).not.toBeNull();
-    expect(v!.estimateLow).toBe(2345000);
-    expect(v!.estimateMid).toBe(2606000);
-    expect(v!.estimateHigh).toBe(2867000);
+    expect(v!.estimateLow).toBe(2343000);
+    expect(v!.estimateMid).toBe(2603000);
+    expect(v!.estimateHigh).toBe(2863000);
     expect(v!.basedOnDeals).toBe(4);
     expect(v!.confidence).toBe("low");
-    expect(v!.pricePerSqmMid).toBe(26061);
+    expect(v!.pricePerSqmMid).toBe(26029);
   });
 
   it("fixture B — קריית השרון, 3 rooms, 80 sqm", async () => {
@@ -101,12 +101,12 @@ describe("valuation math is unchanged (characterization)", () => {
       floor: 2,
     } as any);
     expect(v).not.toBeNull();
-    expect(v!.estimateLow).toBe(1985000);
-    expect(v!.estimateMid).toBe(2205000);
-    expect(v!.estimateHigh).toBe(2426000);
+    expect(v!.estimateLow).toBe(1967000);
+    expect(v!.estimateMid).toBe(2186000);
+    expect(v!.estimateHigh).toBe(2405000);
     expect(v!.basedOnDeals).toBe(6);
     expect(v!.confidence).toBe("low");
-    expect(v!.pricePerSqmMid).toBe(27566);
+    expect(v!.pricePerSqmMid).toBe(27324);
   });
 
   it("fixture C — פרדס הגדוד, plot 500 sqm → manual review, no number", async () => {

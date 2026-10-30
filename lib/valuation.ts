@@ -3,6 +3,8 @@ import { getStore, type DealsQuery } from "./store";
 import { itmDistance } from "./govmap";
 import { promises as fs } from "fs";
 import path from "path";
+// מדד שוק חודשי: נבנה ב-scripts/build-market-index.ts, ארוז בקוד כדי שיגיע לכל פריסה
+import marketIndex from "../data/market-index.json";
 
 // רדיוסים (מטרים) — קרבה אמיתית במקום שכונה שלמה
 const RENEWAL_VERY_CLOSE = 150;
@@ -100,6 +102,7 @@ const FLOOR_TOLERANCE = 2; // ±2 קומות
 const TIME_ADJUST = true;
 const TREND_MIN_DEALS = 20;              // פחות עסקאות → בלי התאמה (מגמה לא יציבה)
 const TREND_MAX_ANNUAL = 0.05;           // תקרת שינוי שנתי ±5% (בדיקה לאחור: 15% תיקן יתר — הטיה +7.5%)
+const MARKET_INDEX_MAX_CHANGE = 0.3;     // תקרת התאמה לעסקה בודדת לפי מדד השוק (±30%)
 
 // רצפת רוחב לטווח המוצג, סביב האומדן האמצעי. בבתים הסטייה גדולה יותר.
 // קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר (manualReview).
@@ -467,8 +470,12 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   if (TIME_ADJUST) {
     trendAnnual = annualTrend(pool4yr, minPpsqm);
     const ref = asOf ?? new Date().toISOString().slice(0, 10);
-    deals = deals.map((d) => adjustToDate(d, trendAnnual, ref));
-    geoPool = geoPool.map((d) => adjustToDate(d, trendAnnual, ref));
+    // דירות: מדד שוק חודשי של נתניה, גם בשנים של עלייה חדה (בדיקה לאחור 30.10.2026: 5,000 מכירות).
+    // בלי מדד, ובבתים: מגמת השכונה עם התקרה השנתית.
+    const market: Record<string, number> | null = ptype === "apartment" ? marketIndex : null;
+    const adjust = (d: Deal) => adjustToMarket(d, market, ref) ?? adjustToDate(d, trendAnnual, ref);
+    deals = deals.map(adjust);
+    geoPool = geoPool.map(adjust);
   }
 
   deals = uniqueDeals(deals);
@@ -1079,6 +1086,34 @@ export function annualTrend(deals: Deal[], minPpsqm: number): number {
 /** עותק מותאם-זמן → העסקה המקורית (לתצוגה מציגים תמיד את המחיר האמיתי) */
 const ORIGINAL = new WeakMap<Deal, Deal>();
 const original = (d: Deal): Deal => ORIGINAL.get(d) ?? d;
+
+/** ערך המדד האחרון שנסגר עד החודש הנתון (חלון של 6 חודשים שמסתיים בו) */
+function indexAt(index: Record<string, number>, month: string): number | null {
+  let last: string | null = null;
+  for (const m of Object.keys(index)) if (m <= month && (!last || m > last)) last = m;
+  return last ? index[last] : null;
+}
+
+function shiftMonth(month: string, by: number): string {
+  const d = new Date(`${month}-01T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + by);
+  return d.toISOString().slice(0, 7);
+}
+
+/** מצמיד עסקה למחירי השוק בתאריך היעד; null כשאין מדד לתקופה (לא מעבר לחודש שלפני היעד) */
+function adjustToMarket(d: Deal, index: Record<string, number> | null, refISO: string): Deal | null {
+  if (!index) return null;
+  const lastMonth = shiftMonth(refISO.slice(0, 7), -1);
+  // המדד נגרר 3 חודשים (חלון 6 ח') — נקודת ההשוואה לעסקה היא 3 חודשים אחריה
+  const dealMonth = shiftMonth(d.dealDate.slice(0, 7), 3);
+  const now = indexAt(index, lastMonth);
+  const then = indexAt(index, dealMonth < lastMonth ? dealMonth : lastMonth);
+  if (!now || !then) return null;
+  const f = Math.max(1 - MARKET_INDEX_MAX_CHANGE, Math.min(1 + MARKET_INDEX_MAX_CHANGE, now / then));
+  const adj = { ...d, price: Math.round(d.price * f), pricePerSqm: d.pricePerSqm != null ? Math.round(d.pricePerSqm * f) : d.pricePerSqm };
+  ORIGINAL.set(adj, original(d));
+  return adj;
+}
 
 /** מעתיק עסקה עם ₪/מ"ר ומחיר מוצמדים לתאריך היעד לפי קצב שנתי g. */
 function adjustToDate(d: Deal, g: number, refISO: string): Deal {

@@ -35,6 +35,7 @@ yarn-error.log*
 !/data/renewal.json
 !/data/poi.json
 !/data/cbs-netanya.json
+!/data/market-index.json
 !/data/netanya-streets-raw.json
 
 # Supabase production row-content backups (real data dumps, never source)

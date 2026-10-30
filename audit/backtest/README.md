@@ -94,6 +94,26 @@ govmap refuses or ignores requests from this server; each attempt failed after 2
 - **Cost:** coverage moved from 77.7% to 77.2% on dev and from 76.0% to 75.9% on test.
 - **Check:** after the cap the widest apartment range is ±25.0%, and none is wider.
 
+### Market index for the time adjustment (`rand5000-index`, 2026-10-30)
+
+Apartments now use a monthly Netanya price index (`data/market-index.json`, 6-month median ₪/m²,
+built by `scripts/build-market-index.ts`) instead of the neighbourhood trend capped at ±5% a year.
+Each deal may move at most ±30%. The index only reads months before the valuation date. Houses keep
+the old trend. Re-run the script after every data refresh.
+
+Same 5,000 random sales (2021-07 to 2026-07), apartments, ±10% ceiling:
+
+| | `rand5000-cap10` | `rand5000-index` |
+|---|---|---|
+| MdAPE | 9.5% | 8.2% |
+| bias | -3.6% | -1.7% |
+| within ±10% | 51.6% | 56.8% |
+| in range | 50.8% | 56.2% |
+| in range, last 12 months | 54.3% | 54.5% |
+| median bias 2022 / 2026 | -9.5% / +5.9% | -6.6% / +2.2% |
+
+The index settings were picked on these same sales, so the gain may shrink on new sales.
+
 ### Comparison approach for apartments (`rc7-dev`, `rc7-test`, 2026-10-30)
 
 From the appraisal report (sections 7, 8, 15): each comparable is adjusted to the subject (size, floor),
