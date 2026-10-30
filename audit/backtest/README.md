@@ -94,6 +94,38 @@ govmap refuses or ignores requests from this server; each attempt failed after 2
 - **Cost:** coverage moved from 77.7% to 77.2% on dev and from 76.0% to 75.9% on test.
 - **Check:** after the cap the widest apartment range is ±25.0%, and none is wider.
 
+### Comparison approach for apartments (`rc7-dev`, `rc7-test`, 2026-10-30)
+
+From the appraisal report (sections 7, 8, 15): each comparable is adjusted to the subject (size, floor),
+weighted by recency, same building and size closeness, and the mid is a weighted median. The range comes
+from how much the comparables agree, not from a fixed percentage. Duplicate deals count once. Hard limits
+stay: ₪1M gap, and ±20% at the time of this table. The ceiling later moved to ±10%: on 5,000 random sales (`rand5000-cap10`, 2021-07 to 2026-07) 50.8% of apartment prices fall in range, 54.3% in the last year; median gap ₪434K. Parameters were tuned on dev only; test confirmed them.
+
+| | rc6 dev | rc7 dev | rc6 test | rc7 test |
+|---|---|---|---|---|
+| MdAPE | 10.6% | 8.7% | 10.6% | 9.8% |
+| bias | +1.5% | +1.4% | +5.3% | +5.6% |
+| in range | 66% | 66% | 67% | 66% |
+
+Apartments sold since 2024 (dev + test, n=1,348), median gap and in range: under ₪2M ₪510K, 70%;
+₪2M–3M ₪743K, 70%; ₪3M–4M ₪909K, 64%; over ₪4M ₪1M, 49%. Overall median gap ₪754K (rc6: about ₪870K).
+Not available to the engine: parking, condition, balcony and view, which limits accuracy further.
+
+### Hard range ceiling for apartments (`rc6-dev`, `rc6-test`, 2026-10-30)
+
+Decision by the agent: an apartment range is never wider than ±20% and never has a gap over ₪1M.
+The ₪1M cap beats the percentage floors; the mid is unchanged. Scatter above ±25% still lowers
+confidence, and low confidence plus a cut range shows "הערכה ראשונית" with a personal-check offer.
+
+| | dev | test |
+|---|---|---|
+| MdAPE | 10.6% | 10.6% |
+| bias | +1.5% | +5.3% |
+| in range | 66% | 67% |
+
+Apartments sold since 2024 (dev + test, n=1,348), in range: under ₪2M 69%, ₪2M–3M 74%, ₪3M–4M 63%,
+over ₪4M 48%. No gap above ₪1M.
+
 ### Honest "same building" label + ±15% floor for same-building apartments (`rc5-dev`, `rc5-test`, 2026-10-30)
 
 - **Label fix:** `building` scope now requires every comparable to carry the searched house number.

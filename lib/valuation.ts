@@ -101,20 +101,35 @@ const TIME_ADJUST = true;
 const TREND_MIN_DEALS = 20;              // פחות עסקאות → בלי התאמה (מגמה לא יציבה)
 const TREND_MAX_ANNUAL = 0.05;           // תקרת שינוי שנתי ±5% (בדיקה לאחור: 15% תיקן יתר — הטיה +7.5%)
 
-// רצפת רוחב לטווח המוצג, סביב האומדן האמצעי. מכויל בבדיקה לאחור ללא זליגה
-// (scripts/backtest, 27.10.2026): בדירות קיימות ±20% מכסה 78% (dev) / 76% (test) מהמחירים בפועל.
-// בבתים הסטייה גדולה יותר. קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר (manualReview).
+// רצפת רוחב לטווח המוצג, סביב האומדן האמצעי. בבתים הסטייה גדולה יותר.
+// קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר (manualReview).
+// דירות: אין רצפה קבועה — הטווח נגזר מהעסקאות עצמן (appraiseApartment).
 const MIN_RANGE_HALF: Record<string, number> = {
-  apartment: 0.2,
   house: 0.25,
 };
-// דירה עם עסקאות מאותו בניין (אותו מספר בית): רצפה צרה יותר. בדיקה לאחור 30.10.2026: ±15% מכסה
-// 73% (dev) / 72% (test) מהמחירים בפועל לעומת 82% / 81% ב-±20%; האומדן עצמו לא משתנה (MdAPE 9%).
-const MIN_RANGE_HALF_BUILDING_APARTMENT = 0.15;
-// תקרת רוחב לדירות. בבדיקה לאחור 7%–8% מהחיפושים יצאו מעל ±25%, ושם הסטייה החציונית 17%–60%.
-// החיתוך עולה רק כ-0.5 נק' כיסוי (77.7%→77.2% dev, 76.0%→75.9% test). בתים: לא נמדד — בלי תקרה.
+// תקרת רוחב לדירות: מעל ±10% לא מציגים (החלטת המתווך, 30.10.2026; בדיקה על 5,000 מכירות: כ-49% בטווח). בתים: לא נמדד — בלי תקרה.
 const MAX_RANGE_HALF: Record<string, number> = {
-  apartment: 0.25,
+  apartment: 0.1,
+};
+// פיזור רחב מזה בעסקאות ההשוואה הוא הסימן לאומדן פחות בטוח (ביטחון נמוך), גם כשהתצוגה נחתכת לתקרה
+const WIDE_SCATTER_HALF = 0.25;
+// תקרה בשקלים לפער בין קצוות הטווח בדירות: באחוזים לבד, דירה של ₪4M+ תמיד מקבלת פער מעל מיליון.
+const MAX_RANGE_SPAN_APARTMENT = 1_000_000;
+
+// גישת ההשוואה בדירות: כל עסקה מותאמת לנכס הנבדק ומקבלת משקל לפי הדמיון אליו.
+// כויל בבדיקה לאחור ללא זליגה (30.10.2026, rc7); המקדמים מהשוק המקומי, לא נורמה שמאית.
+const APPRAISAL = {
+  sizeElasticity: 0.5,    // ₪/מ"ר יורד עם השטח: מקדם גודל = (שטח עסקה ÷ שטח נכס)^0.5
+  floorStep: 0.006,       // 0.6% לקומה, עד ±5 קומות
+  floorMaxDiff: 5,
+  recencyYears: 3,        // דעיכת משקל לפי גיל העסקה
+  sameBuildingWeight: 2,  // עסקה באותו בניין שווה פי 2
+  sizeWeightScale: 0.1,   // דעיכת משקל לפי פער שטח יחסי
+  // חצי-רוחב הטווח = בסיס + מקדם×פיזור + תיקון למדגם קטן, עם רצפה
+  rangeBase: 0.08,
+  rangeDispersion: 0.75,
+  rangeSample: 0.05,
+  rangeMin: 0.12,
 };
 
 // סף מינימום ₪/מ"ר לפי סוג נכס — מסנן עסקאות חלקיות/זכויות שנדל"ן מפרסם ביחד
@@ -456,6 +471,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     geoPool = geoPool.map((d) => adjustToDate(d, trendAnnual, ref));
   }
 
+  deals = uniqueDeals(deals);
+
   const ppsqm = deals
     .map((d) => d.pricePerSqm)
     .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
@@ -504,9 +521,18 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   const scopePct = compSearchScope === "building" ? { lo: 20, hi: 80 }
                  : compSearchScope === "street"   ? { lo: 25, hi: 75 }
                  :                                  { lo: 33, hi: 67 };
-  const lo  = percentile(ppsqm, scopePct.lo);
-  const mid = percentile(ppsqm, 50);
-  const hi  = percentile(ppsqm, scopePct.hi);
+  let lo  = percentile(ppsqm, scopePct.lo);
+  let mid = percentile(ppsqm, 50);
+  let hi  = percentile(ppsqm, scopePct.hi);
+  // דירה: עסקאות מותאמות ומשוקללות במקום חציון גולמי; הטווח משקף כמה הן מסכימות ביניהן
+  const appraisal = ptype === "apartment" && input.areaSqm
+    ? appraiseApartment(deals, input, asOf ?? new Date().toISOString().slice(0, 10), minPpsqm)
+    : null;
+  if (appraisal) {
+    mid = appraisal.ppsqm;
+    lo = mid * (1 - appraisal.half);
+    hi = mid * (1 + appraisal.half);
+  }
 
   const size = sizeInput && sizeInput > 0 ? sizeInput : null;
   const round = (n: number) => Math.round(n / 1000) * 1000;
@@ -582,26 +608,35 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   }
 
   // רצפת רוחב: הטווח לא צר מ-±MIN_RANGE_HALF סביב האמצע (האמצע עצמו לא משתנה)
-  const minHalf = ptype === "apartment" && compSearchScope === "building"
-    ? MIN_RANGE_HALF_BUILDING_APARTMENT
-    : MIN_RANGE_HALF[ptype];
+  const minHalf = MIN_RANGE_HALF[ptype];
   if (minHalf && estMid! > 0) {
     estLow = Math.min(estLow!, round(estMid! * (1 - minHalf)));
     estHigh = Math.max(estHigh!, round(estMid! * (1 + minHalf)));
     ppsLow = Math.min(ppsLow, Math.round(ppsMid * (1 - minHalf)));
     ppsHigh = Math.max(ppsHigh, Math.round(ppsMid * (1 + minHalf)));
   }
-  // תקרת רוחב: פיזור גדול בעסקאות ההשוואה לא מוצג כטווח של מיליון ומעלה — חותכים ל-±MAX_RANGE_HALF
-  // ומורידים ביטחון לנמוך (הפיזור עצמו הוא הסימן שהאומדן פחות בטוח)
+  // תקרת רוחב: הטווח המוצג לא רחב מ-±MAX_RANGE_HALF; פיזור מעל WIDE_SCATTER_HALF גם מוריד ביטחון לנמוך
   const maxHalf = MAX_RANGE_HALF[ptype];
   let rangeCapped = false;
   if (maxHalf && estMid! > 0) {
     const capLow = round(estMid! * (1 - maxHalf)), capHigh = round(estMid! * (1 + maxHalf));
-    if (estLow! < capLow || estHigh! > capHigh) rangeCapped = true;
+    if (estLow! < round(estMid! * (1 - WIDE_SCATTER_HALF)) || estHigh! > round(estMid! * (1 + WIDE_SCATTER_HALF))) rangeCapped = true;
     estLow = Math.max(estLow!, capLow);
     estHigh = Math.min(estHigh!, capHigh);
     ppsLow = Math.max(ppsLow, Math.round(ppsMid * (1 - maxHalf)));
     ppsHigh = Math.min(ppsHigh, Math.round(ppsMid * (1 + maxHalf)));
+  }
+  // תקרה בשקלים: גוברת על הרצפות באחוזים. מחיר גבוה לבדו לא אומר ביטחון נמוך — לא מורידים ביטחון כאן
+  let spanCapped = false;
+  if (ptype === "apartment" && estMid! > 0 && estHigh! - estLow! > MAX_RANGE_SPAN_APARTMENT) {
+    spanCapped = true;
+    const halfSpan = MAX_RANGE_SPAN_APARTMENT / 2;
+    estLow = Math.max(estLow!, estMid! - halfSpan);
+    estHigh = Math.min(estHigh!, estMid! + halfSpan);
+    if (size) {
+      ppsLow = Math.max(ppsLow, Math.round(estLow / size));
+      ppsHigh = Math.min(ppsHigh, Math.round(estHigh / size));
+    }
   }
 
   // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה.
@@ -614,6 +649,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     estLow = estMid = estHigh = 0;
     ppsLow = ppsMid = ppsHigh = 0;
   }
+
+  const confidence = ptype === "apartment" && !rangeCapped ? confidenceFromCount(basedOn) : "low";
 
   const valuation: Valuation = {
     pricePerSqmLow: ppsLow,
@@ -638,7 +675,9 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     // התחדשות עירונית רלוונטית לדירות/בתים (לא לקרקע ריקה) — לפי מרחק מהכתובת
     renewal: isLand ? null : await renewalFor(input.neighborhood ?? null, input.streetX, input.streetY),
     // בית/קרקע: הבדיקה לאחור הראתה סטייה גבוהה — תמיד ביטחון נמוך
-    confidence: ptype === "apartment" && !rangeCapped ? confidenceFromCount(basedOn) : "low",
+    confidence,
+    // ביטחון נמוך והטווח נחתך בתקרה: מציגים "הערכה ראשונית" ומציעים בדיקה אישית
+    preliminary: !manualReview && confidence === "low" && (rangeCapped || spanCapped),
     asOf: dataAsOf,
     compositeUsed,
     manualReview,
@@ -955,6 +994,71 @@ export function percentile(values: number[], p: number): number {
   const high = Math.ceil(rank);
   if (low === high) return sorted[low];
   return sorted[low] + (rank - low) * (sorted[high] - sorted[low]);
+}
+
+/** עסקה שמופיעה פעמיים במאגר (מזהה שונה, אותם פרטים) נספרת פעם אחת */
+export function uniqueDeals(deals: Deal[]): Deal[] {
+  const seen = new Set<string>();
+  return deals.filter((d) => {
+    const key = [d.street, d.houseNumber, d.dealDate, original(d).price, d.areaSqm, d.floor].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** אחוזון משוקלל של זוגות [ערך, משקל] */
+function weightedPercentile(pairs: [number, number][], p: number): number {
+  const sorted = [...pairs].sort((a, b) => a[0] - b[0]);
+  const total = sorted.reduce((s, x) => s + x[1], 0);
+  let acc = 0;
+  for (const [value, weight] of sorted) {
+    acc += weight;
+    if (acc >= total * (p / 100)) return value;
+  }
+  return sorted[sorted.length - 1][0];
+}
+
+/**
+ * גישת ההשוואה לדירה: מתאימים כל עסקה לנכס (שטח, קומה), משקללים לפי קרבה בזמן, בניין ושטח,
+ * ולוקחים חציון משוקלל. עסקאות מסכימות ורבות → טווח צר; מפוזרות או מעטות → טווח רחב.
+ */
+export function appraiseApartment(
+  deals: Deal[],
+  input: Pick<PropertyInput, "areaSqm" | "floor" | "houseNumber">,
+  refISO: string,
+  minPpsqm: number,
+): { ppsqm: number; half: number } | null {
+  const area = input.areaSqm;
+  if (!area) return null;
+  const hn = parseInt(input.houseNumber ?? "");
+  const pairs: [number, number][] = [];
+  for (const d of deals) {
+    if (d.pricePerSqm == null || !isFinite(d.pricePerSqm) || d.pricePerSqm < minPpsqm || !d.areaSqm) continue;
+    let value = d.pricePerSqm * Math.pow(d.areaSqm / area, APPRAISAL.sizeElasticity);
+    if (input.floor != null && d.floor != null) {
+      const diff = Math.max(-APPRAISAL.floorMaxDiff, Math.min(APPRAISAL.floorMaxDiff, input.floor - d.floor));
+      value *= 1 + APPRAISAL.floorStep * diff;
+    }
+    const years = Math.max(0, (Date.parse(refISO) - Date.parse(d.dealDate)) / (365.25 * 864e5));
+    const sameBuilding = !isNaN(hn) && parseInt(d.houseNumber ?? "") === hn;
+    const weight =
+      Math.exp(-years / APPRAISAL.recencyYears) *
+      (sameBuilding ? APPRAISAL.sameBuildingWeight : 1) *
+      Math.exp(-Math.abs(d.areaSqm - area) / area / APPRAISAL.sizeWeightScale);
+    pairs.push([value, weight]);
+  }
+  if (pairs.length < MIN_DEALS_FOR_ESTIMATE) return null;
+  const total = pairs.reduce((s, x) => s + x[1], 0);
+  if (!(total > 0)) return null;
+  const ppsqm = weightedPercentile(pairs, 50);
+  const effectiveDeals = total ** 2 / pairs.reduce((s, x) => s + x[1] ** 2, 0);
+  const dispersion = (weightedPercentile(pairs, 75) - weightedPercentile(pairs, 25)) / 2 / ppsqm;
+  const half = Math.max(
+    APPRAISAL.rangeMin,
+    APPRAISAL.rangeBase + APPRAISAL.rangeDispersion * dispersion + APPRAISAL.rangeSample / Math.sqrt(effectiveDeals),
+  );
+  return { ppsqm, half };
 }
 
 /** קצב שינוי שנתי של ₪/מ"ר (שיפוע לוג-ליניארי), או 0 כשאין מספיק עסקאות. */

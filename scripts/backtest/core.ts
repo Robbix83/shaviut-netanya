@@ -74,6 +74,8 @@ export interface SampleSpec {
   /** last sale date in the dataset; the evaluation year is the 12 months before it */
   lastDate: string;
   split: Split;
+  /** how many years back the evaluation window reaches (default 1) */
+  yearsBack?: number;
   /** "all" or a sample size */
   size: number | "all";
   seed: number;
@@ -99,7 +101,7 @@ function addMonths(iso: string, months: number): string {
  * Rows are sorted by id before shuffling, so the sample does not depend on file order.
  */
 export function drawSample(deals: Deal[], spec: SampleSpec): SampleResult {
-  const fromISO = addMonths(spec.lastDate, -12);
+  const fromISO = addMonths(spec.lastDate, -12 * (spec.yearsBack ?? 1));
   const splitISO = addMonths(spec.lastDate, -6);
   const excluded: Record<string, number> = {};
   const inYear = deals.filter((d) => d.dealDate > fromISO && d.dealDate <= spec.lastDate);

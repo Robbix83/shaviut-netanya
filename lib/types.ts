@@ -59,6 +59,7 @@ export interface Valuation {
   buildingRights?: BuildingRights | null; // נמשך מ-GIS (שלב מאוחר יותר)
   renewal?: RenewalInfo | null; // התחדשות עירונית באזור (מקור: הרשות להתחדשות עירונית)
   confidence: "high" | "medium" | "low";
+  preliminary?: boolean;
   asOf: string; // עד איזה תאריך הנתונים מעודכנים
   /** האם מודל ה-composite (בנוי+מגרש) הופעל בפועל — false לבית שאין לו plotSqm בעסקאות ההשוואה */
   compositeUsed?: boolean;

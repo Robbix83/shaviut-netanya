@@ -245,7 +245,7 @@ describe("city-wide street fallback — relevant-candidate gate (Wave 0F-2B)", (
     // Neighborhood B: exact building match.
     for (let i = 0; i < 3; i++) {
       rows.push(
-        makeDeal({ id: `b${i}`, neighborhoodId: "B", street: "הרב שמואל הרטום", houseNumber: "30", dealDate: "2024-03-01" }),
+        makeDeal({ id: `b${i}`, neighborhoodId: "B", street: "הרב שמואל הרטום", houseNumber: "30", dealDate: "2024-03-01", price: 2000000 + i * 10000 }),
       );
     }
     mockClient = makeSupabaseMock({ deals: rows }, queryLog);
@@ -282,7 +282,7 @@ describe("city-wide street fallback — relevant-candidate gate (Wave 0F-2B)", (
     // giving a clean signal that isolates ONLY the fallback gate under test.
     for (let i = 0; i < 5; i++) {
       rows.push(
-        makeDeal({ id: `a${i}`, neighborhoodId: "A", street: "רחוב הבדיקה", houseNumber: "1", dealDate: "2024-05-01" }),
+        makeDeal({ id: `a${i}`, neighborhoodId: "A", street: "רחוב הבדיקה", houseNumber: "1", dealDate: "2024-05-01", price: 2000000 + i * 10000 }),
       );
     }
     mockClient = makeSupabaseMock({ deals: rows }, queryLog);

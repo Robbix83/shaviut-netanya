@@ -64,6 +64,7 @@ interface Valuation {
   renewal?: RenewalInfo | null;
   priceTrend?: PriceTrend | null;
   confidence: "high" | "medium" | "low";
+  preliminary?: boolean;
   asOf: string;
   compositeUsed?: boolean;
   plotNotValued?: boolean;
@@ -139,6 +140,25 @@ const VALUE_FACTORS: { key: string; label: string; icon: string; mult: number }[
   { key: "balcony", label: "מרפסת/סוכה", icon: "🪟", mult: 0.04 },
   { key: "needsReno", label: "דרוש שיפוץ", icon: "🧰", mult: -0.1 },
 ];
+/** ביטחון נמוך והטווח נחתך: מסמנים כהערכה ראשונית ומציעים בדיקה אישית */
+function PreliminaryNote({ onContact }: { onContact?: () => void }) {
+  return (
+    <div className="mt-2 space-y-1 text-sm text-slate-700">
+      <p className="font-semibold">הערכה ראשונית</p>
+      <p>
+        לכתובת הזו יש פחות עסקאות דומות.{" "}
+        {onContact ? (
+          <button type="button" onClick={onContact} className="gh-press font-semibold text-brand underline underline-offset-2">
+            לבדיקה אישית
+          </button>
+        ) : (
+          "מומלץ לבקש בדיקה אישית."
+        )}
+      </p>
+    </div>
+  );
+}
+
 /** קרקע / נכס בבנייה: במקום מספר — הסבר קצר שהמתווך בודק אישית */
 function ManualReviewNote({ reason }: { reason?: "land" | "off_plan" }) {
   const offPlan = reason === "off_plan";
@@ -156,6 +176,9 @@ function ManualReviewNote({ reason }: { reason?: "land" | "off_plan" }) {
   );
 }
 /** כותרת קטנה מעל הטווח / ההודעה */
+/** דירה: הטווח צר (±10%) ולא מכסה כל מכירה — אומרים זאת ישר */
+const ESTIMATE_NOTE = "הערכה ראשונית לפי עסקאות באזור. המחיר הסופי תלוי במצב הדירה.";
+
 function resultLabel(v: { manualReview?: boolean; manualReviewReason?: "land" | "off_plan" }) {
   if (!v.manualReview) return "טווח שווי משוער";
   return v.manualReviewReason === "off_plan" ? "נכס בבנייה" : "מגרש";
@@ -1109,6 +1132,12 @@ export default function ValuationWizard() {
               )}
 
               {!valuation.manualReview && <p className="text-sm font-medium text-slate-600">{sizeSummary(valuation)}</p>}
+              {valuation.propertyType === "apartment" && !valuation.manualReview && !valuation.preliminary && (
+                <p className="mt-2 text-sm text-slate-600">{ESTIMATE_NOTE}</p>
+              )}
+              {valuation.preliminary && (
+                <PreliminaryNote onContact={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })} />
+              )}
 
               <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
                 מבוסס על {valuation.basedOnDeals} עסקאות ·{" "}
@@ -1452,6 +1481,10 @@ export default function ValuationWizard() {
                 </p>
               )}
               {!valuation.manualReview && <p className="text-sm font-medium opacity-85">{sizeSummary(valuation)}</p>}
+              {valuation.propertyType === "apartment" && !valuation.manualReview && !valuation.preliminary && (
+                <p className="mt-2 text-sm opacity-85">{ESTIMATE_NOTE}</p>
+              )}
+              {valuation.preliminary && <PreliminaryNote />}
               <p className="mt-2 text-xs opacity-70">
                 מבוסס על {valuation.basedOnDeals} עסקאות ·{" "}
                 {valuation.compSearchScope === "building" ? "אותו בניין" :

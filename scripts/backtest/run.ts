@@ -2,7 +2,7 @@
  * scripts/backtest/run.ts — replay real Netanya sales as valuation searches.
  *
  *   npx tsx scripts/backtest/run.ts --label baseline [--track engine|pipeline] [--asof sale|today]
- *                                   [--split dev|test|all] [--size all|N] [--seed N]
+ *                                   [--split dev|test|all] [--size all|N] [--seed N] [--years N]
  *
  * Each eligible sale becomes one search through the real server path (resolveAndValuate → valuate),
  * on an in-memory copy of the dataset, with no network (govmap geocoding off: the sale's own
@@ -85,7 +85,7 @@ async function main() {
   }
 
   const sample = drawSample(deals, {
-    lastDate, split, seed, size: sizeArg === "all" ? "all" : Number(sizeArg),
+    lastDate, split, seed, size: sizeArg === "all" ? "all" : Number(sizeArg), yearsBack: Number(arg("years", "1")),
   });
 
   const rows: BacktestRow[] = [];
