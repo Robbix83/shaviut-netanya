@@ -171,16 +171,6 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // MIN_PPSQM מוגדר כאן מוקדם — נחוץ גם ב-cross-neighborhood fallback
   const minPpsqm = MIN_PPSQM[ptype] ?? 5_000;
 
-  // lazy cache — store.getAllDeals() נקרא לכל היותר פעם אחת לבקשה
-  let _allDealsCache: Deal[] | null = null;
-  const lazyAllDeals = async (): Promise<Deal[]> => {
-    if (!_allDealsCache) {
-      const all = await store.getAllDeals();
-      _allDealsCache = asOf ? all.filter((d) => d.dealDate < asOf) : all;
-    }
-    return _allDealsCache;
-  };
-
   // עסקאות הרחוב בכל העיר — שאילתה אחת לפי רחוב במקום הורדת כל הטבלה (getAllDeals)
   let _streetCache: Deal[] | null = null;
   const lazyStreetDeals = async (): Promise<Deal[]> => {
@@ -424,11 +414,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       .map((d) => d.pricePerSqm)
       .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
     if (deals.length < MIN_DEALS_FOR_ESTIMATE || prePpsqm.length < MIN_DEALS_FOR_ESTIMATE) {
-      const allDeals = await lazyAllDeals();
-      const cutoff = cutoffDate(GEO_MONTHS, asOf);
-      const typeFiltered = allDeals.filter(
-        (d) => sameType(d) && d.dealDate >= cutoff,
-      );
+      const nearby = await store.getDealsNear(input.streetX, input.streetY, 1000, { monthsBack: GEO_MONTHS, asOf });
+      const typeFiltered = nearby.filter(sameType);
       const roomF = !isLand && input.rooms != null
         ? typeFiltered.filter((d) => d.rooms != null && Math.abs(d.rooms - input.rooms!) <= 1)
         : typeFiltered;

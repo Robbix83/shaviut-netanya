@@ -30,6 +30,8 @@ export interface Store {
   getDealsByNeighborhood(neighborhoodId: string, q?: DealsQuery): Promise<Deal[]>;
   /** עסקאות ברחוב (התאמת שם אחרי הסרת שד'/רחוב, כמו במנוע) — לזיהוי שכונה מהנתונים עצמם */
   getDealsByStreet(street: string, q?: DealsQuery): Promise<Deal[]>;
+  /** עסקאות בריבוע סביב נקודה (ITM) — במקום הורדת כל הטבלה; המרחק המדויק נבדק אצל הקורא */
+  getDealsNear(x: number, y: number, meters: number, q?: DealsQuery): Promise<Deal[]>;
   /** כל העסקאות — לשימוש בחיפוש שכונה לפי קואורדינטות */
   getAllDeals(): Promise<Deal[]>;
   /** סטטיסטיקות לדף הבית — ללא העמסת כל העסקאות כמערך ל-caller */
@@ -100,6 +102,10 @@ class LocalStore implements Store {
 
   async getAllDeals(): Promise<Deal[]> {
     return this.deals();
+  }
+
+  async getDealsNear(x: number, y: number, meters: number, q: DealsQuery = {}): Promise<Deal[]> {
+    return filterNear(await this.deals(), x, y, meters, q);
   }
 
   async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {
@@ -283,6 +289,24 @@ class SupabaseStore implements Store {
     return all.map(withNeighborhoodName);
   }
 
+  async getDealsNear(x: number, y: number, meters: number, q: DealsQuery = {}): Promise<Deal[]> {
+    const sb = await this.client();
+    const PAGE_SIZE = 1000;
+    const all: Deal[] = [];
+    for (let offset = 0; ; offset += PAGE_SIZE) {
+      let query = sb.from(this.table("deals")).select("*")
+        .gte("x", x - meters).lte("x", x + meters).gte("y", y - meters).lte("y", y + meters).order("id");
+      if (q.monthsBack) query = query.gte("dealDate", monthsAgoISO(q.monthsBack, q.asOf));
+      if (q.asOf) query = query.lt("dealDate", q.asOf);
+      const { data, error } = await query.range(offset, offset + PAGE_SIZE - 1);
+      if (error) throw error;
+      const page = (data ?? []) as Deal[];
+      all.push(...page);
+      if (page.length < PAGE_SIZE) break;
+    }
+    return all.map(withNeighborhoodName);
+  }
+
   async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {
     const core = normalizeStreetName(street);
     if (!core) return [];
@@ -416,6 +440,15 @@ function filterByStreet(deals: Deal[], street: string, q: DealsQuery): Deal[] {
   });
 }
 
+function filterNear(deals: Deal[], x: number, y: number, meters: number, q: DealsQuery): Deal[] {
+  const cutoff = q.monthsBack ? monthsAgoISO(q.monthsBack, q.asOf) : null;
+  return deals.filter((d) => {
+    if (d.x == null || d.y == null || Math.abs(d.x - x) > meters || Math.abs(d.y - y) > meters) return false;
+    if (cutoff && d.dealDate < cutoff) return false;
+    return !q.asOf || d.dealDate < q.asOf;
+  });
+}
+
 function monthsAgoISO(months: number, asOf?: string | null): string {
   const d = asOf ? new Date(asOf + "T00:00:00Z") : new Date();
   d.setMonth(d.getMonth() - months);
@@ -468,6 +501,10 @@ export class MemoryStore implements Store {
 
   async getAllDeals(): Promise<Deal[]> {
     return this.visible();
+  }
+
+  async getDealsNear(x: number, y: number, meters: number, q: DealsQuery = {}): Promise<Deal[]> {
+    return filterNear(this.visible(), x, y, meters, q);
   }
 
   async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {

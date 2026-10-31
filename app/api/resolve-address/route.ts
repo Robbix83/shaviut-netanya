@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
 
     // חפש את השכונה הנפוצה ביותר בין העסקאות ברדיוס 1.5ק"מ
     try {
-      const allDeals = await store.getAllDeals();
       const RADIUS = 1500;
+      const allDeals = await store.getDealsNear(x, y, RADIUS);
       const counts = new Map<string, number>();
       for (const d of allDeals) {
         if (d.x == null || d.y == null) continue;
