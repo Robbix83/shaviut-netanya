@@ -765,15 +765,15 @@ export default function ValuationWizard() {
     }
   }
 
-  async function verifyAndSubmit() {
-    if (otpCode.trim().length !== 6) return setError("נא להזין קוד 6 ספרות");
+  async function verifyAndSubmit(code: string) {
+    if (code.trim().length !== 6) return setError("נא להזין קוד 6 ספרות");
     setError(null);
     setOtpState("verifying");
     try {
       const vr = await fetch("/api/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: otpToken, code: otpCode.trim() }),
+        body: JSON.stringify({ token: otpToken, code: code.trim() }),
       });
       const vj = await vr.json();
       if (!vj.valid) {
@@ -1416,7 +1416,7 @@ export default function ValuationWizard() {
                     onChange={(e) => {
                       const v = e.target.value.replace(/\D/g, "");
                       setOtpCode(v);
-                      if (v.length === 6) setTimeout(verifyAndSubmit, 120);
+                      if (v.length === 6) setTimeout(() => verifyAndSubmit(v), 120);
                     }}
                     autoFocus
                   />
@@ -1430,7 +1430,7 @@ export default function ValuationWizard() {
                 <button
                   className="btn-primary w-full"
                   disabled={otpState === "verifying" || otpCode.length !== 6}
-                  onClick={verifyAndSubmit}
+                  onClick={() => verifyAndSubmit(otpCode)}
                 >
                   {otpState === "verifying" ? "פותח..." : "פתחו את הדוח ←"}
                 </button>
