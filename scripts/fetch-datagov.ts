@@ -12,6 +12,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Deal, Neighborhood } from "../lib/types";
+import { resolveDataTables } from "../lib/config";
 
 const DATA_DIR   = path.join(process.cwd(), "data");
 const SETTLEMENT = "נתניה";
@@ -189,6 +190,8 @@ async function main() {
 
   // שלב 4: כתיבה
   if (process.env.DATA_SOURCE === "supabase") {
+    // הסקריפט הזה מייצר מזהי V1; ב-V2 הוא היה מכפיל עסקאות או נכשל על מפתח השכונה
+    if (process.env.DATA_TABLES) throw new Error("fetch-datagov does not support DATA_TABLES=v2: it writes V1 neighborhood and deal ids.");
     const { createClient } = await import("@supabase/supabase-js");
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -196,7 +199,7 @@ async function main() {
       { auth: { persistSession: false } },
     );
     for (let i = 0; i < unique.length; i += 500) {
-      await sb.from("deals").upsert(unique.slice(i, i + 500));
+      await sb.from(resolveDataTables(process.env).deals).upsert(unique.slice(i, i + 500));
     }
     console.log(`✅ הועלו ${unique.length} עסקאות ל-Supabase.`);
   } else {

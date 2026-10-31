@@ -1,7 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Deal, Neighborhood, Lead, LeadStatus, TabuStatus } from "./types";
-import { resolveDataSource } from "./config";
+import { resolveDataSource, resolveDataTables } from "./config";
 import { withNeighborhoodName, withNeighborhoodTitle } from "./neighborhoodNames";
 
 /**
@@ -219,7 +219,7 @@ class SupabaseStore implements Store {
       }
       return `${name}_v2_preview`;
     }
-    return name;
+    return resolveDataTables(process.env)[name];
   }
 
   async listNeighborhoods(settlement: string): Promise<Neighborhood[]> {

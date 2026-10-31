@@ -22,13 +22,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
  * lib/__tests__/store.supabaseComparables.test.ts.
  */
 
-function makeSupabaseMock(tables: Record<string, any[]>, queryLog: { hadNeighborhoodIdFilter: boolean }[]) {
+function makeSupabaseMock(tables: Record<string, any[]>, queryLog: { hadNeighborhoodIdFilter: boolean; hadStreetFilter: boolean }[]) {
   return {
     from(table: string) {
       const rows: any[] = tables[table] ?? [];
       const state: {
         filters: Array<(r: any) => boolean>;
         hadNeighborhoodIdFilter: boolean;
+        hadStreetFilter: boolean;
         order: string | null;
         orderDesc: boolean;
         rangeStart: number | null;
@@ -38,6 +39,7 @@ function makeSupabaseMock(tables: Record<string, any[]>, queryLog: { hadNeighbor
       } = {
         filters: [],
         hadNeighborhoodIdFilter: false,
+        hadStreetFilter: false,
         order: null,
         orderDesc: false,
         rangeStart: null,
@@ -65,6 +67,7 @@ function makeSupabaseMock(tables: Record<string, any[]>, queryLog: { hadNeighbor
         },
         // PostgREST ILIKE as SupabaseStore.getDealsByStreet uses it: "%text%", with \ escaping % _ \
         ilike(col: string, pattern: string) {
+          if (col === "street") state.hadStreetFilter = true;
           const needle = pattern.slice(1, -1).replace(/\\(.)/g, "$1").toLowerCase();
           state.filters.push((r) => r[col] != null && String(r[col]).toLowerCase().includes(needle));
           return builder;
@@ -102,7 +105,7 @@ function makeSupabaseMock(tables: Record<string, any[]>, queryLog: { hadNeighbor
             // lookup (.limit(1).maybeSingle()), which is pre-existing and
             // orthogonal to the city-wide rescue this suite is guarding.
             if (table === "deals" && !state.maybeSingle && state.limitN == null) {
-              queryLog.push({ hadNeighborhoodIdFilter: state.hadNeighborhoodIdFilter });
+              queryLog.push({ hadNeighborhoodIdFilter: state.hadNeighborhoodIdFilter, hadStreetFilter: state.hadStreetFilter });
             }
             let result = rows.filter((r) => state.filters.every((f) => f(r)));
             if (state.order) {
@@ -164,7 +167,7 @@ function makeDeal(overrides: Partial<Record<string, unknown>>) {
 }
 
 let mockClient: ReturnType<typeof makeSupabaseMock>;
-let queryLog: { hadNeighborhoodIdFilter: boolean }[];
+let queryLog: { hadNeighborhoodIdFilter: boolean; hadStreetFilter: boolean }[];
 
 // govmap geocoding is network — keep these tests offline and deterministic
 vi.mock("@/lib/govmap", async (orig) => ({
@@ -305,10 +308,10 @@ describe("city-wide street fallback — relevant-candidate gate (Wave 0F-2B)", (
     expect(outcome.ok).toBe(true);
     if (!outcome.ok) return;
     expect(outcome.valuation.compSearchScope).toBe("building");
-    // No bulk deals query should have been unscoped (neighborhoodId-filtered
-    // only) — an unscoped one would mean the city-wide rescue/augmentation ran.
+    // No bulk deals query should have been unscoped (neighborhoodId or street
+    // filtered only) — an unscoped one would mean the whole table was downloaded.
     expect(queryLog.length).toBeGreaterThan(0);
-    expect(queryLog.every((q) => q.hadNeighborhoodIdFilter)).toBe(true);
+    expect(queryLog.every((q) => q.hadNeighborhoodIdFilter || q.hadStreetFilter)).toBe(true);
   });
 
   // ---------- TEST D — thin relevant sample: existing MIN_DEALS_FOR_ESTIMATE rule, not a new threshold ----------

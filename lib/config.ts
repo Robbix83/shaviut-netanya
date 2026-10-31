@@ -38,6 +38,25 @@ export function resolveDataSource(env: EnvLike): DataSourceMode {
   return raw === "supabase" ? "supabase" : "local";
 }
 
+export interface DataTables {
+  deals: string;
+  neighborhoods: string;
+}
+
+/**
+ * Which deals/neighborhoods tables the site reads and the data scripts write.
+ *  - DATA_TABLES unset: the original tables.
+ *  - DATA_TABLES=v2: the imported V2 tables, on any environment including production.
+ *  - anything else throws: a typo must not silently serve the wrong dataset.
+ * Rollback: unset DATA_TABLES and redeploy. Leads never move.
+ */
+export function resolveDataTables(env: { DATA_TABLES?: string; [key: string]: string | undefined }): DataTables {
+  const raw = env.DATA_TABLES;
+  if (!raw) return { deals: "deals", neighborhoods: "neighborhoods" };
+  if (raw === "v2") return { deals: "deals_v2_preview", neighborhoods: "neighborhoods_v2_preview" };
+  throw new Error(`DATA_TABLES must be "v2" or unset (got ${raw}).`);
+}
+
 /**
  * Authorization decision for the Green incoming webhook, failing closed in production.
  *  - production with no configured token: DENY (never process unauthenticated in prod).

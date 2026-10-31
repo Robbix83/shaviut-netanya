@@ -34,6 +34,23 @@ vi.mock("@supabase/supabase-js", () => ({
   createClient: () => makeTrackingMock(),
 }));
 
+describe("DATA_TABLES", () => {
+  it("keeps the original tables when unset", async () => {
+    const { resolveDataTables } = await import("../config");
+    expect(resolveDataTables({})).toEqual({ deals: "deals", neighborhoods: "neighborhoods" });
+  });
+
+  it("selects the V2 tables with v2", async () => {
+    const { resolveDataTables } = await import("../config");
+    expect(resolveDataTables({ DATA_TABLES: "v2" })).toEqual({ deals: "deals_v2_preview", neighborhoods: "neighborhoods_v2_preview" });
+  });
+
+  it("refuses an unknown value", async () => {
+    const { resolveDataTables } = await import("../config");
+    expect(() => resolveDataTables({ DATA_TABLES: "V2 " })).toThrow();
+  });
+});
+
 describe("SupabaseStore PREVIEW_TABLES override (Wave 0G-L2)", () => {
   const originalEnv = { ...process.env };
 
@@ -58,6 +75,20 @@ describe("SupabaseStore PREVIEW_TABLES override (Wave 0G-L2)", () => {
     expect(calledTables).toContain("neighborhoods");
     expect(calledTables).not.toContain("deals_v2_preview");
     expect(calledTables).not.toContain("neighborhoods_v2_preview");
+  });
+
+  it("DATA_TABLES=v2 reads the V2 tables in production and never moves leads", async () => {
+    process.env.DATA_TABLES = "v2";
+    (process.env as Record<string, string>).NODE_ENV = "production";
+    const { getStore } = await import("../store");
+    await getStore().getAllDeals();
+    await getStore().listNeighborhoods("נתניה");
+    await getStore().getLeads();
+    expect(calledTables).toContain("deals_v2_preview");
+    expect(calledTables).toContain("neighborhoods_v2_preview");
+    expect(calledTables).toContain("leads");
+    expect(calledTables).not.toContain("deals");
+    expect(calledTables).not.toContain("neighborhoods");
   });
 
   it("redirects to the _v2_preview tables when PREVIEW_TABLES=1", async () => {

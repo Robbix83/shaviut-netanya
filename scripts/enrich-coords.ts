@@ -16,6 +16,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Deal } from "../lib/types";
+import { resolveDataTables } from "../lib/config";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 
@@ -79,7 +80,7 @@ async function enrichSupabase(streetCoords: Record<string, { x: number; y: numbe
     for (const street of batch) {
       const { x, y } = streetCoords[street];
       const { count } = await sb
-        .from("deals")
+        .from(resolveDataTables(process.env).deals)
         .update({ x, y })
         .eq("street", street)
         .select("id", { count: "exact", head: true });

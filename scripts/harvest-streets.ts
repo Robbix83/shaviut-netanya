@@ -22,6 +22,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import zlib from "zlib";
 import type { Deal } from "../lib/types";
+import { resolveDataTables } from "../lib/config";
 
 const SETTLEMENT   = "נתניה";
 const DATA_DIR     = path.join(process.cwd(), "data");
@@ -332,6 +333,8 @@ async function main() {
   const merged = [...mergeMap.values()];
 
   if (process.env.DATA_SOURCE === "supabase") {
+    // הסקריפט הזה מייצר מזהי V1; ב-V2 הוא היה מכפיל עסקאות או נכשל על מפתח השכונה
+    if (process.env.DATA_TABLES) throw new Error("harvest-streets does not support DATA_TABLES=v2: it writes V1 neighborhood and deal ids.");
     const { createClient } = await import("@supabase/supabase-js");
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -339,7 +342,7 @@ async function main() {
       { auth: { persistSession: false } }
     );
     for (let i = 0; i < merged.length; i += 500)
-      await sb.from("deals").upsert(merged.slice(i, i + 500));
+      await sb.from(resolveDataTables(process.env).deals).upsert(merged.slice(i, i + 500));
     console.log(`\n✅ Supabase — ${enriched} עודכנו, ${added} חדשות`);
   } else {
     await fs.writeFile(path.join(DATA_DIR, "deals.json"), JSON.stringify(merged, null, 2));

@@ -94,6 +94,26 @@ govmap refuses or ignores requests from this server; each attempt failed after 2
 - **Cost:** coverage moved from 77.7% to 77.2% on dev and from 76.0% to 75.9% on test.
 - **Check:** after the cap the widest apartment range is ±25.0%, and none is wider.
 
+### Which deals are compared (`rand5000-pool`, 2026-10-30)
+
+Three changes to the apartment pool, measured one at a time on the same 5,000 sales. Each changed a
+few hundred valuations or fewer, so the gains are small and the settings were not tuned on them.
+
+- The whole street stays in the pool when it crosses neighbourhoods (324 valuations changed).
+- Sales from a developer are dropped for a resale apartment when at least 3 others remain: the deal
+  is dated up to one year after the building's year, or before it (528 changed).
+- Deals described as office, shop, storage or parking are dropped (62 changed, no measurable gain;
+  kept because they are not apartments).
+
+| | `rand5000-index` | `rand5000-pool` |
+|---|---|---|
+| MdAPE | 8.2% | 8.1% |
+| bias | -1.7% | -1.5% |
+| within ±10% | 56.8% | 57.5% |
+| in range | 56.2% | 56.7% |
+| in range, last 12 months | 54.5% | 54.7% |
+| errors above 40% | 7.0% | 6.6% |
+
 ### Market index for the time adjustment (`rand5000-index`, 2026-10-30)
 
 Apartments now use a monthly Netanya price index (`data/market-index.json`, 6-month median ₪/m²,

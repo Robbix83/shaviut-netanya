@@ -90,6 +90,9 @@ async function renewalFor(
 const WINDOWS = [6, 12, 24, 48];
 const GEO_MONTHS = 60; // 5 שנים לחיפוש גיאוגרפי
 const MIN_DEALS_FOR_ROOM_FILTER = 6;
+const HOME_NATURES = new Set(["דירה בבית קומות", "דירה", "דירת גן", "דירת גג", "מגורים", "דירת נופש", "דופלקס", "פנטהאוז"]);
+const SOLD_NEW_YEARS = 1; // עסקה עד שנה אחרי שנת הבנייה (או לפניה) = נמכרה מקבלן
+const NEW_SUBJECT_YEARS = 2;
 const MIN_DEALS_FOR_ESTIMATE = 3;
 const MIN_COMPOSITE_DEALS = 6; // מינימום עסקאות למודל composite של בית (בנוי+מגרש) — צריך יותר נתונים
 const MIN_DEALS_FOR_FLOOR_FILTER = 5; // סינון קומה מופעל רק אם נשארות מספיק עסקאות
@@ -188,9 +191,16 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // ===== pool גיאוגרפי: 4 שנים תמיד =====
   // חיפוש בניין/רחוב/רדיוס מחייב היסטוריה של 4 שנים — בניין בודד מוכר נדיר,
   // וחלון קצר יחמיץ עסקאות אמיתיות שם.
-  const pool4yr = (await fetchDeals(input.neighborhoodId, GEO_MONTHS, asOf)).filter(
-    (d) => (d.propertyType ?? "apartment") === ptype,
-  );
+  // משרד/חנות/חניה מסומנים במאגר כ"דירה"; תיאור ריק נשאר (לא ידוע, לא מסחרי)
+  const sameType = (d: Deal) =>
+    (d.propertyType ?? "apartment") === ptype && (ptype !== "apartment" || !d.dealNature || HOME_NATURES.has(d.dealNature));
+  let pool4yr = (await fetchDeals(input.neighborhoodId, GEO_MONTHS, asOf)).filter(sameType);
+  // רחוב ארוך או רחוב-גבול חוצה שכונות (סוקולוב: זוגי ואי-זוגי בשכונות שונות) — כל הרחוב נשאר בהשוואה
+  if (ptype === "apartment" && input.streetName) {
+    const cutoff = cutoffDate(GEO_MONTHS, asOf);
+    const seen = new Set(pool4yr.map((d) => d.id));
+    pool4yr = pool4yr.concat((await lazyStreetDeals()).filter((d) => sameType(d) && d.dealDate >= cutoff && !seen.has(d.id)));
+  }
   const roomSubset4yr =
     !isLand && input.rooms != null
       ? pool4yr.filter((d) => d.rooms != null && Math.abs(d.rooms - input.rooms!) <= 1)
@@ -417,7 +427,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       const allDeals = await lazyAllDeals();
       const cutoff = cutoffDate(GEO_MONTHS, asOf);
       const typeFiltered = allDeals.filter(
-        (d) => (d.propertyType ?? "apartment") === ptype && d.dealDate >= cutoff,
+        (d) => sameType(d) && d.dealDate >= cutoff,
       );
       const roomF = !isLand && input.rooms != null
         ? typeFiltered.filter((d) => d.rooms != null && Math.abs(d.rooms - input.rooms!) <= 1)
@@ -443,6 +453,12 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // קומה משפיעה דרמטית על המחיר למ"ר בדירות (קרקע/גן מול גבוהה).
   // לבית צמוד קרקע — קומה אינה רלוונטית: רוב עסקאות הבתים ב-nadlan מגיעות עם floor=null,
   // ופילטר קומה מרוקן את המדגם וגורם לכשלון האומדן.
+  // דירה מקבלן נמכרת בתנאים אחרים מיד שנייה: לדירה שאינה חדשה משווים ליד שנייה, כשיש מספיק כאלה
+  const subjectIsNew = input.yearBuilt != null && input.yearBuilt >= new Date(asOf ?? Date.now()).getFullYear() - NEW_SUBJECT_YEARS;
+  if (ptype === "apartment" && !subjectIsNew) {
+    const resale = deals.filter((d) => !(d.yearBuilt != null && d.yearBuilt >= parseInt(d.dealDate) - SOLD_NEW_YEARS));
+    if (resale.length >= MIN_DEALS_FOR_ESTIMATE) deals = resale;
+  }
   let floorFiltered = false;
   if (ptype === "apartment" && input.floor != null) {
     const fs = deals.filter(

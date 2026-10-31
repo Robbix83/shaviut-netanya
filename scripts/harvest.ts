@@ -23,6 +23,7 @@ import { pathToFileURL } from "url";
 import type { Deal, Neighborhood } from "../lib/types";
 import { discoverNeighborhoods as discoverNeighborhoodsImpl } from "../lib/neighborhoodDiscovery";
 import { decodeDealData, normalizeDeal, mergeIncrementalDeals } from "../lib/dealNormalization";
+import { resolveDataTables } from "../lib/config";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { chromium: chromiumExtra } = require("playwright-extra");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -77,7 +78,7 @@ async function loadExistingDealsFromSupabase(sb: any): Promise<Deal[]> {
   const PAGE_SIZE = 1000;
   const all: Deal[] = [];
   for (let offset = 0; ; offset += PAGE_SIZE) {
-    const { data, error } = await sb.from("deals").select("*").order("id").range(offset, offset + PAGE_SIZE - 1);
+    const { data, error } = await sb.from(resolveDataTables(process.env).deals).select("*").order("id").range(offset, offset + PAGE_SIZE - 1);
     if (error) throw new Error(`SUPABASE_EXISTING_DEALS_READ_FAILED:${error.code}:${error.message}`);
     const page = (data ?? []) as Deal[];
     all.push(...page);
@@ -99,7 +100,7 @@ async function loadExistingDealsFromSupabase(sb: any): Promise<Deal[]> {
 async function discoverNeighborhoods(): Promise<Neighborhood[]> {
   // שכונות שה-API לא מכיר כלל — נוסיף לפי ID ישירות מ-neighborhoods.json
   const existingNeighborhoods: Neighborhood[] = (() => {
-    try { return JSON.parse(require("fs").readFileSync(require("path").join(process.cwd(), "data", "neighborhoods.json"), "utf8")); }
+    try { return JSON.parse(require("fs").readFileSync(require("path").join(process.cwd(), ...(process.env.DATA_TABLES === "v2" ? ["data", "v2-candidate", "neighborhoods-v2.json"] : ["data", "neighborhoods.json"])), "utf8")); }
     catch { return []; }
   })();
   return discoverNeighborhoodsImpl({ existingNeighborhoods, onLog: (m) => console.log(m) });
@@ -374,6 +375,8 @@ async function main() {
 
   // ─── מצב HARVEST_STREET: שאיבת רחוב בודד ישירות ───
   if (onlyStreet) {
+    // street-index מחזיק מזהי V1; ב-V2 שאיבת רחוב בודד הייתה מכפילה עסקאות
+    if (process.env.DATA_TABLES) throw new Error("HARVEST_STREET does not support DATA_TABLES=v2: street-index holds V1 neighborhood ids.");
     console.log(`   🏘️  שאיבת רחוב: "${onlyStreet}"`);
     // מצא את השכונה של הרחוב מ-street-index לצורך normalize()
     let streetNeigh: Neighborhood = { id: "0", name: onlyStreet, settlement: SETTLEMENT, x: null, y: null };
@@ -428,12 +431,14 @@ async function main() {
   if (skippedDuplicateCount > 0) console.log(`   ℹ️  ${skippedDuplicateCount} מהעסקאות שנאספו כבר קיימות (דולגו)`);
 
   if (isSupabaseMode) {
-    await sb.from("neighborhoods").upsert(neighborhoods);
+    const { error: neighborhoodsError } = await sb.from(resolveDataTables(process.env).neighborhoods).upsert(neighborhoods);
+    if (neighborhoodsError) throw new Error(`SUPABASE_NEIGHBORHOODS_WRITE_FAILED:${neighborhoodsError.message}`);
     // מעלים רק את השורות שבאמת חדשות (added) — לא את כל deals, כדי לא
     // לדחוף מחדש שורות שכבר קיימות ב-Supabase (הבחנה זו היא בדיוק מה
     // שהמיזוג למעלה מזהה).
     for (let i = 0; i < added.length; i += 500) {
-      await sb.from("deals").upsert(added.slice(i, i + 500));
+      const { error: dealsError } = await sb.from(resolveDataTables(process.env).deals).upsert(added.slice(i, i + 500));
+      if (dealsError) throw new Error(`SUPABASE_DEALS_WRITE_FAILED:${dealsError.message}`);
     }
     console.log(`✅ הועלו ${added.length} עסקאות חדשות ל-Supabase (סה"כ בטבלה: ${deals.length}).`);
   } else if (deals.length > 0) {

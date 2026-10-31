@@ -23,6 +23,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { Deal } from "../lib/types";
+import { resolveDataTables } from "../lib/config";
 
 const DATA_DIR   = path.join(process.cwd(), "data");
 const DELAY_MS   = 550;                          // מנומס — לא ייחסם
@@ -67,7 +68,7 @@ async function main() {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
       { auth: { persistSession: false } },
     );
-    const { data, error } = await sb.from("deals").select("*");
+    const { data, error } = await sb.from(resolveDataTables(process.env).deals).select("*");
     if (error || !data) { console.error("❌ שגיאה בטעינת Supabase:", error?.message); process.exit(1); }
     deals = data as Deal[];
   } else {
@@ -138,7 +139,7 @@ async function main() {
     for (let i = 0; i < updates.length; i += 200) {
       const batch = updates.slice(i, i + 200);
       for (const u of batch) {
-        await sb.from("deals").update({ x: u.x, y: u.y, geo_level: "building" }).eq("id", u.id);
+        await sb.from(resolveDataTables(process.env).deals).update({ x: u.x, y: u.y, geo_level: "building" }).eq("id", u.id);
       }
       process.stdout.write(`\r   שמירה Supabase: ${Math.min(i + 200, updates.length)}/${updates.length}...`);
       await sleep(50);
