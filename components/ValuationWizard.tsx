@@ -746,6 +746,12 @@ export default function ValuationWizard() {
       });
       const j = await r.json();
       if (!r.ok) { setError(j.message || "שגיאה בשליחה."); setOtpState("idle"); return; }
+      // השרת לא הצליח לשלוח — לא מציגים מסך הזנת קוד לקוד שלא יגיע
+      if (j.sent === false && !j.devOtp) {
+        setError("לא הצלחנו לשלוח את הקוד. בדקו את המספר ונסו שוב.");
+        setOtpState("idle");
+        return;
+      }
       setOtpToken(j.token);
       // שמור token ב-sessionStorage — מגן מפני אובדן בעת רענון דף
       if (typeof window !== "undefined") sessionStorage.setItem("otp_token", j.token);
@@ -1288,12 +1294,12 @@ export default function ValuationWizard() {
           <div ref={leadFormRef} data-lead-form className="rounded-3xl bg-butter-deep p-5">
             <h3 className="text-lg font-extrabold text-slate-900">
               {otpState === "sent" || otpState === "verifying"
-                ? "שלחתי לך את הדוח בוואטסאפ"
+                ? "שלחתי לך קוד ב-SMS"
                 : "רוצים את הדוח המלא?"}
             </h3>
             <p className="mb-4 text-sm text-slate-700">
               {otpState === "sent" || otpState === "verifying"
-                ? `כדי לפתוח את הדוח, הזינו את הקוד שקיבלתם בוואטסאפ למספר ${phone}.`
+                ? `כדי לפתוח את הדוח, הזינו את הקוד שקיבלתם ב-SMS למספר ${phone}.`
                 : "דוח עסקאות מלא + הערכה מותאמת אישית, ישירות לוואטסאפ שלכם."}
             </p>
 
