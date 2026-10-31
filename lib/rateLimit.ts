@@ -37,6 +37,12 @@ export function rateCheck(key: string, limit: number, windowMs: number): boolean
   return true;
 }
 
+/** מחזיר ניסיון אחד למונה — לבקשה שלא בוצעה בפועל. */
+export function rateRefund(key: string): void {
+  const bucket = _buckets.get(key);
+  if (bucket && bucket.count > 0) bucket.count--;
+}
+
 /** חלץ IP מ-NextRequest */
 export function getIP(req: Request): string {
   const forwarded = (req.headers as any).get?.("x-forwarded-for") || "";

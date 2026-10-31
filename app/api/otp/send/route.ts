@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generateOTP, signToken } from "@/lib/otp";
-import { rateCheck, getIP } from "@/lib/rateLimit";
+import { rateCheck, rateRefund, getIP } from "@/lib/rateLimit";
 import { maskPhone } from "@/lib/pii";
 
 export const runtime = "nodejs";
@@ -8,9 +8,9 @@ export const runtime = "nodejs";
 const PHONE_RE = /^0\d{8,9}$/;
 
 export async function POST(req: NextRequest) {
-  // Rate limit: 5 OTP requests per IP per hour (מגן מפני ספאם WhatsApp)
+  // Rate limit: 20 OTP requests per IP per hour (מגן על יתרת ה-SMS; רשת משותפת מוציאה כמה לקוחות מאותה כתובת)
   const ip = getIP(req);
-  if (!rateCheck(`otp:${ip}`, 5, 60 * 60 * 1000)) {
+  if (!rateCheck(`otp:${ip}`, 20, 60 * 60 * 1000)) {
     return NextResponse.json(
       { error: "rate_limit", message: "יותר מדי בקשות. נסו שוב בעוד שעה." },
       { status: 429 },
@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "invalid_phone", message: "מספר טלפון לא תקין" }, { status: 422 });
   }
 
-  // Rate limit נוסף: 3 OTP per phone per hour (מגן מפני ספאם למספר ספציפי)
-  if (!rateCheck(`otp:phone:${phone}`, 3, 60 * 60 * 1000)) {
+  // Rate limit נוסף: 5 OTP per phone per hour (מגן מפני ספאם למספר ספציפי)
+  if (!rateCheck(`otp:phone:${phone}`, 5, 60 * 60 * 1000)) {
     return NextResponse.json(
       { error: "rate_limit", message: "שלחנו כבר מספר קודים למספר הזה. נסו שוב בעוד שעה." },
       { status: 429 },
@@ -52,6 +52,9 @@ export async function POST(req: NextRequest) {
     token = signToken(phone, otp);
     sent = await sendOTP(phone, otp, body.name?.trim() || "");
   }
+
+  // שליחה שנכשלה לא נספרת למספר, כדי שתקלה אצלנו לא תחסום לקוח
+  if (!sent) rateRefund(`otp:phone:${phone}`);
 
   const isDev = process.env.NODE_ENV !== "production";
   console.log(`[OTP] phone=${maskPhone(phone)} provider=${useTwilioVerify ? "twilio-verify" : "sms"} sent=${sent}`);
