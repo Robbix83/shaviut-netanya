@@ -1,13 +1,13 @@
 "use client";
 
+import { buildWaLink } from "@/lib/whatsapp";
+
 export default function WhatsAppButton() {
-  const rawPhone = process.env.NEXT_PUBLIC_AGENT_PHONE;
-  if (!rawPhone) return null;
-  const number = rawPhone.replace(/[-\s+]/g, "").replace(/^0/, "972");
-  const text = encodeURIComponent("שלום, ראיתי את כלי הערכת הדירות שלכם ורציתי לשאול");
+  const href = buildWaLink(process.env.NEXT_PUBLIC_AGENT_PHONE, "שלום, ראיתי את כלי הערכת הדירות שלכם ורציתי לשאול");
+  if (!href) return null;
   return (
     <a
-      href={`https://wa.me/${number}?text=${text}`}
+      href={href}
       target="_blank"
       rel="noreferrer"
       aria-label="שאלו אותנו בוואטסאפ"

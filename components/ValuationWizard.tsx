@@ -13,6 +13,7 @@ import {
   HOUSE_NUMBER_REQUIRED_MESSAGE,
 } from "@/lib/houseNumberRule";
 import { formatComparableAddress } from "@/lib/comparableAddress";
+import { buildWaLink, reportRequestText } from "@/lib/whatsapp";
 
 type PropertyType = "apartment" | "house" | "land";
 
@@ -517,6 +518,7 @@ export default function ValuationWizard() {
   const leadFormRef = useRef<HTMLDivElement>(null);
 
   const [website, setWebsite] = useState(""); // מלכודת בוטים — שדה מוסתר
+  const [leadRefCode, setLeadRefCode] = useState<string | null>(null); // מס' פנייה קצר מהשרת
 
   const streetSuggestionRef = useRef<{ id: string; name: string } | null>(null);
 
@@ -765,6 +767,7 @@ export default function ValuationWizard() {
         return;
       }
       trackEvent("lead_submitted", { sellTiming, consentMarketing, alertOptIn });
+      setLeadRefCode(typeof j.ref === "string" ? j.ref : null);
       setSubmitted(true);
       setStep(4);
     } catch {
@@ -1337,6 +1340,40 @@ export default function ValuationWizard() {
             </div>
             <h2 className="text-2xl font-extrabold">הדוח שלך מוכן, {name}!</h2>
           </div>
+
+          {/* וואטסאפ למתווך — נשלח מהטלפון של המבקר. האתר לא יודע אם נשלח בפועל, ולכן לא חוסם ולא מאשר שליחה. */}
+          {(() => {
+            const href = buildWaLink(
+              process.env.NEXT_PUBLIC_AGENT_PHONE,
+              reportRequestText({
+                propertyType,
+                street: selectedStreet?.label ?? (address.trim() || null),
+                houseNumber: houseNumber.trim() || null,
+                rooms: isLand ? null : rooms,
+                areaSqm: needsArea && area ? Number(area) : null,
+                plotSqm: needsPlot && plot ? Number(plot) : null,
+                ref: leadRefCode,
+              }),
+            );
+            if (!href) return null;
+            return (
+              <div className="text-center">
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackEvent("whatsapp_report_click")}
+                  className="gh-press inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-base font-bold text-white"
+                >
+                  שלחו לי את הדוח בוואטסאפ
+                </a>
+                <p className="mt-2 text-xs text-slate-600">
+                  ההודעה נפתחת אצלכם בוואטסאפ. אחרי שתשלחו אותה, המתווך יוכל לשלוח לכם את הדוח המלא ולחזור אליכם.
+                  {leadRefCode && <> מס' פנייה: <span className="font-mono font-bold">{leadRefCode}</span></>}
+                </p>
+              </div>
+            );
+          })()}
 
           <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
             <div className="relative">

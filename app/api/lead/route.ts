@@ -3,6 +3,7 @@ import { getStore } from "@/lib/store";
 import { rateCheck, getIP } from "@/lib/rateLimit";
 import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
 import { isValidHouseNumber } from "@/lib/houseNumberRule";
+import { leadRef } from "@/lib/whatsapp";
 import type { Lead, Valuation } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -198,7 +199,7 @@ export async function POST(req: NextRequest) {
         console.error("[lead] dedupe lookup failed:", e instanceof Error ? e.message : "unknown");
         return null;
       });
-    if (existing) return NextResponse.json({ ok: true, id: existing.id });
+    if (existing) return NextResponse.json({ ok: true, id: existing.id, ref: leadRef(existing.id) });
     saved = await store.insertLead(lead);
   } catch (e) {
     console.error("lead insert failed", e);
@@ -206,5 +207,5 @@ export async function POST(req: NextRequest) {
   }
 
   // בכוונה אין כאן התראה (notifyNewLead) — הליד מופיע בלוח הניהול בלבד.
-  return NextResponse.json({ ok: true, id: saved.id });
+  return NextResponse.json({ ok: true, id: saved.id, ref: leadRef(saved.id) });
 }

@@ -81,6 +81,7 @@ describe("POST /api/lead — no OTP step", () => {
     const json = await res.json();
     expect(json.ok).toBe(true);
     expect(json.id).toBe("lead_1");
+    expect(json.ref).toBe("LEAD1"); // short ref from the saved id, shown to the visitor and the admin
     expect(insertLead).toHaveBeenCalledTimes(1);
     expect(insertLead.mock.calls[0][0].phone).toBe("0501234567"); // stored without dashes/spaces
     expect(notifyNewLead).not.toHaveBeenCalled();
@@ -163,7 +164,9 @@ describe("24h dedupe — same phone + same address (street + house number)", () 
     // Same number typed differently still counts as the same phone.
     const res = await POST(makeReq({ ...validBody, phone: "0501234567" }));
     expect(res.status).toBe(200);
-    expect((await res.json()).id).toBe(first.id);
+    const again = await res.json();
+    expect(again.id).toBe(first.id);
+    expect(again.ref).toBe(first.ref);
     expect(rows).toHaveLength(1);
   });
 

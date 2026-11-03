@@ -7,6 +7,7 @@ import MavatPanel from "@/components/MavatPanel";
 import AccessibilityPanel from "@/components/AccessibilityPanel";
 import TabuPanel, { TABU_BADGE } from "@/components/TabuPanel";
 import CbsPanel from "@/components/CbsPanel";
+import { leadRef } from "@/lib/whatsapp";
 import type { TabuStatus } from "@/lib/types";
 
 type PanelTab = "market" | "mavat" | "access" | "tabu" | "cbs";
@@ -162,6 +163,11 @@ export default function LeadsTable({ leads }: { leads: Lead[] }) {
 
                       <td className="px-4 py-3 font-medium text-slate-800">
                         {lead.name}
+                        {leadRef(lead.id) && (
+                          <span className="ml-2 font-mono text-[10px] text-slate-400" title="מס' פנייה (מופיע בהודעת הוואטסאפ של המבקר)">
+                            #{leadRef(lead.id)}
+                          </span>
+                        )}
                         {lead.sellTiming && TIMING[lead.sellTiming] && (
                           <span className={`ml-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${TIMING[lead.sellTiming].cls}`}>
                             {TIMING[lead.sellTiming].label}
