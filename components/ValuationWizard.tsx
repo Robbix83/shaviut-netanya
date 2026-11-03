@@ -13,6 +13,7 @@ import {
   HOUSE_NUMBER_REQUIRED_MESSAGE,
 } from "@/lib/houseNumberRule";
 import { formatComparableAddress } from "@/lib/comparableAddress";
+import { buildWaLink, reportRequestText } from "@/lib/whatsapp";
 
 type PropertyType = "apartment" | "house" | "land";
 
@@ -516,17 +517,8 @@ export default function ValuationWizard() {
   const [teaserData, setTeaserData] = useState<TeaserData | null>(null);
   const leadFormRef = useRef<HTMLDivElement>(null);
 
-  // OTP
-  const [otpState, setOtpState] = useState<"idle" | "sending" | "sent" | "verifying">("idle");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpToken, setOtpToken] = useState(() => {
-    // שחזור token מ-sessionStorage אם הדף נרענן בזמן האימות
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("otp_token") || "";
-    }
-    return "";
-  });
-  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [website, setWebsite] = useState(""); // מלכודת בוטים — שדה מוסתר
+  const [leadRefCode, setLeadRefCode] = useState<string | null>(null); // מס' פנייה קצר מהשרת
 
   const streetSuggestionRef = useRef<{ id: string; name: string } | null>(null);
 
@@ -655,14 +647,6 @@ export default function ValuationWizard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
-  // countdown timer עבור OTP
-  useEffect(() => {
-    if (otpCountdown <= 0) return;
-    const t = setInterval(() => setOtpCountdown((c) => Math.max(0, c - 1)), 1000);
-    return () => clearInterval(t);
-  }, [otpCountdown]);
-
-  const fmtCountdown = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   const isLand = propertyType === "land";
   const isHouse = propertyType === "house";
   const needsArea = !isLand; // דירה/בית
@@ -732,67 +716,11 @@ export default function ValuationWizard() {
     }
   }
 
-  async function sendOTP() {
-    setError(null);
-    if (name.trim().length < 2) return setError("נא להזין שם מלא");
-    if (!/^0\d{8,9}$/.test(phone.replace(/[-\s]/g, ""))) return setError("מספר טלפון לא תקין");
-    if (!consentReport) return setError("נא לאשר קבלת הדוח (סעיף חובה)");
-    setOtpState("sending");
-    try {
-      const r = await fetch("/api/otp/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phone.replace(/[-\s]/g, ""), name: name.trim() }),
-      });
-      const j = await r.json();
-      if (!r.ok) { setError(j.message || "שגיאה בשליחה."); setOtpState("idle"); return; }
-      // השרת לא הצליח לשלוח — לא מציגים מסך הזנת קוד לקוד שלא יגיע
-      if (j.sent === false && !j.devOtp) {
-        setError("לא הצלחנו לשלוח את הקוד. בדקו את המספר ונסו שוב.");
-        setOtpState("idle");
-        return;
-      }
-      setOtpToken(j.token);
-      // שמור token ב-sessionStorage — מגן מפני אובדן בעת רענון דף
-      if (typeof window !== "undefined") sessionStorage.setItem("otp_token", j.token);
-      trackEvent("otp_requested");
-      setOtpState("sent");
-      setOtpCountdown(300); // 5 דקות
-      // בדוולופמנט: הצג בקונסולה
-      if (j.devOtp) console.info(`[DEV] OTP for ${phone}: ${j.devOtp}`);
-    } catch {
-      setError("בעיית תקשורת. נסו שוב."); setOtpState("idle");
-    }
-  }
-
-  async function verifyAndSubmit(code: string) {
-    if (code.trim().length !== 6) return setError("נא להזין קוד 6 ספרות");
-    setError(null);
-    setOtpState("verifying");
-    try {
-      const vr = await fetch("/api/otp/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: otpToken, code: code.trim() }),
-      });
-      const vj = await vr.json();
-      if (!vj.valid) {
-        setError(vj.message || "קוד שגוי.");
-        setOtpState("sent");
-        return;
-      }
-      // קוד אומת — שמור ליד
-      await submitLead();
-    } catch {
-      setError("בעיית תקשורת. נסו שוב."); setOtpState("sent");
-    }
-  }
-
   async function submitLead() {
     setError(null);
     if (name.trim().length < 2) return setError("נא להזין שם מלא");
-    if (!/^0\d{8,9}$/.test(phone.replace(/[-\s]/g, ""))) return setError("מספר טלפון לא תקין");
-    if (!consentReport) return setError("נא לאשר קבלת הדוח");
+    if (!/^05\d{8}$/.test(phone.replace(/[-\s]/g, ""))) return setError("נא להזין מספר נייד תקין (05X-XXXXXXX)");
+    if (!consentReport) return setError("נא לאשר את סעיף החובה");
     setLoading(true);
     try {
       const r = await fetch("/api/lead", {
@@ -815,7 +743,8 @@ export default function ValuationWizard() {
           consentReport,
           consentMarketing,
           alertOptIn,
-          consentWordingVersion: "2026-06-v1",
+          consentWordingVersion: "2026-11-v2",
+          website,
           // קלט חישוב השווי — השרת מחשב מחדש ומתעלם מכל פלט שמגיע מהלקוח.
           valuationInput: {
             neighborhoodId,
@@ -838,6 +767,7 @@ export default function ValuationWizard() {
         return;
       }
       trackEvent("lead_submitted", { sellTiming, consentMarketing, alertOptIn });
+      setLeadRefCode(typeof j.ref === "string" ? j.ref : null);
       setSubmitted(true);
       setStep(4);
     } catch {
@@ -1292,157 +1222,111 @@ export default function ValuationWizard() {
           )}
 
           <div ref={leadFormRef} data-lead-form className="rounded-3xl bg-butter-deep p-5">
-            <h3 className="text-lg font-extrabold text-slate-900">
-              {otpState === "sent" || otpState === "verifying"
-                ? "שלחתי לך קוד ב-SMS"
-                : "רוצים את הדוח המלא?"}
-            </h3>
+            <h3 className="text-lg font-extrabold text-slate-900">רוצים את הדוח המלא?</h3>
             <p className="mb-4 text-sm text-slate-700">
-              {otpState === "sent" || otpState === "verifying"
-                ? `כדי לפתוח את הדוח, הזינו את הקוד שקיבלתם ב-SMS למספר ${phone}.`
-                : "דוח עסקאות מלא + הערכה מותאמת אישית, ישירות לוואטסאפ שלכם."}
+              דוח עסקאות מלא + הערכה מותאמת אישית, נפתח כאן מיד.
             </p>
 
-            {/* שלב 3א — שם + טלפון */}
-            {(otpState === "idle" || otpState === "sending") && (
-              <div className="space-y-3">
-                {/* שכבת אמון — מתווך מורשה (חובה חוקית) */}
-                <div className="flex items-center gap-3 rounded-2xl bg-white p-3">
-                  {AGENT.photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={AGENT.photo} alt={AGENT.name} className="h-10 w-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sun text-base font-bold text-ink" aria-hidden="true">{AGENT.name.slice(0, 1)}</div>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
-                    <p className="text-xs text-slate-500">מתווך מורשה · רישיון {AGENT.license}</p>
-                  </div>
-                  {AGENT.licensed && (
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
-                  )}
+            {/* שם + טלפון → הדוח נפתח מיד (שלב קוד ה-SMS הוסר; app/api/otp נשאר לשימוש עתידי) */}
+            <div className="space-y-3">
+              {/* שכבת אמון — מתווך מורשה (חובה חוקית) */}
+              <div className="flex items-center gap-3 rounded-2xl bg-white p-3">
+                {AGENT.photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={AGENT.photo} alt={AGENT.name} className="h-10 w-10 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sun text-base font-bold text-ink" aria-hidden="true">{AGENT.name.slice(0, 1)}</div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
+                  <p className="text-xs text-slate-500">מתווך מורשה · רישיון {AGENT.license}</p>
                 </div>
-                {AGENT.testimonial && <p className="text-xs italic text-slate-600">"{AGENT.testimonial}"</p>}
-
-                {/* שאלת תזמון — מסנן לידים חמים */}
-                <div>
-                  <label className="field-label">מתי אתם שוקלים למכור?</label>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                    {SELL_TIMING.map((t) => (
-                      <button
-                        key={t.value}
-                        type="button"
-                        onClick={() => setSellTiming(t.value)}
-                        aria-pressed={sellTiming === t.value}
-                        className={`gh-press rounded-full px-2 py-2.5 text-[13px] min-h-[44px] ${
-                          sellTiming === t.value
-                            ? "bg-ink font-bold text-white"
-                            : "bg-white font-medium text-slate-700"
-                        }`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <label className="sr-only" htmlFor="lead-name">שם מלא</label>
-                <input
-                  id="lead-name"
-                  className="field-input"
-                  placeholder="שם מלא"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-                <label className="sr-only" htmlFor="lead-phone">טלפון נייד</label>
-                <input
-                  id="lead-phone"
-                  className="field-input"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder="טלפון נייד (לקבלת הדוח בוואטסאפ)"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                />
-
-                {/* 2 הסכמות נפרדות — נדרש בתיקון 13 לחוק הגנת הפרטיות */}
-                <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
-                  <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentReport}
-                    onChange={(e) => setConsentReport(e.target.checked)} />
-                  <span>אני מאשר/ת קבלת דוח השווי בוואטסאפ ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות</a>.</span>
-                </label>
-                <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
-                  <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentMarketing}
-                    onChange={(e) => setConsentMarketing(e.target.checked)} />
-                  <span>אני מאשר/ת יצירת קשר ודיוור שיווקי בנוגע לנכס (לא חובה · ניתן להסיר בכל עת).</span>
-                </label>
-                <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
-                  <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={alertOptIn}
-                    onChange={(e) => setAlertOptIn(e.target.checked)} />
-                  <span>עדכנו אותי כשיימכר נכס דומה באזורי (התראת שוק חינמית).</span>
-                </label>
-
-                {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
-                <button
-                  className="btn-primary w-full"
-                  disabled={otpState === "sending"}
-                  onClick={sendOTP}
-                >
-                  {otpState === "sending" ? "שולח..." : "שלחו לי את הדוח"}
-                </button>
+                {AGENT.licensed && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
+                )}
               </div>
-            )}
+              {AGENT.testimonial && <p className="text-xs italic text-slate-600">"{AGENT.testimonial}"</p>}
 
-            {/* מעקף ה-OTP בצד-לקוח הוסר (Wave 0A-2): השרת אוכף הוכחת OTP,
-                ולכן הכפתור לא יכול היה ליצור ליד ורק היה מבלבל. */}
-
-            {/* שלב 3ב — הזנת קוד */}
-            {(otpState === "sent" || otpState === "verifying") && (
-              <div className="space-y-3">
-                <div className="relative">
-                  <input
-                    className="field-input text-center text-2xl tracking-[0.4em] font-bold"
-                    type="text"
-                    inputMode="numeric"
-                    dir="ltr"
-                    aria-label="קוד אימות בן 6 ספרות"
-                    autoComplete="one-time-code"
-                    enterKeyHint="done"
-                    maxLength={6}
-                    placeholder="_ _ _ _ _ _"
-                    value={otpCode}
-                    onChange={(e) => {
-                      const v = e.target.value.replace(/\D/g, "");
-                      setOtpCode(v);
-                      if (v.length === 6) setTimeout(() => verifyAndSubmit(v), 120);
-                    }}
-                    autoFocus
-                  />
-                  {otpCountdown > 0 && (
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
-                      {fmtCountdown(otpCountdown)}
-                    </span>
-                  )}
+              {/* שאלת תזמון — מסנן לידים חמים */}
+              <div>
+                <label className="field-label">מתי אתם שוקלים למכור?</label>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {SELL_TIMING.map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setSellTiming(t.value)}
+                      aria-pressed={sellTiming === t.value}
+                      className={`gh-press rounded-full px-2 py-2.5 text-[13px] min-h-[44px] ${
+                        sellTiming === t.value
+                          ? "bg-ink font-bold text-white"
+                          : "bg-white font-medium text-slate-700"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
                 </div>
-                {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
-                <button
-                  className="btn-primary w-full"
-                  disabled={otpState === "verifying" || otpCode.length !== 6}
-                  onClick={() => verifyAndSubmit(otpCode)}
-                >
-                  {otpState === "verifying" ? "פותח..." : "פתחו את הדוח ←"}
-                </button>
-                <button
-                  className="w-full text-center text-xs text-slate-500 underline py-3 min-h-[44px]"
-                  disabled={otpCountdown > 270} // מאפשר שליחה מחדש רק אחרי 30ש'
-                  onClick={() => { setOtpState("idle"); setOtpCode(""); setOtpToken(""); setError(null); if (typeof window !== "undefined") sessionStorage.removeItem("otp_token"); }}
-                >
-                  {otpCountdown > 270 ? `שלח מחדש בעוד ${fmtCountdown(otpCountdown - 270)}ש'` : "לא קיבלתם קוד? שלח שנית"}
-                </button>
               </div>
-            )}
+
+              <label className="sr-only" htmlFor="lead-name">שם מלא</label>
+              <input
+                id="lead-name"
+                className="field-input"
+                placeholder="שם מלא"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <label className="sr-only" htmlFor="lead-phone">טלפון נייד</label>
+              <input
+                id="lead-phone"
+                className="field-input"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="טלפון נייד"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              {/* מלכודת בוטים — מוסתרת מאנשים ומקוראי מסך */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+
+              {/* 2 הסכמות נפרדות — נדרש בתיקון 13 לחוק הגנת הפרטיות */}
+              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
+                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentReport}
+                  onChange={(e) => setConsentReport(e.target.checked)} />
+                <span>אני מאשר/ת שהמתווך יחזור אליי בנוגע לנכס, ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות</a>.</span>
+              </label>
+              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
+                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentMarketing}
+                  onChange={(e) => setConsentMarketing(e.target.checked)} />
+                <span>אני מאשר/ת קבלת עדכונים ודיוור שיווקי (לא חובה · ניתן להסיר בכל עת).</span>
+              </label>
+              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
+                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={alertOptIn}
+                  onChange={(e) => setAlertOptIn(e.target.checked)} />
+                <span>עדכנו אותי כשיימכר נכס דומה באזורי (התראת שוק חינמית).</span>
+              </label>
+
+              {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
+              <button
+                className="btn-primary w-full"
+                disabled={loading}
+                onClick={submitLead}
+              >
+                {loading ? "פותח..." : "פתחו לי את הדוח"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1455,8 +1339,41 @@ export default function ValuationWizard() {
               <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
             </div>
             <h2 className="text-2xl font-extrabold">הדוח שלך מוכן, {name}!</h2>
-            <p className="text-sm text-slate-600">שלחנו לך עותק גם ב-WhatsApp</p>
           </div>
+
+          {/* וואטסאפ למתווך — נשלח מהטלפון של המבקר. האתר לא יודע אם נשלח בפועל, ולכן לא חוסם ולא מאשר שליחה. */}
+          {(() => {
+            const href = buildWaLink(
+              process.env.NEXT_PUBLIC_AGENT_PHONE,
+              reportRequestText({
+                propertyType,
+                street: selectedStreet?.label ?? (address.trim() || null),
+                houseNumber: houseNumber.trim() || null,
+                rooms: isLand ? null : rooms,
+                areaSqm: needsArea && area ? Number(area) : null,
+                plotSqm: needsPlot && plot ? Number(plot) : null,
+                ref: leadRefCode,
+              }),
+            );
+            if (!href) return null;
+            return (
+              <div className="text-center">
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackEvent("whatsapp_report_click")}
+                  className="gh-press inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-base font-bold text-white"
+                >
+                  שלחו לי את הדוח בוואטסאפ
+                </a>
+                <p className="mt-2 text-xs text-slate-600">
+                  ההודעה נפתחת אצלכם בוואטסאפ. אחרי שתשלחו אותה, המתווך יוכל לשלוח לכם את הדוח המלא ולחזור אליכם.
+                  {leadRefCode && <> מס' פנייה: <span className="font-mono font-bold">{leadRefCode}</span></>}
+                </p>
+              </div>
+            );
+          })()}
 
           <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
             <div className="relative">

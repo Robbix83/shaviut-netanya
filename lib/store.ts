@@ -37,12 +37,20 @@ export interface Store {
   /** סטטיסטיקות לדף הבית — ללא העמסת כל העסקאות כמערך ל-caller */
   getStats(): Promise<{ dealCount: number; neighborhoodCount: number }>;
   insertLead(lead: Lead): Promise<Lead>;
+  /** ליד קיים עם אותו טלפון ואותה כתובת (רחוב + מספר בית) שנוצר מאז sinceISO — למניעת כפילויות */
+  findRecentLead(key: LeadDedupeKey, sinceISO: string): Promise<Lead | null>;
   getLeads(opts?: { limit?: number; status?: LeadStatus }): Promise<Lead[]>;
   countLeads(): Promise<number>;
   updateLeadStatus(id: string, status: LeadStatus): Promise<void>;
   updateTabuStatus(id: string, tabuStatus: TabuStatus, tabuNotes?: string | null): Promise<void>;
   optOutByPhone(phone: string): Promise<boolean>;
   dataAsOf(): Promise<string>;
+}
+
+export interface LeadDedupeKey {
+  phone: string;
+  address: string | null;
+  houseNumber: string | null;
 }
 
 /** נרמול טלפון להשוואה (מוריד מקפים/רווחים, מאחד 972/0) */
@@ -131,6 +139,20 @@ class LocalStore implements Store {
     await fs.mkdir(DATA_DIR, { recursive: true });
     await fs.writeFile(file, JSON.stringify(existing, null, 2), "utf8");
     return withMeta;
+  }
+
+  async findRecentLead(key: LeadDedupeKey, sinceISO: string): Promise<Lead | null> {
+    const all = await readJson<Lead[]>("leads.json", []);
+    const target = normalizePhone(key.phone);
+    return (
+      all.find(
+        (l) =>
+          normalizePhone(l.phone) === target &&
+          (l.address ?? null) === key.address &&
+          (l.houseNumber ?? null) === key.houseNumber &&
+          (l.createdAt ?? "") >= sinceISO,
+      ) ?? null
+    );
   }
 
   async getLeads(opts: { limit?: number; status?: LeadStatus } = {}): Promise<Lead[]> {
@@ -363,6 +385,16 @@ class SupabaseStore implements Store {
     return data as Lead;
   }
 
+  async findRecentLead(key: LeadDedupeKey, sinceISO: string): Promise<Lead | null> {
+    const sb = await this.client();
+    let q = sb.from("leads").select("*").eq("phone", key.phone).gte("createdAt", sinceISO);
+    q = key.address === null ? q.is("address", null) : q.eq("address", key.address);
+    q = key.houseNumber === null ? q.is("houseNumber", null) : q.eq("houseNumber", key.houseNumber);
+    const { data, error } = await q.limit(1);
+    if (error) throw error;
+    return ((data ?? [])[0] as Lead | undefined) ?? null;
+  }
+
   async getLeads(opts: { limit?: number; status?: LeadStatus } = {}): Promise<Lead[]> {
     const sb = await this.client();
     let q = sb.from("leads").select("*").order("createdAt", { ascending: false });
@@ -526,6 +558,7 @@ export class MemoryStore implements Store {
     throw new Error("MemoryStore is read-only (backtest/test store)");
   }
   async insertLead(): Promise<Lead> { return this.readOnly(); }
+  async findRecentLead(): Promise<Lead | null> { return null; }
   async getLeads(): Promise<Lead[]> { return []; }
   async countLeads(): Promise<number> { return 0; }
   async updateLeadStatus(): Promise<void> { return this.readOnly(); }

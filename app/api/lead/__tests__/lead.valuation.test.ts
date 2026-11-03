@@ -1,7 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-process.env.OTP_SECRET = "test-secret-0123456789abcdef0123456789abcdef";
-
 const { insertLead, notifyNewLead, resolveAndValuate } = vi.hoisted(() => ({
   insertLead: vi.fn(async (lead: any) => ({ ...lead, id: "lead_test" })),
   notifyNewLead: vi.fn(async (_lead: any, _valuation: any) => {}),
@@ -10,13 +8,12 @@ const { insertLead, notifyNewLead, resolveAndValuate } = vi.hoisted(() => ({
 
 vi.mock("@/lib/store", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/store")>();
-  return { ...actual, getStore: () => ({ insertLead }) };
+  return { ...actual, getStore: () => ({ insertLead, findRecentLead: async () => null }) };
 });
 vi.mock("@/lib/notify", () => ({ notifyNewLead }));
 vi.mock("@/lib/valuationService", () => ({ resolveAndValuate }));
 
 import { POST, validateFloor } from "@/app/api/lead/route";
-import { signLeadProof } from "@/lib/otp";
 
 // The authoritative server result the recompute returns.
 const SERVER_VALUATION = {
@@ -32,19 +29,15 @@ const SERVER_VALUATION = {
 };
 
 let ipCounter = 0;
-function makeReq(body: unknown, cookie?: string) {
+function makeReq(body: unknown) {
   const ip = `10.1.0.${++ipCounter}`;
   return {
     json: async () => body,
     headers: new Headers({ "content-type": "application/json", "x-forwarded-for": ip }),
-    cookies: {
-      get: (name: string) => (cookie && name === "lead_proof" ? { name, value: cookie } : undefined),
-    },
+    cookies: { get: () => undefined },
     nextUrl: new URL("http://localhost/api/lead"),
   } as any;
 }
-
-const proof = () => signLeadProof("0501234567");
 
 // A body where the client tries to inject its own (fraudulent) valuation OUTPUTS.
 const tamperedBody = {
@@ -81,7 +74,7 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
   });
 
   it("1. persists SERVER estimates, not client estimateLow=1 / estimateHigh=999999999", async () => {
-    const res = await POST(makeReq(tamperedBody, proof()));
+    const res = await POST(makeReq(tamperedBody));
     expect(res.status).toBe(200);
     const lead = insertLead.mock.calls[0][0];
     expect(lead.estimateLow).toBe(2_500_000);
@@ -90,23 +83,21 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
     expect(lead.estimateHigh).not.toBe(999_999_999);
   });
 
-  it("2+3. notification uses SERVER valuation (tampered confidence/comparables ignored)", async () => {
-    await POST(makeReq(tamperedBody, proof()));
-    const notifiedValuation = notifyNewLead.mock.calls[0][1];
-    expect(notifiedValuation).toBe(SERVER_VALUATION);
-    expect(notifiedValuation.confidence).toBe("medium"); // not client "high"
-    expect(notifiedValuation.comparableDeals[0].street).toBe("server-st"); // not "FAKE"
+  it("2+3. no notification is sent for a new lead (admin dashboard only)", async () => {
+    const res = await POST(makeReq(tamperedBody));
+    expect(res.status).toBe(200);
+    expect(notifyNewLead).not.toHaveBeenCalled();
   });
 
   it("4. stored neighborhood comes from server computation, not client display string", async () => {
-    await POST(makeReq(tamperedBody, proof()));
+    await POST(makeReq(tamperedBody));
     const lead = insertLead.mock.calls[0][0];
     expect(lead.neighborhood).toBe("אגמים-server");
     expect(lead.neighborhood).not.toBe("client-tampered-neighborhood");
   });
 
   it("5. server recompute is invoked with the validated input (single authoritative path)", async () => {
-    await POST(makeReq(tamperedBody, proof()));
+    await POST(makeReq(tamperedBody));
     expect(resolveAndValuate).toHaveBeenCalledTimes(1);
     const passedInput = resolveAndValuate.mock.calls[0][0];
     expect(passedInput.neighborhoodId).toBe("66239255");
@@ -115,7 +106,7 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
 
   it("6. invalid property inputs (no valuationInput) → 422 before persistence", async () => {
     const { valuationInput, ...noInput } = tamperedBody;
-    const res = await POST(makeReq(noInput, proof()));
+    const res = await POST(makeReq(noInput));
     expect(res.status).toBe(422);
     expect((await res.json()).error).toBe("invalid_valuation_input");
     expect(insertLead).not.toHaveBeenCalled();
@@ -127,7 +118,7 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
       ...tamperedBody,
       valuationInput: { neighborhoodId: "66239255", propertyType: "apartment", rooms: 4, areaSqm: 100 },
     };
-    const res = await POST(makeReq(body, proof()));
+    const res = await POST(makeReq(body));
     expect(res.status).toBe(422);
     expect((await res.json()).error).toBe("invalid_valuation_input");
     expect(insertLead).not.toHaveBeenCalled();
@@ -139,14 +130,14 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
       ...tamperedBody,
       valuationInput: { neighborhoodId: "66239255", propertyType: "land", plotSqm: 500 },
     };
-    const res = await POST(makeReq(body, proof()));
+    const res = await POST(makeReq(body));
     expect(res.status).toBe(200);
     expect(resolveAndValuate).toHaveBeenCalledTimes(1);
   });
 
   it("7a. recompute unavailable (insufficient_data) → lead saved with null estimates (option B)", async () => {
     resolveAndValuate.mockResolvedValueOnce({ ok: false, error: "insufficient_data" });
-    const res = await POST(makeReq(tamperedBody, proof()));
+    const res = await POST(makeReq(tamperedBody));
     expect(res.status).toBe(200);
     const lead = insertLead.mock.calls[0][0];
     expect(lead.estimateLow).toBeNull();
@@ -157,42 +148,35 @@ describe("POST /api/lead — server-owned valuation (client outputs ignored)", (
 
   it("7b. recompute throws → lead still saved with null estimates, client value never used", async () => {
     resolveAndValuate.mockRejectedValueOnce(new Error("boom"));
-    const res = await POST(makeReq(tamperedBody, proof()));
+    const res = await POST(makeReq(tamperedBody));
     expect(res.status).toBe(200);
     const lead = insertLead.mock.calls[0][0];
     expect(lead.estimateLow).toBeNull();
     expect(lead.estimateHigh).toBeNull();
   });
 
-  it("8. missing OTP proof → 401 before any valuation work", async () => {
-    const res = await POST(makeReq(tamperedBody)); // no cookie
-    expect(res.status).toBe(401);
-    expect(resolveAndValuate).not.toHaveBeenCalled();
-    expect(insertLead).not.toHaveBeenCalled();
-  });
-
   it("9a. integer floor is accepted and persisted exactly", async () => {
-    const res = await POST(makeReq({ ...tamperedBody, floor: 2 }, proof()));
+    const res = await POST(makeReq({ ...tamperedBody, floor: 2 }));
     expect(res.status).toBe(200);
     expect(insertLead.mock.calls[0][0].floor).toBe(2);
   });
 
   it("9b. fractional floor is REJECTED (422), not rounded, and never persisted", async () => {
-    const res = await POST(makeReq({ ...tamperedBody, floor: 2.7 }, proof()));
+    const res = await POST(makeReq({ ...tamperedBody, floor: 2.7 }));
     expect(res.status).toBe(422);
     expect((await res.json()).error).toBe("invalid_floor");
     expect(insertLead).not.toHaveBeenCalled();
   });
 
   it("9c. fractional string floor is REJECTED (422)", async () => {
-    const res = await POST(makeReq({ ...tamperedBody, floor: "3.2" }, proof()));
+    const res = await POST(makeReq({ ...tamperedBody, floor: "3.2" }));
     expect(res.status).toBe(422);
     expect(insertLead).not.toHaveBeenCalled();
   });
 
   it("9d. omitted floor is accepted and persisted as null", async () => {
     const { floor, ...noFloor } = tamperedBody as any;
-    const res = await POST(makeReq(noFloor, proof()));
+    const res = await POST(makeReq(noFloor));
     expect(res.status).toBe(200);
     expect(insertLead.mock.calls[0][0].floor).toBeNull();
   });
