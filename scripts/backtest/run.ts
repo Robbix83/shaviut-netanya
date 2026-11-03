@@ -45,6 +45,9 @@ const seed = Number(arg("seed", "20261027"));
 const dataPath = path.resolve(ROOT, arg("data", "data/v2-candidate/deals-v2.json"));
 const neighPath = path.resolve(ROOT, arg("neighborhoods", "data/v2-candidate/neighborhoods-v2.json"));
 const outDir = path.resolve(ROOT, arg("out", `audit/backtest/runs/${label}`));
+// What a real visitor may leave out or type differently: --drop year,floor  --area-scale 1.15
+const dropInputs = new Set(arg("drop", "").split(",").filter(Boolean));
+const areaScale = Number(arg("area-scale", "1"));
 
 const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח')\s*/i;
 const norm = (s: string) => s.replace(STREET_PREFIX, "").trim();
@@ -121,10 +124,10 @@ async function main() {
         neighborhoodId,
         propertyType: type as "apartment" | "house" | "land",
         rooms: type === "land" ? null : d.rooms ?? null,
-        areaSqm: type === "land" ? null : d.areaSqm ?? null,
+        areaSqm: type === "land" || d.areaSqm == null ? null : Math.round(d.areaSqm * areaScale),
         plotSqm: type === "apartment" ? null : d.plotSqm ?? null,
-        floor: type === "apartment" ? d.floor ?? null : null,
-        yearBuilt: base.year,
+        floor: type === "apartment" && !dropInputs.has("floor") ? d.floor ?? null : null,
+        yearBuilt: dropInputs.has("year") ? null : base.year,
         houseNumber: String(d.houseNumber),
         streetName,
         streetX,

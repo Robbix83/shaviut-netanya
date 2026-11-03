@@ -3,7 +3,7 @@ import "./globals.css";
 import Analytics from "@/components/Analytics";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
-const BASE_URL = "https://shaviut-netanya.co.il"; // TODO: החלף בדומיין האמיתי
+const BASE_URL = "https://www.sikuma.co.il";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

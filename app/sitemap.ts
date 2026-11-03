@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://shaviut-netanya.co.il"; // החלף בדומיין האמיתי
+  const base = "https://www.sikuma.co.il";
 
   return [
     {

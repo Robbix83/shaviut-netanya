@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = "https://shaviut-netanya.co.il"; // החלף בדומיין האמיתי
+  const base = "https://www.sikuma.co.il";
 
   return {
     rules: [
