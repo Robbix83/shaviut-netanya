@@ -114,6 +114,24 @@ few hundred valuations or fewer, so the gains are small and the settings were no
 | in range, last 12 months | 54.5% | 54.7% |
 | errors above 40% | 7.0% | 6.6% |
 
+### Deals without a location, and a 3% conservative cut (`rand5000-nounloc`, 2026-11-04)
+
+Deals with no coordinates (about 19% of V2, mostly unaddressed new projects) were added to every
+building, street and radius pool from the whole neighbourhood. They are now kept out of those pools.
+Same 4,463 apartment valuations:
+
+| | `rand5000-pool` | `rand5000-nounloc` |
+|---|---|---|
+| MdAPE | 8.1% | 7.8% |
+| in range | 56.7% | 58.0% |
+| errors above 20% | 20.4% | 19.0% |
+| street scope, in range | 45.9% | 49.2% |
+
+On top of that the owner asked for conservative estimates: apartment ranges are lowered 3%
+(`CONSERVATIVE_FACTOR_APARTMENT`). Simulated on the 1,066 sales from 2025 on, estimates more than
+10% above the sale fall from 23.6% to 19.2%, more than 10% below rise from 18.4% to 23.5%, and in
+range falls from 57.0% to 55.0%. Houses and land are not lowered.
+
 ### Market index for the time adjustment (`rand5000-index`, 2026-10-30)
 
 Apartments now use a monthly Netanya price index (`data/market-index.json`, 6-month median ₪/m²,

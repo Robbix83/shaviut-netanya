@@ -93,6 +93,7 @@ const MIN_DEALS_FOR_ROOM_FILTER = 6;
 const HOME_NATURES = new Set(["דירה בבית קומות", "דירה", "דירת גן", "דירת גג", "מגורים", "דירת נופש", "דופלקס", "פנטהאוז"]);
 const SOLD_NEW_YEARS = 1; // עסקה עד שנה אחרי שנת הבנייה (או לפניה) = נמכרה מקבלן
 const NEW_SUBJECT_YEARS = 2;
+const CONSERVATIVE_FACTOR_APARTMENT = 0.97; // בעל הנכס ביקש הערכות שמרניות
 const MIN_DEALS_FOR_ESTIMATE = 3;
 const MIN_COMPOSITE_DEALS = 6; // מינימום עסקאות למודל composite של בית (בנוי+מגרש) — צריך יותר נתונים
 const MIN_DEALS_FOR_FLOOR_FILTER = 5; // סינון קומה מופעל רק אם נשארות מספיק עסקאות
@@ -338,7 +339,6 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
 
   if (input.streetX != null && input.streetY != null) {
     const located = geoPool.filter((d) => d.x != null && d.y != null);
-    const unlocated = geoPool.filter((d) => d.x == null || d.y == null);
     const filterByRadius = (R: number) =>
       located.filter((d) => itmDistance(input.streetX!, input.streetY!, d.x!, d.y!) <= R);
 
@@ -373,7 +373,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       const allSameNumber =
         isNaN(inputHn) || inBuilding.every((d) => parseInt(d.houseNumber ?? "") === inputHn);
       if (inBuilding.length >= MIN_DEALS_FOR_ESTIMATE) {
-        deals = inBuilding.concat(unlocated);
+        deals = inBuilding;
         compRadiusMeters = BUILDING_RADIUS;
         // same street and same number → building; same street only → street; otherwise → radius (כנה יותר)
         compSearchScope = allSameStreet ? (allSameNumber ? "building" : "street") : "radius";
@@ -386,7 +386,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     if (compSearchScope !== "building" && compSearchScope !== "street") {
       const onStreet = ageFilter(filterByRadius(STREET_RADIUS), AGE_TOLERANCES.street);
       if (onStreet.length >= MIN_DEALS_FOR_FLOOR_FILTER) {
-        deals = onStreet.concat(unlocated);
+        deals = onStreet;
         compRadiusMeters = STREET_RADIUS;
         compSearchScope = "radius";
         windowMonths = GEO_MONTHS;
@@ -398,7 +398,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       for (const R of COMP_RADIUS_LADDER) {
         const within = ageFilter(filterByRadius(R), AGE_TOLERANCES.radius);
         if (within.length >= MIN_DEALS_FOR_FLOOR_FILTER) {
-          deals = within.concat(unlocated);
+          deals = within;
           compRadiusMeters = R;
           compSearchScope = "radius";
           windowMonths = GEO_MONTHS;
@@ -647,6 +647,17 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       ppsLow = Math.max(ppsLow, Math.round(estLow / size));
       ppsHigh = Math.min(ppsHigh, Math.round(estHigh / size));
     }
+  }
+
+  // דירה: הערכה שמרנית — כל הטווח יורד ב-3%. בבדיקה על מכירות מ-2025 ואילך: הערכות גבוהות
+  // ביותר מ-10% מהמכירה ירדו מ-23.6% ל-19.2%, והמחיר בתוך הטווח ירד מ-57.0% ל-55.0%
+  if (ptype === "apartment" && estMid! > 0) {
+    estLow = round(estLow! * CONSERVATIVE_FACTOR_APARTMENT);
+    estMid = round(estMid! * CONSERVATIVE_FACTOR_APARTMENT);
+    estHigh = round(estHigh! * CONSERVATIVE_FACTOR_APARTMENT);
+    ppsLow = Math.round(ppsLow * CONSERVATIVE_FACTOR_APARTMENT);
+    ppsMid = Math.round(ppsMid * CONSERVATIVE_FACTOR_APARTMENT);
+    ppsHigh = Math.round(ppsHigh * CONSERVATIVE_FACTOR_APARTMENT);
   }
 
   // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה.

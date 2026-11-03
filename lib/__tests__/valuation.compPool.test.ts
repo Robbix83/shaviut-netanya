@@ -13,13 +13,17 @@ const deal = (o: Partial<Deal>): Deal =>
 const three = (o: Partial<Deal>, ppsqm: number, firstHouse = 10) =>
   [0, 1, 2].map((i) => deal({ ...o, houseNumber: String(firstHouse + i * 2), pricePerSqm: ppsqm + i, price: (ppsqm + i) * 100 }));
 
-async function value(deals: Deal[]) {
+async function valued(deals: Deal[], at: { x: number; y: number } | null = null) {
   setStoreForTesting(new MemoryStore(deals, []));
-  const v = await valuate({
+  return (await valuate({
     neighborhoodId: "A", neighborhood: null, propertyType: "apartment", rooms: 4, areaSqm: 100, plotSqm: null, floor: 3,
-    yearBuilt: null, houseNumber: "10", streetName: "הבדיקה", streetX: null, streetY: null, asOf: "2026-06-01",
-  } as any);
-  return (v!.pricePerSqmLow + v!.pricePerSqmHigh) / 2;
+    yearBuilt: null, houseNumber: "10", streetName: "הבדיקה", streetX: at?.x ?? null, streetY: at?.y ?? null, asOf: "2026-06-01",
+  } as any))!;
+}
+
+async function value(deals: Deal[]) {
+  const v = await valued(deals);
+  return (v.pricePerSqmLow + v.pricePerSqmHigh) / 2;
 }
 
 afterEach(() => setStoreForTesting(null as any));
@@ -39,6 +43,15 @@ describe("which deals are compared", () => {
   it("ignores new sales from a developer when a resale apartment is valued", async () => {
     const ppsqm = await value(three({}, 20_000).concat(three({ yearBuilt: 2026 }, 40_000, 16), three({ yearBuilt: 2027 }, 41_000, 16)));
     expect(ppsqm).toBeLessThan(21_500);
+  });
+
+  it("keeps deals with no location out of a street search", async () => {
+    const at = { x: 186000, y: 692000 };
+    const near = three({ x: at.x + 10, y: at.y + 10 }, 20_000, 12);
+    const nowhere = three({ street: "0", houseNumber: null as any, x: null, y: null }, 40_000);
+    const v = await valued(near.concat(nowhere), at);
+    expect((v.pricePerSqmLow + v.pricePerSqmHigh) / 2).toBeLessThan(21_500);
+    expect(v.comparableDeals.every((c) => c.street !== "0")).toBe(true);
   });
 
   it("falls back to new sales when nothing else exists", async () => {
