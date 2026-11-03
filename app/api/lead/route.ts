@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
-import { notifyNewLead } from "@/lib/notify";
 import { rateCheck, getIP } from "@/lib/rateLimit";
-import { verifyLeadProof } from "@/lib/otp";
 import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
 import { isValidHouseNumber } from "@/lib/houseNumberRule";
 import type { Lead, Valuation } from "@/lib/types";
@@ -28,11 +26,20 @@ interface Body {
   consentMarketing?: boolean;
   alertOptIn?: boolean;
   consentWordingVersion?: string;
+  /** מלכודת בוטים — שדה מוסתר בטופס. אדם לא ממלא אותו. */
+  website?: string;
   /** קלט חישוב השווי — השרת מחשב מחדש. פלטי-שווי מהלקוח אינם נאמנים ומתעלמים מהם. */
   valuationInput?: unknown;
 }
 
-const PHONE_RE = /^0\d{1,2}-?\d{7}$|^(\+?972|972)\d{8,9}$/;
+/** נייד ישראלי: 05 + 8 ספרות, אחרי הסרת מקפים ורווחים. מחזיר null אם לא תקין. */
+export function normalizeMobile(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const s = raw.replace(/[-\s]/g, "");
+  return /^05\d{8}$/.test(s) ? s : null;
+}
+
+const DEDUPE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /** ולידציית floor (עמודת int ב-DB). לא מעגלים קלט משתמש:
  *  - חסר/null → null (שדה רשות)
@@ -73,9 +80,9 @@ function validateValuationInput(vi: unknown): ValuationInput | null {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit: 3 leads per IP per hour (מגן מפני לידים מזויפים)
+  // Rate limit: 10 leads per IP per hour — מחליף את ה-OTP כהגנה מפני לידים מזויפים
   const ip = getIP(req);
-  if (!rateCheck(`lead:${ip}`, 3, 60 * 60 * 1000)) {
+  if (!rateCheck(`lead:${ip}`, 10, 60 * 60 * 1000)) {
     return NextResponse.json(
       { error: "rate_limit", message: "יותר מדי בקשות. נסו שוב בעוד שעה." },
       { status: 429 },
@@ -89,26 +96,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 
+  // מלכודת בוטים: שדה מוסתר מולא → מחזירים הצלחה בלי לשמור (הבוט לא לומד שנחסם).
+  if (typeof body.website === "string" && body.website.trim() !== "") {
+    return NextResponse.json({ ok: true });
+  }
+
   const name = (body.name || "").trim();
-  const phone = (body.phone || "").trim().replace(/\s/g, "");
 
   if (name.length < 2) {
     return NextResponse.json({ error: "invalid_name", message: "נא להזין שם מלא" }, { status: 422 });
   }
-  if (!PHONE_RE.test(phone)) {
+  const phone = normalizeMobile(body.phone);
+  if (!phone) {
     return NextResponse.json(
-      { error: "invalid_phone", message: "מספר טלפון לא תקין" },
+      { error: "invalid_phone", message: "נא להזין מספר נייד תקין (05X-XXXXXXX)" },
       { status: 422 },
     );
-  }
-
-  // אכיפת proof של אימות OTP בצד-שרת — הליד נחסם לפני DB/WhatsApp/Sheets אם אין הוכחה
-  // תקפה שהטלפon הזה עבר אימות. הוכחה נשמרת ב-Cookie מסוג HttpOnly (הלקוח לא שולט בה).
-  const proof = req.cookies.get("lead_proof")?.value;
-  const proofResult = verifyLeadProof(proof, phone);
-  if (!proofResult.valid) {
-    // לא חושפים פרטי אבטחה ללקוח — קוד שגיאה יציב בלבד.
-    return NextResponse.json({ error: "otp_verification_required" }, { status: 401 });
   }
 
   // הסכמה מפורשת לקבלת הדוח — דרישת חוק הגנת הפרטיות (תיקון 13) + חוק התקשורת
@@ -140,7 +143,7 @@ export async function POST(req: NextRequest) {
 
   // חישוב שווי סמכותי בצד-שרת — פלטים מהלקוח אינם נאמנים ומתעלמים מהם לחלוטין.
   // אם החישוב נכשל (נתונים לא מספיקים/שגיאה): שומרים את הליד ללא אומדן (מצב בטוח
-  // הקיים בסכימה) במקום לאבד ליד מוכר לאחר שכבר עבר OTP. השרת לעולם לא שומר ערך מהלקוח.
+  // הקיים בסכימה) במקום לאבד ליד מוכר. השרת לעולם לא שומר ערך מהלקוח.
   let serverValuation: Valuation | null = null;
   try {
     const outcome = await resolveAndValuate(valuationInput);
@@ -185,17 +188,23 @@ export async function POST(req: NextRequest) {
 
   let saved: Lead;
   try {
-    saved = await getStore().insertLead(lead);
+    const store = getStore();
+    // אותו טלפון + אותה כתובת (רחוב + מספר בית) ב-24 השעות האחרונות → לא יוצרים שורה נוספת.
+    const since = new Date(Date.now() - DEDUPE_WINDOW_MS).toISOString();
+    // בדיקת הכפילות לא חוסמת: אם היא נכשלת, עדיף ליד כפול מליד אבוד.
+    const existing = await store
+      .findRecentLead({ phone, address: lead.address ?? null, houseNumber: lead.houseNumber ?? null }, since)
+      .catch((e) => {
+        console.error("[lead] dedupe lookup failed:", e instanceof Error ? e.message : "unknown");
+        return null;
+      });
+    if (existing) return NextResponse.json({ ok: true, id: existing.id });
+    saved = await store.insertLead(lead);
   } catch (e) {
     console.error("lead insert failed", e);
     return NextResponse.json({ error: "save_failed" }, { status: 500 });
   }
 
-  // התראות best-effort — עם חישוב השרת בלבד (לא ערכי הלקוח) — לא חוסמות את התגובה.
-  notifyNewLead(saved, serverValuation).catch((e) => console.error("notify failed", e));
-
-  // מנקים את ה-proof לאחר שימוש מוצלח — מצמצם את חלון ה-replay בדפדפן זה.
-  const res = NextResponse.json({ ok: true, id: saved.id });
-  res.cookies.set("lead_proof", "", { path: "/", maxAge: 0 });
-  return res;
+  // בכוונה אין כאן התראה (notifyNewLead) — הליד מופיע בלוח הניהול בלבד.
+  return NextResponse.json({ ok: true, id: saved.id });
 }
