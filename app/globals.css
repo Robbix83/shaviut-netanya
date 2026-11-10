@@ -191,3 +191,15 @@ input[type="checkbox"]:focus-visible {
   box-shadow: 0 0 0 2px #fff; /* טבעת לבנה פנימית — נראית גם על רקע תמונה כהה */
 }
 .field-input:focus-visible { box-shadow: 0 0 0 3px rgba(12, 12, 11, 0.4); }
+
+/* ── תפריט נגישות (components/AccessibilityMenu.tsx) — class על <html> ── */
+.a11y-text-1 main { zoom: 1.15; }
+.a11y-text-2 main { zoom: 1.3; }
+.a11y-contrast main { filter: contrast(1.35); }
+.a11y-contrast main [class*="text-slate-"] { color: #000 !important; }
+.a11y-links a { text-decoration: underline !important; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+.a11y-no-motion *, .a11y-no-motion *::before, .a11y-no-motion *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

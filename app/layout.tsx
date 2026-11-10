@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import AccessibilityMenu from "@/components/AccessibilityMenu";
+import { A11Y_BOOT_SCRIPT } from "@/lib/a11yPrefs";
 
 const BASE_URL = "https://www.sikuma.co.il";
 
@@ -115,7 +117,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="he" dir="rtl">
+    <html lang="he" dir="rtl" suppressHydrationWarning>
       <head>
         {/* Preconnect לגופן — מפחית FOUC */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -130,6 +132,8 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800;900&display=swap"
           rel="stylesheet"
         />
+        {/* הגדרות תפריט הנגישות של המבקר — לפני הציור הראשון, בלי הבהוב */}
+        <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT_SCRIPT }} />
         {/* JSON-LD Structured Data */}
         <script
           type="application/ld+json"
@@ -140,6 +144,7 @@ export default function RootLayout({
         <Analytics />
         {children}
         <WhatsAppButton />
+        <AccessibilityMenu />
       </body>
     </html>
   );
