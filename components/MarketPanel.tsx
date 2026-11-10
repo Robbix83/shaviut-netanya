@@ -61,8 +61,8 @@ export default function MarketPanel(props: Props) {
       .finally(() => setLoading(false));
   }, [props.neighborhoodId, props.neighborhood]);
 
-  if (loading) return <div className="py-6 text-center text-xs text-slate-400 animate-pulse">טוען נתוני שוק…</div>;
-  if (err || !data) return <div className="py-4 text-center text-xs text-slate-400">אין נתוני שוק לשכונה זו</div>;
+  if (loading) return <div className="py-6 text-center text-xs text-slate-600 animate-pulse">טוען נתוני שוק…</div>;
+  if (err || !data) return <div className="py-4 text-center text-xs text-slate-600">אין נתוני שוק לשכונה זו</div>;
 
   const badge = data.priceBadge ? BADGE_CONFIG[data.priceBadge] : null;
   const diffSign = (data.priceDiffPct ?? 0) >= 0 ? "+" : "";
@@ -118,13 +118,13 @@ export default function MarketPanel(props: Props) {
       {/* עסקאות אחרונות */}
       {data.recentDeals.length > 0 && (
         <div>
-          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">
+          <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">
             עסקאות אחרונות בשכונה
           </h4>
           <div className="overflow-x-auto rounded-xl border border-slate-100">
             <table className="w-full text-xs">
               <thead>
-                <tr className="text-slate-400 border-b border-slate-100 bg-slate-50">
+                <tr className="text-slate-600 border-b border-slate-100 bg-slate-50">
                   <th className="text-right px-3 py-2 font-medium">תאריך</th>
                   <th className="text-right px-3 py-2 font-medium">רחוב</th>
                   <th className="text-right px-3 py-2 font-medium">חד'</th>
@@ -137,7 +137,7 @@ export default function MarketPanel(props: Props) {
               <tbody>
                 {data.recentDeals.map((d, i) => (
                   <tr key={i} className="border-b border-slate-50 hover:bg-slate-50">
-                    <td className="px-3 py-2 text-slate-500">{FMT_DATE(d.dealDate)}</td>
+                    <td className="px-3 py-2 text-slate-600">{FMT_DATE(d.dealDate)}</td>
                     <td className="px-3 py-2 text-slate-600">
                       {d.street ? `${d.street}${d.houseNumber ? " " + d.houseNumber : ""}` : "—"}
                     </td>
@@ -145,7 +145,7 @@ export default function MarketPanel(props: Props) {
                     <td className="px-3 py-2 text-slate-600">{d.areaSqm ?? d.plotSqm ?? "—"}</td>
                     <td className="px-3 py-2 text-slate-600">{d.floor ?? "—"}</td>
                     <td className="px-3 py-2 font-medium text-slate-800">{NIS(d.price)}</td>
-                    <td className="px-3 py-2 text-slate-500">
+                    <td className="px-3 py-2 text-slate-600">
                       {d.pricePerSqm ? NIS(d.pricePerSqm) : "—"}
                     </td>
                   </tr>
@@ -153,7 +153,7 @@ export default function MarketPanel(props: Props) {
               </tbody>
             </table>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1.5">
+          <p className="text-[10px] text-slate-600 mt-1.5">
             מקור: נדל״ן גוב · עודכן עד {new Date(data.asOf).toLocaleDateString("he-IL")}
           </p>
         </div>
@@ -186,9 +186,9 @@ function MetricBox({
 
   return (
     <div className={boxCls}>
-      <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">{label}</p>
+      <p className="text-[10px] text-slate-600 font-medium uppercase tracking-wide">{label}</p>
       <p className={`text-lg font-black ${valueColor}`}>{value}</p>
-      {sub && <p className="text-[10px] text-slate-400">{sub}</p>}
+      {sub && <p className="text-[10px] text-slate-600">{sub}</p>}
     </div>
   );
 }

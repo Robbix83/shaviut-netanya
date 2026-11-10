@@ -52,14 +52,14 @@ export default function CbsPanel({ neighborhood }: Props) {
 
   if (loading)
     return (
-      <div className="py-6 text-center text-xs text-slate-400 animate-pulse">
+      <div className="py-6 text-center text-xs text-slate-600 animate-pulse">
         טוען פרופיל שכונה (למ"ס)…
       </div>
     );
 
   if (err || !profile)
     return (
-      <div className="py-4 text-center text-xs text-slate-400">
+      <div className="py-4 text-center text-xs text-slate-600">
         {err === "no_cbs_data"
           ? <>הריצו <code className="bg-slate-100 px-1 rounded">npm run fetch:cbs</code> כדי לאכלס נתוני למ"ס.</>
           : "אין נתוני למ\"ס זמינים"}
@@ -79,7 +79,7 @@ export default function CbsPanel({ neighborhood }: Props) {
     <div className="p-4 space-y-4 text-sm" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+        <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide">
           פרופיל שכונה — מפקד 2022
         </h4>
         {precision === "city" ? (
@@ -100,17 +100,17 @@ export default function CbsPanel({ neighborhood }: Props) {
           <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-3">
             <div className="flex flex-col items-center justify-center shrink-0">
               <span className={`text-3xl font-black leading-none ${scoreColor(score)}`}>{score}</span>
-              <span className="text-[10px] text-slate-400 mt-0.5">מתוך 10</span>
+              <span className="text-[10px] text-slate-600 mt-0.5">מתוך 10</span>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between mb-1">
-                <p className="text-[11px] font-medium text-slate-500">מדד חברתי-כלכלי</p>
+                <p className="text-[11px] font-medium text-slate-600">מדד חברתי-כלכלי</p>
                 <span className={`text-[10px] font-bold ${scoreColor(score)}`}>{scoreLabel(score)}</span>
               </div>
               <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
                 <div className={`h-full ${scoreBg(score)}`} style={{ width: `${score * 10}%` }} />
               </div>
-              <p className="text-[10px] text-slate-400 mt-1">
+              <p className="text-[10px] text-slate-600 mt-1">
                 מחושב מנתוני שכר והשכלה — יחסי לטווח נתניה
               </p>
             </div>
@@ -137,7 +137,7 @@ export default function CbsPanel({ neighborhood }: Props) {
         <div className="space-y-3">
           {/* Age distribution */}
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 space-y-2">
-            <p className="text-[11px] font-bold text-slate-500">התפלגות גילאים</p>
+            <p className="text-[11px] font-bold text-slate-600">התפלגות גילאים</p>
             <AgeBar label="0–19 (צעירים)" pct={age0_19} color="bg-sky-400" />
             <AgeBar label="20–64 (עובדים)" pct={age20_64} color="bg-emerald-400" />
             <AgeBar label="65+ (קשישים)" pct={age65} color="bg-purple-400" />
@@ -145,7 +145,7 @@ export default function CbsPanel({ neighborhood }: Props) {
 
           {/* Ownership */}
           <div className="rounded-xl border border-slate-100 bg-slate-50 p-3 space-y-2">
-            <p className="text-[11px] font-bold text-slate-500">מצב דיור</p>
+            <p className="text-[11px] font-bold text-slate-600">מצב דיור</p>
             <div className="flex items-center justify-between text-xs">
               <span className="text-slate-600">בעלות על דירה</span>
               <span className="font-bold text-slate-800">{fmtPct(ownPct)}</span>
@@ -160,7 +160,7 @@ export default function CbsPanel({ neighborhood }: Props) {
         </div>
       </div>
 
-      <p className="text-[10px] text-slate-400">
+      <p className="text-[10px] text-slate-600">
         מקור: הלשכה המרכזית לסטטיסטיקה — מפקד אוכלוסין ודיור 2022 · data.gov.il
       </p>
     </div>
@@ -177,8 +177,8 @@ function MetricTile({
     <div className="rounded-lg border border-slate-100 bg-white px-3 py-2.5">
       <p className="text-base">{icon}</p>
       <p className="text-sm font-black text-slate-800 leading-tight mt-0.5">{value}</p>
-      <p className="text-[10px] text-slate-400 leading-tight">{label}</p>
-      {sub && <p className={`text-[10px] font-semibold mt-0.5 ${subColor ?? "text-slate-500"}`}>{sub}</p>}
+      <p className="text-[10px] text-slate-600 leading-tight">{label}</p>
+      {sub && <p className={`text-[10px] font-semibold mt-0.5 ${subColor ?? "text-slate-600"}`}>{sub}</p>}
     </div>
   );
 }
@@ -186,7 +186,7 @@ function MetricTile({
 function AgeBar({ label, pct, color }: { label: string; pct: number; color: string }) {
   return (
     <div>
-      <div className="flex justify-between text-[10px] text-slate-500 mb-0.5">
+      <div className="flex justify-between text-[10px] text-slate-600 mb-0.5">
         <span>{label}</span>
         <span className="font-semibold">{fmtPct(pct)}</span>
       </div>

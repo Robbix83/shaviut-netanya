@@ -14,7 +14,7 @@ interface Props {
 }
 
 const STATUS_OPTS: { value: TabuStatus; label: string; icon: string; cls: string }[] = [
-  { value: "pending",      label: "טרם הוזמן",  icon: "🔴", cls: "bg-slate-100 text-slate-500" },
+  { value: "pending",      label: "טרם הוזמן",  icon: "🔴", cls: "bg-slate-100 text-slate-600" },
   { value: "ordered",      label: "בהמתנה",     icon: "🟡", cls: "bg-amber-100 text-amber-700" },
   { value: "clean",        label: "נקי",        icon: "🟢", cls: "bg-emerald-100 text-emerald-700" },
   { value: "needs_review", label: "לבדיקה",     icon: "⚠️", cls: "bg-red-100 text-red-700" },
@@ -23,7 +23,7 @@ const STATUS_OPTS: { value: TabuStatus; label: string; icon: string; cls: string
 const TABU_SERVICE_URL = "https://www.gov.il/he/service/land_registration_extract";
 
 export const TABU_BADGE: Record<TabuStatus, { label: string; cls: string }> = {
-  pending:      { label: "טאבו: טרם הוזמן", cls: "bg-slate-100 text-slate-400" },
+  pending:      { label: "טאבו: טרם הוזמן", cls: "bg-slate-100 text-slate-600" },
   ordered:      { label: "טאבו: בהמתנה",   cls: "bg-amber-100 text-amber-700" },
   clean:        { label: "טאבו: נקי ✓",    cls: "bg-emerald-100 text-emerald-700" },
   needs_review: { label: "טאבו: לבדיקה",   cls: "bg-red-100 text-red-700" },
@@ -89,7 +89,7 @@ export default function TabuPanel({
 
       {/* שלב 1 — מציאת גוש/חלקה */}
       <div>
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">שלב 1 — זהה גוש וחלקה</p>
+        <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">שלב 1 — זהה גוש וחלקה</p>
         <a
           href={govmapParcelUrl}
           target="_blank"
@@ -97,14 +97,14 @@ export default function TabuPanel({
           className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition"
         >
           🗺️ פתח Govmap — שכבת גוש/חלקה
-          {address && <span className="text-slate-400 font-normal truncate max-w-[180px]">({address})</span>}
+          {address && <span className="text-slate-600 font-normal truncate max-w-[180px]">({address})</span>}
         </a>
-        <p className="text-[10px] text-slate-400 mt-1">לחץ על הנכס על המפה לקבלת מספרי גוש וחלקה</p>
+        <p className="text-[10px] text-slate-600 mt-1">לחץ על הנכס על המפה לקבלת מספרי גוש וחלקה</p>
       </div>
 
       {/* שלב 2 — הזמנת נסח */}
       <div>
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">שלב 2 — הזמן נסח טאבו</p>
+        <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">שלב 2 — הזמן נסח טאבו</p>
         <a
           href={TABU_SERVICE_URL}
           target="_blank"
@@ -113,14 +113,14 @@ export default function TabuPanel({
         >
           📄 הזמן נסח טאבו (gov.il)
         </a>
-        <p className="text-[10px] text-slate-400 mt-1">
+        <p className="text-[10px] text-slate-600 mt-1">
           שירות דיגיטלי של משרד המשפטים · תשלום מינימלי · חתום אלקטרונית
         </p>
       </div>
 
       {/* שלב 3 — עדכון סטטוס */}
       <div>
-        <p className="text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">שלב 3 — עדכן סטטוס לאחר קבלת הנסח</p>
+        <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">שלב 3 — עדכן סטטוס לאחר קבלת הנסח</p>
         <div className="flex flex-wrap gap-2 mb-3">
           {STATUS_OPTS.map((o) => (
             <button
@@ -129,7 +129,7 @@ export default function TabuPanel({
               className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
                 status === o.value
                   ? o.cls + " border-current ring-2 ring-offset-1 ring-current ring-opacity-30"
-                  : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
               }`}
             >
               {o.icon} {o.label}
@@ -155,7 +155,7 @@ export default function TabuPanel({
           </button>
           {saved && <span className="text-xs text-emerald-600 font-medium">✓ נשמר</span>}
           {orderedAt && (
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-600">
               הוזמן ב-{fmtDate(orderedAt)}
             </span>
           )}
@@ -164,7 +164,7 @@ export default function TabuPanel({
 
       {/* סטטוס נוכחי */}
       <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
-        <span className="text-[10px] text-slate-400">סטטוס נוכחי:</span>
+        <span className="text-[10px] text-slate-600">סטטוס נוכחי:</span>
         <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${currentOpt.cls}`}>
           {currentOpt.icon} {currentOpt.label}
         </span>

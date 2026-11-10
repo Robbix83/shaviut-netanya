@@ -33,6 +33,9 @@ export default async function Home() {
 
   return (
     <main dir="rtl" className="overflow-x-clip bg-white text-ink">
+      <a href="#check" className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-white focus:px-5 focus:py-3 focus:font-semibold focus:text-ink focus:shadow-lg">
+        דלג לבדיקת השווי
+      </a>
       {/* ═══════════ OPENING CARD ═══════════ */}
       <section className="px-3 pt-3 lg:px-4 lg:pt-4" aria-labelledby="home-h1">
         <div className="relative">
@@ -184,6 +187,7 @@ export default async function Home() {
         <div className="mt-3 flex gap-1">
           <a href="/privacy" className="flex min-h-[44px] items-center px-3 first:ps-0 hover:text-ink">מדיניות פרטיות</a>
           <a href="/terms" className="flex min-h-[44px] items-center px-3 hover:text-ink">תנאי שימוש</a>
+          <a href="/accessibility" className="flex min-h-[44px] items-center px-3 hover:text-ink">הצהרת נגישות</a>
         </div>
         <p className="mt-2">צילומי האוויר באתר באדיבות הצלם ובאישורו.</p>
         <p className="mt-3">© 2026 · שוויות נתניה</p>

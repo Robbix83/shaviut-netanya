@@ -179,3 +179,15 @@ input, textarea { caret-color: var(--brand); }
     transition-property: opacity, color, background-color, border-color !important;
   }
 }
+
+/* נגישות (ת"י 5568 / WCAG 2.4.7): מסגרת מיקוד ברורה לכל רכיב שנגיש מהמקלדת */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[role="option"]:focus-visible,
+input[type="checkbox"]:focus-visible {
+  outline: 3px solid #0c0c0b;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #fff; /* טבעת לבנה פנימית — נראית גם על רקע תמונה כהה */
+}
+.field-input:focus-visible { box-shadow: 0 0 0 3px rgba(12, 12, 11, 0.4); }

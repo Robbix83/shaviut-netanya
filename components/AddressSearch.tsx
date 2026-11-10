@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { HOUSE_NUMBER_REQUIRED_MESSAGE } from "@/lib/houseNumberRule";
 
 export interface StreetSuggestion {
@@ -39,7 +39,8 @@ export default function AddressSearch({ onSelect, onClear, selected, houseNumber
   const [suggestions, setSuggestions] = useState<ApiSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
-const inputRef = useRef<HTMLInputElement>(null);
+  const [active, setActive] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -82,6 +83,7 @@ const inputRef = useRef<HTMLInputElement>(null);
       if (!r.ok) { setSuggestions([]); return; }
       const j = await r.json();
       setSuggestions(j.suggestions ?? []);
+      setActive(-1);
     } catch { setSuggestions([]); }
     finally { clearTimeout(timer); setLoading(false); }
   }
@@ -99,6 +101,29 @@ const inputRef = useRef<HTMLInputElement>(null);
       x: s.x ?? null,
       y: s.y ?? null,
     });
+    // שדה החיפוש מתחלף בשדה מספר הבית — מעבירים אליו את הפוקוס כדי שלא ילך לאיבוד
+    setTimeout(() => document.getElementById("addr-house-number")?.focus(), 50);
+  }
+
+  // מקלדת: חצים בין ההצעות, Enter בוחר, Escape סוגר (WCAG 2.1.1)
+  function onKey(e: KeyboardEvent<HTMLInputElement>) {
+    const listOpen = open && suggestions.length > 0;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (!listOpen) { triggerSearch(); return; }
+      setActive((i) => (i + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      if (!listOpen) return;
+      e.preventDefault();
+      setActive((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (listOpen && active >= 0) pick(suggestions[active]);
+      else if (listOpen && suggestions.length === 1) pick(suggestions[0]);
+      else triggerSearch();
+    } else if (e.key === "Escape") {
+      if (open) { e.preventDefault(); setOpen(false); setActive(-1); }
+    }
   }
 
   function clear() {
@@ -118,7 +143,7 @@ const inputRef = useRef<HTMLInputElement>(null);
               ? <p className="text-xs font-semibold text-slate-700">{selected.neighborhoodName}, נתניה</p>
               : <p className="text-xs text-slate-600">הזינו מספר בית לשיוך שכונה</p>}
           </div>
-          <button onClick={clear} className="gh-press flex-shrink-0 rounded-full bg-white px-3 text-xs font-semibold text-ink min-h-[44px] flex items-center justify-center" aria-label="שנה רחוב">שינוי</button>
+          <button type="button" onClick={clear} className="gh-press flex-shrink-0 rounded-full bg-white px-3 text-xs font-semibold text-ink min-h-[44px] flex items-center justify-center" aria-label="שנה רחוב">שינוי</button>
         </div>
         {/* מספר בית — מאפשר חיפוש ברמת בניין ספציפי */}
         <div className="flex items-center gap-2 flex-wrap">
@@ -157,6 +182,11 @@ const inputRef = useRef<HTMLInputElement>(null);
           ref={inputRef}
           id="addr-street-search"
           aria-label="חיפוש רחוב"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={open && suggestions.length > 0}
+          aria-controls="addr-street-list"
+          aria-activedescendant={open && active >= 0 ? `addr-street-opt-${active}` : undefined}
           type="text"
           dir="rtl"
           className="field-input pe-10"
@@ -169,23 +199,24 @@ const inputRef = useRef<HTMLInputElement>(null);
           spellCheck={false}
           onChange={(e) => handleInput(e.target.value)}
           onCompositionEnd={(e) => handleInput((e.target as HTMLInputElement).value)}
-          onKeyDown={(e) => e.key === "Enter" && triggerSearch()}
+          onKeyDown={onKey}
           onFocus={() => { if (query.length >= 1) { setOpen(true); triggerSearch(); } }}
         />
         <button
           type="button"
           aria-label="חפש רחוב"
-          className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-500 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="absolute left-1 top-1/2 -translate-y-1/2 text-slate-600 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
           onMouseDown={(e) => { e.preventDefault(); triggerSearch(); }}
           onTouchEnd={(e) => { e.preventDefault(); triggerSearch(); }}
+          onClick={(e) => { if (e.detail === 0) triggerSearch(); /* Enter/רווח מהמקלדת */ }}
         >
           {loading ? (
-            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 11-8 8z"/>
             </svg>
           ) : (
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 20 20" stroke="currentColor" strokeWidth="2">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 20 20" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <circle cx="8" cy="8" r="5"/><path d="m13 13 3 3" strokeLinecap="round"/>
             </svg>
           )}
@@ -193,26 +224,31 @@ const inputRef = useRef<HTMLInputElement>(null);
       </div>
 
       {open && suggestions.length > 0 && (
-        <div ref={listRef} className="gh-pop absolute z-50 mt-1.5 w-full rounded-2xl bg-white p-1.5 shadow-[0_18px_40px_-16px_rgba(18,19,43,0.35)] ring-1 ring-butter-deep overflow-hidden max-h-72 overflow-y-auto">
+        <div ref={listRef} id="addr-street-list" role="listbox" aria-label="רחובות מתאימים" className="gh-pop absolute z-50 mt-1.5 w-full rounded-2xl bg-white p-1.5 shadow-[0_18px_40px_-16px_rgba(18,19,43,0.35)] ring-1 ring-butter-deep overflow-hidden max-h-72 overflow-y-auto">
           {suggestions.map((s, i) => (
-            <button
+            <div
               key={i}
-              type="button"
-              aria-label={`בחר ${s.street}`}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 min-h-[44px] text-right hover:bg-butter-soft"
+              id={`addr-street-opt-${i}`}
+              role="option"
+              aria-selected={i === active}
+              className={`flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 min-h-[44px] text-right hover:bg-butter-soft ${i === active ? "bg-butter-soft ring-2 ring-ink" : ""}`}
               onMouseDown={(e) => { e.preventDefault(); pick(s); }}
               onTouchEnd={(e) => { e.preventDefault(); pick(s); }}
             >
               <span className="flex-1 min-w-0 text-right">
                 <span className="block text-[15px] font-medium text-ink [overflow-wrap:anywhere]">{s.street}</span>
               </span>
-            </button>
+            </div>
           ))}
         </div>
       )}
 
+      <p className="sr-only" aria-live="polite">
+        {open && suggestions.length > 0 ? `${suggestions.length} רחובות נמצאו. השתמשו בחצים כדי לבחור.` : ""}
+      </p>
+
       {open && !loading && query.length >= 1 && suggestions.length === 0 && (
-        <div className="gh-pop absolute z-50 mt-1.5 w-full rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-[0_18px_40px_-16px_rgba(18,19,43,0.35)] ring-1 ring-butter-deep">
+        <div role="status" className="gh-pop absolute z-50 mt-1.5 w-full rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-[0_18px_40px_-16px_rgba(18,19,43,0.35)] ring-1 ring-butter-deep">
           לא נמצא רחוב — בחרו שכונה ידנית
         </div>
       )}

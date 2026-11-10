@@ -196,7 +196,7 @@ function ValueFactors({ low, high }: { low: number; high: number }) {
   return (
     <div className="rounded-3xl bg-butter-soft p-4">
       <p className="text-[15px] font-bold text-ink">מה משפיע על השווי שלך?</p>
-      <p className="mt-0.5 text-xs text-slate-500">סמנו מאפיינים כדי לדייק את ההערכה</p>
+      <p className="mt-0.5 text-xs text-slate-600">סמנו מאפיינים כדי לדייק את ההערכה</p>
       <div className="mt-3 flex flex-wrap gap-2">
         {VALUE_FACTORS.map((f) => {
           const on = sel.has(f.key);
@@ -212,7 +212,7 @@ function ValueFactors({ low, high }: { low: number; high: number }) {
                   : "bg-white text-slate-700"
               }`}
             >
-              {f.label} <span className="tabular-nums opacity-70">{f.mult >= 0 ? "+" : ""}{Math.round(f.mult * 100)}%</span>
+              {f.label} <span className="tabular-nums opacity-90">{f.mult >= 0 ? "+" : ""}{Math.round(f.mult * 100)}%</span>
             </button>
           );
         })}
@@ -223,7 +223,7 @@ function ValueFactors({ low, high }: { low: number; high: number }) {
           <p className="text-lg font-black tabular-nums text-brand">{nis(r(low))} – {nis(r(high))}</p>
         </div>
       )}
-      <p className="mt-2 text-xs text-slate-500">* התאמה משוערת בלבד — כלי עזר, אינו תחליף לבדיקת שמאי.</p>
+      <p className="mt-2 text-xs text-slate-600">* התאמה משוערת בלבד — כלי עזר, אינו תחליף לבדיקת שמאי.</p>
     </div>
   );
 }
@@ -241,7 +241,12 @@ function TrendChart({ t }: { t: PriceTrend }) {
           {up ? "▲" : "▼"} {Math.abs(t.changePct)}% ב-{Math.round(t.months / 12) >= 1 ? `${Math.round(t.months / 12)} שנים` : `${t.months} ח׳`}
         </span>
       </div>
-      <div className="mt-3 flex items-end justify-between gap-1" style={{ height: 70 }} dir="ltr">
+      <ul className="sr-only">
+        {t.points.map((p, i) => (
+          <li key={i}>{p.label}: {p.ppsqm.toLocaleString("he-IL")} ש״ח למ״ר</li>
+        ))}
+      </ul>
+      <div className="mt-3 flex items-end justify-between gap-1" style={{ height: 70 }} dir="ltr" aria-hidden="true">
         {t.points.map((p, i) => {
           const h = 12 + ((p.ppsqm - min) / Math.max(max - min, 1)) * 50;
           return (
@@ -251,12 +256,12 @@ function TrendChart({ t }: { t: PriceTrend }) {
                 style={{ height: `${h}px` }}
                 title={`${p.label}: ₪${p.ppsqm.toLocaleString("he-IL")}/מ"ר`}
               />
-              <span className="text-[10px] tabular-nums text-slate-500">{(() => { const [y, q] = p.label.split("-"); return q ? `${q}/${y.slice(2)}` : p.label; })()}</span>
+              <span className="text-[10px] tabular-nums text-slate-600">{(() => { const [y, q] = p.label.split("-"); return q ? `${q}/${y.slice(2)}` : p.label; })()}</span>
             </div>
           );
         })}
       </div>
-      <p className="mt-1 text-xs text-slate-500 text-center">₪/מ"ר חציוני לפי רבעון · מבוסס עסקאות אמיתיות</p>
+      <p className="mt-1 text-xs text-slate-600 text-center">₪/מ"ר חציוני לפי רבעון · מבוסס עסקאות אמיתיות</p>
     </div>
   );
 }
@@ -344,7 +349,7 @@ function ReportSection({
       >
         <div>
           <p className="text-sm font-bold text-slate-800">{title}</p>
-          <p className="text-xs text-slate-500">{subtitle}</p>
+          <p className="text-xs text-slate-600">{subtitle}</p>
         </div>
         <svg className={`h-4 w-4 text-slate-600 transition-transform duration-200 [transition-timing-function:cubic-bezier(0.23,1,0.32,1)] ${open ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
       </button>
@@ -357,7 +362,7 @@ const TIER_BADGE: Record<string, { label: string; cls: string }> = {
   building:     { label: "אותו בניין",   cls: "bg-brand/10 text-brand-dark border-brand/20" },
   street:       { label: "אותו רחוב",    cls: "bg-blue-50 text-blue-700 border-blue-200" },
   radius:       { label: "בקרבת מקום",   cls: "bg-slate-100 text-slate-600 border-slate-200" },
-  neighborhood: { label: "שכונה",         cls: "bg-slate-100 text-slate-500 border-slate-200" },
+  neighborhood: { label: "שכונה",         cls: "bg-slate-100 text-slate-600 border-slate-200" },
 };
 
 function CompDealCard({ c }: { c: Comparable }) {
@@ -375,7 +380,7 @@ function CompDealCard({ c }: { c: Comparable }) {
             {addr.isRealAddress ? (
               <span className="min-w-0 font-semibold text-slate-800 [overflow-wrap:anywhere]">{addr.text}</span>
             ) : (
-              <span className="text-slate-500 text-xs italic">{addr.text}</span>
+              <span className="text-slate-600 text-xs italic">{addr.text}</span>
             )}
             {tierBadge && (
               <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-bold ${tierBadge.cls}`}>
@@ -392,13 +397,13 @@ function CompDealCard({ c }: { c: Comparable }) {
               </span>
             ) : null}
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             {[compDesc(c), c.yearBuilt ? `בנ' ${c.yearBuilt}` : null].filter(Boolean).join(" · ")}
           </p>
         </div>
         <div className="shrink-0 text-left">
           <p className="font-black tabular-nums text-ink">{nis(c.price)}</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             {c.pricePerSqm ? `₪${c.pricePerSqm.toLocaleString("he-IL")}/מ"ר · ` : ""}
             {fmtDate(c.dealDate)}
           </p>
@@ -422,7 +427,7 @@ function ShevahSection({
   return (
     <div className="rounded-3xl bg-butter-soft p-4">
       <p className="text-[15px] font-bold text-ink">מה לגבי מס שבח?</p>
-      <p className="mt-0.5 text-xs text-slate-500">שאלה שמוכרים רבים שוכחים לשאול לפני שחותמים</p>
+      <p className="mt-0.5 text-xs text-slate-600">שאלה שמוכרים רבים שוכחים לשאול לפני שחותמים</p>
 
       <p className="mt-3 text-sm text-slate-600">האם זו דירת המגורים היחידה שלכם?</p>
       <div className="mt-2 flex gap-2">
@@ -487,6 +492,13 @@ function ShevahSection({
 
 export default function ValuationWizard() {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  // מעבר שלב: הפוקוס עובר לכותרת השלב החדש, כדי שקורא מסך יודיע עליו ושמשתמשי מקלדת לא יחזרו לראש הדף
+  const wizardRef = useRef<HTMLDivElement>(null);
+  const firstStepRender = useRef(true);
+  useEffect(() => {
+    if (firstStepRender.current) { firstStepRender.current = false; return; }
+    wizardRef.current?.querySelector<HTMLElement>("[data-step-heading]")?.focus({ preventScroll: true });
+  }, [step]);
 
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [neighborhoods, setNeighborhoods] = useState<NeighborhoodOpt[]>([]);
@@ -785,19 +797,21 @@ export default function ValuationWizard() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-3xl bg-white p-5 shadow-card sm:p-7">
+    <div ref={wizardRef} className="mx-auto w-full max-w-xl rounded-3xl bg-white p-5 shadow-card sm:p-7">
       <Stepper step={step} />
 
       {/* שלב 1 — סוג נכס + מיקום */}
       {step === 1 && (
         <div className="gh-step space-y-4">
-          <h2 className="text-2xl font-extrabold">מה הנכס שלך ואיפה?</h2>
+          <h2 data-step-heading tabIndex={-1} className="text-2xl font-extrabold outline-none">מה הנכס שלך ואיפה?</h2>
           <div>
-            <label className="field-label">סוג הנכס</label>
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-3">
+            <p id="lbl-ptype" className="field-label">סוג הנכס</p>
+            <div role="group" aria-labelledby="lbl-ptype" className="grid grid-cols-3 gap-2 sm:grid-cols-3">
               {PROPERTY_TYPES.map((t) => (
                 <button
                   key={t.value}
+                  type="button"
+                  aria-pressed={propertyType === t.value}
                   onClick={() => setPropertyType(t.value)}
                   className={`gh-press flex items-center justify-center rounded-full px-2 text-[15px] min-h-[48px] ${
                     propertyType === t.value
@@ -812,7 +826,7 @@ export default function ValuationWizard() {
           </div>
           {/* חיפוש כתובת חכם */}
           <div>
-            <label className="field-label">כתובת הנכס</label>
+            <p className="field-label">כתובת הנכס</p>
             <AddressSearch
               neighborhoods={neighborhoods}
               selected={selectedStreet}
@@ -846,7 +860,7 @@ export default function ValuationWizard() {
             {!selectedStreet && (
               <button
                 type="button"
-                className="mt-2 text-xs text-slate-500 underline hover:text-slate-600 min-h-[44px] px-2"
+                className="mt-2 text-xs text-slate-600 underline hover:text-slate-600 min-h-[44px] px-2"
                 onClick={() => setShowNeighFallback(!showNeighFallback)}
               >
                 {showNeighFallback ? "סגור" : "לא מוצאים את הרחוב? בחרו שכונה ידנית"}
@@ -905,15 +919,16 @@ export default function ValuationWizard() {
       {/* שלב 2 — פרטי הנכס (מותנה בסוג) */}
       {step === 2 && (
         <div className="gh-step space-y-5">
-          <h2 className="text-2xl font-extrabold">פרטי הנכס</h2>
+          <h2 data-step-heading tabIndex={-1} className="text-2xl font-extrabold outline-none">פרטי הנכס</h2>
 
           {!isLand && (
             <div>
-              <label className="field-label">מספר חדרים</label>
-              <div className="flex flex-wrap gap-2">
+              <p id="lbl-rooms" className="field-label">מספר חדרים</p>
+              <div role="group" aria-labelledby="lbl-rooms" className="flex flex-wrap gap-2">
                 {ROOM_OPTIONS.map((r) => (
                   <button
                     key={r}
+                    type="button"
                     onClick={() => setRooms(r)}
                     aria-label={`${r} חדרים`}
                     aria-pressed={rooms === r}
@@ -978,8 +993,8 @@ export default function ValuationWizard() {
             )}
             {/* שנת בנייה — קריטית לדיוק (ישן vs חדש) */}
             <div>
-              <label className="field-label">שנת בנייה משוערת <span className="font-normal text-slate-500">(לא חובה)</span></label>
-              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+              <p id="lbl-year" className="field-label">שנת בנייה משוערת <span className="font-normal text-slate-600">(לא חובה)</span></p>
+              <div role="group" aria-labelledby="lbl-year" className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
                 {[
                   { label: "לפני 1975", value: "1965" },
                   { label: "1975–1990", value: "1982" },
@@ -992,6 +1007,7 @@ export default function ValuationWizard() {
                   <button
                     key={opt.value}
                     type="button"
+                    aria-pressed={yearBuilt === opt.value}
                     onClick={() => setYearBuilt(yearBuilt === opt.value ? "" : opt.value)}
                     className={`gh-press rounded-full px-1 py-3 text-xs text-center tabular-nums min-h-[44px] ${
                       yearBuilt === opt.value
@@ -1033,6 +1049,7 @@ export default function ValuationWizard() {
       {/* שלב 3 — תוצאה + שער ליד */}
       {step === 3 && valuation && (
         <div className="gh-step space-y-4">
+          <h2 data-step-heading tabIndex={-1} className="sr-only">תוצאת ההערכה</h2>
           {/* ── כרטיס שווי ראשי ── */}
           <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
 
@@ -1062,7 +1079,7 @@ export default function ValuationWizard() {
               ) : (
                 <p className="my-3 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 text-3xl font-black tracking-[-0.03em] text-brand tabular-nums sm:text-[2.2rem]">
                   <span className="whitespace-nowrap">{nis(valuation.estimateLow)}</span>
-                  <span className="text-xl font-light text-slate-500">—</span>
+                  <span className="text-xl font-light text-slate-600">—</span>
                   <span className="whitespace-nowrap">{nis(valuation.estimateHigh)}</span>
                 </p>
               )}
@@ -1121,7 +1138,7 @@ export default function ValuationWizard() {
               </div>
               {/* כותרת המסבירה מאיפה נלקחו העסקאות */}
               {valuation.compSearchScope && valuation.compSearchScope !== "neighborhood" && (
-                <p className="mt-1.5 text-xs text-slate-500">
+                <p className="mt-1.5 text-xs text-slate-600">
                   {valuation.compSearchScope === "building"
                     ? "מוצגות קודם עסקאות מאותו בניין (5 שנים אחרונות)"
                     : valuation.compSearchScope === "street"
@@ -1130,7 +1147,7 @@ export default function ValuationWizard() {
                 </p>
               )}
               {valuation.propertyType !== "apartment" && !valuation.manualReview && (
-                <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
                   {valuation.propertyType === "house"
                     ? "רשות המסים אינה מפרסמת שטח מגרש לבתים — לכן עסקאות ההשוואה אינן מסוננות לפי גודל אדמה. האומדן מחושב לפי בנוי בלבד ועשוי לסטות מהמציאות בבתים עם מגרשים גדולים."
                     : `* המחיר הכולל מושפע משטח המגרש — ההערכה מנורמלת לנכסך (≈${nis(valuation.pricePerSqmMid)} למ"ר מגרש).`
@@ -1198,7 +1215,7 @@ export default function ValuationWizard() {
                 {/* MAVAT */}
                 {teaserData.mavat && (
                   <div className="rounded-2xl bg-white p-3 text-center flex flex-col items-center gap-1.5">
-                    <p className="text-xs font-bold text-slate-500 leading-tight">תכנון עירוני</p>
+                    <p className="text-xs font-bold text-slate-600 leading-tight">תכנון עירוני</p>
                     <p className="text-xs font-extrabold leading-tight">
                       {teaserData.mavat.upside
                         ? <span className="text-emerald-700">פוטנציאל</span>
@@ -1215,7 +1232,7 @@ export default function ValuationWizard() {
                   </div>
                 )}
               </div>
-              <p className="text-xs text-slate-500 text-center">
+              <p className="text-xs text-slate-600 text-center">
                 פרטים מלאים — מפת תכנון, ניתוח שכונה, עסקאות — בדוח המלא
               </p>
             </div>
@@ -1239,7 +1256,7 @@ export default function ValuationWizard() {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
-                  <p className="text-xs text-slate-500">מתווך מורשה{AGENT.licensed ? ` · רישיון ${AGENT.license}` : ""}</p>
+                  <p className="text-xs text-slate-600">מתווך מורשה{AGENT.licensed ? ` · רישיון ${AGENT.license}` : ""}</p>
                 </div>
                 {AGENT.licensed && (
                   <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
@@ -1249,8 +1266,8 @@ export default function ValuationWizard() {
 
               {/* שאלת תזמון — מסנן לידים חמים */}
               <div>
-                <label className="field-label">מתי אתם שוקלים למכור?</label>
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <p id="lbl-timing" className="field-label">מתי אתם שוקלים למכור?</p>
+                <div role="group" aria-labelledby="lbl-timing" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                   {SELL_TIMING.map((t) => (
                     <button
                       key={t.value}
@@ -1305,7 +1322,7 @@ export default function ValuationWizard() {
               <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
                 <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentReport}
                   onChange={(e) => setConsentReport(e.target.checked)} />
-                <span>אני מאשר/ת שהמתווך יחזור אליי בנוגע לנכס, ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות</a>.</span>
+                <span>אני מאשר/ת שהמתווך יחזור אליי בנוגע לנכס, ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות<span className="sr-only"> (נפתח בחלון חדש)</span></a>.</span>
               </label>
               <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
                 <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentMarketing}
@@ -1338,7 +1355,7 @@ export default function ValuationWizard() {
             <div className="mx-auto mb-2 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white" aria-hidden="true">
               <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h2 className="text-2xl font-extrabold">הדוח שלך מוכן, {name}!</h2>
+            <h2 data-step-heading tabIndex={-1} className="text-2xl font-extrabold outline-none">הדוח שלך מוכן, {name}!</h2>
           </div>
 
           {/* וואטסאפ למתווך — נשלח מהטלפון של המבקר. האתר לא יודע אם נשלח בפועל, ולכן לא חוסם ולא מאשר שליחה. */}
@@ -1482,7 +1499,7 @@ export default function ValuationWizard() {
         </div>
       )}
 
-      <p className="mt-5 text-center text-xs leading-relaxed text-slate-500">
+      <p className="mt-5 text-center text-xs leading-relaxed text-slate-600">
         ההערכה היא אינדיקציה המבוססת על עסקאות פומביות ממאגר רשות המסים ואינה תחליף
         להערכת שמאי מוסמך.
       </p>
@@ -1500,12 +1517,12 @@ function TeaserCard({
   const bar   = score >= 7 ? "bg-emerald-500"   : score >= 4.5 ? "bg-amber-500"   : "bg-red-400";
   return (
     <div className="rounded-2xl bg-white p-3 text-center flex flex-col items-center gap-1.5">
-      <p className="text-xs font-bold text-slate-500 leading-tight">{label}</p>
-      <p className={`text-lg font-black leading-none ${color}`}>{score}<span className="text-[10px] font-normal text-slate-500">/10</span></p>
+      <p className="text-xs font-bold text-slate-600 leading-tight">{label}</p>
+      <p className={`text-lg font-black leading-none ${color}`}>{score}<span className="text-[10px] font-normal text-slate-600">/10</span></p>
       <div className="w-full h-1.5 rounded-full bg-butter-deep overflow-hidden">
         <div className={`h-full ${bar}`} style={{ width: `${score * 10}%` }} />
       </div>
-      <p className="text-xs text-slate-500 leading-tight">{sub}</p>
+      <p className="text-xs text-slate-600 leading-tight">{sub}</p>
       <button
         onClick={onUnlock}
         className="gh-press mt-0.5 rounded-full bg-butter-soft px-3 py-1.5 min-h-[44px] text-xs font-semibold text-ink flex items-center justify-center"
@@ -1520,7 +1537,8 @@ function Stepper({ step }: { step: number }) {
   const labels = ["מיקום", "פרטי הנכס", "התוצאה"];
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-center gap-0">
+      <p className="sr-only">שלב {Math.min(step, 3)} מתוך 3: {labels[Math.min(step, 3) - 1]}</p>
+      <div className="flex items-center justify-center gap-0" aria-hidden="true">
         {labels.map((l, i) => {
           const n = i + 1;
           const done = step > n;
@@ -1535,7 +1553,7 @@ function Stepper({ step }: { step: number }) {
                       ? "bg-ink text-white"
                       : active
                       ? "bg-brand text-white"
-                      : "bg-butter-soft text-slate-500"
+                      : "bg-butter-soft text-slate-600"
                   }`}
                 >
                   {done ? (
@@ -1546,7 +1564,7 @@ function Stepper({ step }: { step: number }) {
                     n
                   )}
                 </div>
-                <span className={`text-xs font-medium ${active ? "text-brand" : done ? "text-ink" : "text-slate-500"}`}>
+                <span className={`text-xs font-medium ${active ? "text-brand" : done ? "text-ink" : "text-slate-600"}`}>
                   {l}
                 </span>
               </div>

@@ -74,16 +74,16 @@ export default function AccessibilityPanel(props: Props) {
   }, [props.address, props.neighborhoodId, props.neighborhood]);
 
   if (loading)
-    return <div className="py-6 text-center text-xs text-slate-400 animate-pulse">טוען נתוני נגישות…</div>;
+    return <div className="py-6 text-center text-xs text-slate-600 animate-pulse">טוען נתוני נגישות…</div>;
 
   if (err === "no_poi_data")
     return (
-      <div className="py-4 px-4 text-center text-xs text-slate-400">
+      <div className="py-4 px-4 text-center text-xs text-slate-600">
         נתוני התשתיות טרם נאספו. הריצו <code className="bg-slate-100 px-1 rounded">npm run fetch:poi</code> כדי לאכלס את המפה.
       </div>
     );
   if (err || !data?.accessibility)
-    return <div className="py-4 text-center text-xs text-slate-400">אין נתוני נגישות למיקום זה</div>;
+    return <div className="py-4 text-center text-xs text-slate-600">אין נתוני נגישות למיקום זה</div>;
 
   const { score, nearest } = data.accessibility;
 
@@ -91,7 +91,7 @@ export default function AccessibilityPanel(props: Props) {
     <div className="p-4 space-y-4 text-sm" dir="rtl">
       {/* כותרת + הסתייגות דיוק */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide">מיקום ותשתיות</h4>
+        <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wide">מיקום ותשתיות</h4>
         {data.approximate ? (
           <span className="rounded-full bg-amber-50 border border-amber-200 text-amber-700 px-2 py-0.5 text-[10px] font-medium">
             ~ הערכה לפי מרכז השכונה{data.locationLabel ? ` (${data.locationLabel})` : ""}
@@ -109,10 +109,10 @@ export default function AccessibilityPanel(props: Props) {
           <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 flex items-center gap-3">
             <div className="flex flex-col items-center justify-center">
               <span className={`text-3xl font-black leading-none ${scoreColor(score)}`}>{score}</span>
-              <span className="text-[10px] text-slate-400 mt-0.5">מתוך 10</span>
+              <span className="text-[10px] text-slate-600 mt-0.5">מתוך 10</span>
             </div>
             <div className="flex-1">
-              <p className="text-[11px] font-medium text-slate-500 mb-1">ציון נגישות</p>
+              <p className="text-[11px] font-medium text-slate-600 mb-1">ציון נגישות</p>
               <div className="h-2 rounded-full bg-slate-200 overflow-hidden">
                 <div className={`h-full ${scoreBg(score)}`} style={{ width: `${score * 10}%` }} />
               </div>
@@ -128,7 +128,7 @@ export default function AccessibilityPanel(props: Props) {
                 <span className="text-slate-600 text-xs flex items-center gap-1.5">
                   <span className="text-base">{CAT_META[n.category].icon}</span>
                   {CAT_META[n.category].label}
-                  {n.name && <span className="text-slate-400 text-[10px]">· {n.name}</span>}
+                  {n.name && <span className="text-slate-600 text-[10px]">· {n.name}</span>}
                 </span>
                 <span className={`text-xs font-bold ${n.found ? "text-slate-800" : "text-slate-300"}`}>
                   {n.found ? fmtDist(n.distanceMeters) : "—"}
@@ -152,7 +152,7 @@ export default function AccessibilityPanel(props: Props) {
         )}
       </div>
 
-      <p className="text-[10px] text-slate-400">
+      <p className="text-[10px] text-slate-600">
         מקור נקודות-עניין: OpenStreetMap · מפה: govmap.gov.il · מרחקים אוויריים
       </p>
     </div>
