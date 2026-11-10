@@ -29,6 +29,7 @@ export default async function Home() {
   const dealCount = stats.dealCount;
   const agentName = process.env.NEXT_PUBLIC_AGENT_NAME;
   const agentLicense = process.env.NEXT_PUBLIC_AGENT_LICENSE;
+  const agentPhoto = process.env.NEXT_PUBLIC_AGENT_PHOTO;
 
   return (
     <main dir="rtl" className="overflow-x-clip bg-white text-ink">
@@ -156,9 +157,14 @@ export default async function Home() {
       {/* ═══════════ AGENT ═══════════ */}
       <section className="mx-auto mt-28 max-w-6xl px-5" aria-labelledby="agent-h">
         <div className="flex flex-col gap-4 rounded-[32px] bg-butter-soft p-6 sm:flex-row sm:items-center sm:p-8">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-light text-xl font-semibold text-brand" aria-hidden="true">
-            {(agentName ?? "מ").slice(0, 1)}
-          </div>
+          {agentPhoto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={agentPhoto} alt={agentName ?? "המתווך"} width={80} height={80} loading="lazy" className="h-20 w-20 shrink-0 rounded-full object-cover ring-4 ring-white" />
+          ) : (
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-light text-xl font-semibold text-brand" aria-hidden="true">
+              {(agentName ?? "מ").slice(0, 1)}
+            </div>
+          )}
           <div className="flex-1">
             <h2 id="agent-h" className="text-[22px] font-semibold tracking-[-0.02em]">מי מאחורי ההערכה</h2>
             <p className="mt-1 text-[15px] leading-relaxed text-slate-600">

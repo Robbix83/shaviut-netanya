@@ -1239,7 +1239,7 @@ export default function ValuationWizard() {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
-                  <p className="text-xs text-slate-500">מתווך מורשה · רישיון {AGENT.license}</p>
+                  <p className="text-xs text-slate-500">מתווך מורשה{AGENT.licensed ? ` · רישיון ${AGENT.license}` : ""}</p>
                 </div>
                 {AGENT.licensed && (
                   <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
