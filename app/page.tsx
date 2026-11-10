@@ -2,39 +2,26 @@ import ValuationWizard from "@/components/ValuationWizard";
 import ScrollToWizard from "@/components/ScrollToWizard";
 import { getStore } from "@/lib/store";
 
-// פריים — Netanya is the opening shot: the real cliff fills the screen, the question sits on its lower
-// edge like a film title, the valuation waits under it. Near-black ground, warm paper, sunset orange.
+// פריים — Netanya from the air is the opening shot: the coast fills the screen, the question sits on its
+// lower edge like a film title, the valuation waits under it. The rest of the page keeps flying over the city.
 
-/** Every picture on the page, credited in full: title, author, source and licence, each linked.
- *  Licence evidence (incl. the cliffs photo's Wikimedia VRT ticket 2022050610001973) is in docs/image-credits.json. */
-const CREDITS: { title: string; by: string; page: string; licence: string; licenceUrl?: string; changed?: string }[] = [
-  {
-    title: "Netanya cliffs",
-    by: "אלדר אלדדי (Eldar Eldadi)",
-    page: "https://commons.wikimedia.org/wiki/File:Netanya_cliffs.jpg",
-    licence: "CC BY-SA 4.0",
-    licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0/deed.he",
-    changed: "נחתכה והוכהתה בשוליים מאחורי הטקסט",
-  },
-  {
-    title: "חוף הים בנתניה, 1935",
-    by: "זולטן קלוגר, אוסף התצלומים הלאומי",
-    page: "https://commons.wikimedia.org/wiki/File:THE_SEASHORE_AT_NATANYA._%D7%97%D7%95%D7%A3_%D7%94%D7%99%D7%9D_%D7%91%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-045.jpg",
-    licence: "נחלת הכלל",
-  },
-  {
-    title: "שכונת גבע בנתניה, 1935",
-    by: "זולטן קלוגר, אוסף התצלומים הלאומי",
-    page: "https://commons.wikimedia.org/wiki/File:THE_GEVA_NEIGHBOURHOOD_IN_NATANYA._%D7%A9%D7%9B%D7%95%D7%A0%D7%AA_%D7%92%D7%91%D7%A2_%D7%91%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-041.jpg",
-    licence: "נחלת הכלל",
-  },
-  {
-    title: "מראה כללי של נתניה, 1935",
-    by: "זולטן קלוגר, אוסף התצלומים הלאומי",
-    page: "https://commons.wikimedia.org/wiki/File:GENERAL_VIEW_OF_NATANYA._%D7%9E%D7%A8%D7%90%D7%94_%D7%9B%D7%9C%D7%9C%D7%99_%D7%A9%D7%9C_%D7%94%D7%A2%D7%99%D7%A8_%D7%A0%D7%AA%D7%A0%D7%99%D7%94.D25-053.jpg",
-    licence: "נחלת הכלל",
-  },
-];
+/** Aerial photographs by a friend of the owner, used with permission. Each comes at 1000px and 2000px. */
+function Aerial({ name, alt, className, eager = false }: { name: string; alt: string; className?: string; eager?: boolean }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={`/images/aerial/${name}-2000.jpg`}
+      srcSet={`/images/aerial/${name}-1000.jpg 1000w, /images/aerial/${name}-2000.jpg 2000w`}
+      sizes="(min-width: 1024px) 70vw, 100vw"
+      alt={alt}
+      width={2000}
+      height={1125}
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : undefined}
+      className={className}
+    />
+  );
+}
 
 export default async function Home() {
   const store = getStore();
@@ -50,20 +37,14 @@ export default async function Home() {
         <div className="relative">
           {/* the photograph is a rounded card: on the phone it holds the title, on desktop the title and the valuation */}
           <div className="absolute inset-x-0 top-0 h-[max(66svh,540px)] overflow-hidden rounded-[32px] bg-ink lg:bottom-0 lg:h-auto">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/netanya-cliffs.jpg"
-              alt="מצוקי נתניה ממבט אווירי: מגדלי מגורים מעל הים"
-              width={1920}
-              height={1280}
-              fetchPriority="high"
-              className="fr-push absolute inset-0 h-full w-full object-cover"
+            <Aerial
+              name="breakwaters"
+              alt="חוף נתניה מהאוויר: שוברי גלים בים כחול ומגדלי מגורים לאורך החוף"
+              eager
+              className="fr-push absolute inset-0 h-full w-full object-cover object-[50%_60%]"
             />
             <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/55 to-transparent" aria-hidden="true" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-b from-transparent via-black/45 to-black/85" aria-hidden="true" />
-            <p className="absolute left-5 top-[76px] z-10 max-w-[calc(100%-40px)] text-[11px] text-white/80">
-              מצוקי נתניה, 2022. צילום: אלדר אלדדי, CC BY-SA 4.0
-            </p>
           </div>
 
           <header className="absolute inset-x-0 top-0 z-20 mx-auto flex min-h-[68px] max-w-6xl items-center justify-between gap-3 px-5 pt-[env(safe-area-inset-top)] text-white lg:px-10">
@@ -107,60 +88,69 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ═══════════ NETANYA, 1935 ═══════════ */}
-      <section className="mx-auto mt-28 grid max-w-6xl gap-7 px-5 lg:mt-40 lg:grid-cols-12 lg:items-end lg:gap-x-8 lg:gap-y-10" aria-labelledby="then-h">
-        <h2 id="then-h" className="text-[clamp(34px,8vw,72px)] font-semibold leading-none tracking-[-0.035em] lg:col-span-12">
-          נתניה, 1935.
+      {/* ═══════════ NETANYA FROM ABOVE ═══════════ */}
+      <section className="mx-auto mt-28 grid max-w-6xl gap-7 px-5 lg:mt-40 lg:grid-cols-12 lg:items-end lg:gap-x-8 lg:gap-y-10" aria-labelledby="above-h">
+        <h2 id="above-h" className="text-[clamp(34px,8vw,72px)] font-semibold leading-none tracking-[-0.035em] lg:col-span-12">
+          נתניה, מלמעלה.
         </h2>
-        <figure className="lg:col-span-7 lg:row-start-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/netanya-seashore-1935.jpg"
-            alt="חוף הים בנתניה ב-1935: המצוק והים, בלי בניין אחד"
-            width={1920}
-            height={1280}
-            loading="lazy"
-            className="aspect-[4/3] w-full rounded-[28px] object-cover"
-          />
-          <figcaption className="mt-2 text-[14px] text-slate-500">חוף הים בנתניה, 1935. צילום: זולטן קלוגר.</figcaption>
-        </figure>
+        <Aerial
+          name="beach-tower"
+          alt="מגדל בבנייה מעל חוף רחצה בנתניה, ובתי מגורים לאורך הים"
+          className="aspect-[4/3] w-full rounded-[28px] object-cover lg:col-span-7 lg:row-start-2"
+        />
         <p className="max-w-[30ch] text-[22px] leading-snug lg:col-span-4 lg:col-start-9 lg:row-start-2 lg:self-center lg:text-[26px]">
-          על אותו מצוק עומדים היום מגדלים. תשעים שנה של בנייה, ובכל רחוב נמכרו דירות. כל עסקה כזו מספרת משהו על המחיר של הנכס שלכם.
+          עיר שממשיכה להיבנות מול הים. בכל אחד מהבניינים האלה נמכרו דירות, וכל עסקה כזו מספרת משהו על המחיר של הנכס שלכם.
         </p>
-        <figure className="w-[72%] justify-self-end lg:col-span-4 lg:col-start-9 lg:row-start-3 lg:w-auto lg:self-start">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/netanya-geva-1935.jpg"
-            alt="שכונת גבע בנתניה ב-1935: בתים ראשונים בין החולות"
-            width={1920}
-            height={1280}
-            loading="lazy"
-            className="aspect-square w-full rounded-[28px] object-cover"
+        <Aerial
+          name="cliff-coast"
+          alt="המצוק והחוף של נתניה, ומגדלים חדשים באופק"
+          className="aspect-square w-[72%] justify-self-end rounded-[28px] object-cover lg:col-span-4 lg:col-start-9 lg:row-start-3 lg:w-full lg:self-start"
+        />
+        <Aerial
+          name="cliff-marina"
+          alt="קו הרקיע של נתניה מעל המצוק, ועבודות ים מול החוף"
+          className="aspect-[21/9] w-full rounded-[28px] object-cover lg:col-span-7 lg:col-start-2 lg:row-start-3 lg:mt-20 lg:self-start"
+        />
+      </section>
+
+      {/* ═══════════ THE DATA, OVER THE TOWERS ═══════════ */}
+      <section className="mt-28 px-3 lg:mt-40 lg:px-4" aria-labelledby="data-h">
+        <div className="relative overflow-hidden rounded-[32px] bg-ink">
+          <Aerial
+            name="towers-dunes-b"
+            alt="מגדלי מגורים בין העיר לחולות, והים מאחוריהם"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-          <figcaption className="mt-2 text-[14px] text-slate-500">שכונת גבע, 1935.</figcaption>
-        </figure>
-        <figure className="lg:col-span-7 lg:col-start-2 lg:row-start-3 lg:mt-20 lg:self-start">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/netanya-general-1935.jpg"
-            alt="מראה כללי של נתניה ב-1935: רחוב רחב ובתים לבנים נמוכים"
-            width={1920}
-            height={1280}
-            loading="lazy"
-            className="aspect-[21/9] w-full rounded-[28px] object-cover"
-          />
-          <figcaption className="mt-2 text-[14px] text-slate-500">מראה כללי של העיר, 1935.</figcaption>
-        </figure>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" aria-hidden="true" />
+          <div className="relative mx-auto flex min-h-[78svh] max-w-6xl flex-col justify-end px-6 pb-10 text-white lg:min-h-[86svh] lg:px-10 lg:pb-14">
+            <h2 id="data-h" className="max-w-[16ch] text-[clamp(34px,8vw,72px)] font-semibold leading-[1.02] tracking-[-0.035em]">
+              {dealCount > 0 ? `${dealCount.toLocaleString("he-IL")} עסקאות אמת.` : "עסקאות אמת."}
+            </h2>
+            <p className="mt-3 max-w-[40ch] text-[17px] leading-relaxed text-white/90 lg:text-[20px]">
+              מכירות שדווחו לרשות המסים בנתניה. ההערכה לנכס שלכם נבנית מהעסקאות הקרובות אליו ביותר.
+            </p>
+            <ScrollToWizard className="gh-press mt-6 flex min-h-[56px] w-full items-center justify-center rounded-full bg-white text-[17px] font-semibold text-ink sm:w-auto sm:self-start sm:px-8">
+              לבדיקת שווי חינם
+            </ScrollToWizard>
+          </div>
+        </div>
       </section>
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
-      <section id="how" className="mx-auto mt-28 max-w-6xl scroll-mt-6 px-5 lg:mt-40" aria-labelledby="how-h">
-        <h2 id="how-h" className="text-[clamp(34px,8vw,72px)] font-semibold leading-none tracking-[-0.035em]">איך זה עובד</h2>
-        <div className="mt-6 space-y-4 text-[clamp(22px,5.6vw,36px)] font-medium leading-snug">
-          <p className="max-w-[34ch]">מקלידים רחוב ומספר בית בנתניה.</p>
-          <p className="max-w-[34ch]">רואים את העסקאות שנמכרו בבניין, ברחוב ובסביבה, וטווח שווי לפיהן.</p>
-          <p className="max-w-[34ch]">ומחליטים אם לדבר עם מתווך מורשה. רק אם תרצו.</p>
+      <section id="how" className="mx-auto mt-28 grid max-w-6xl scroll-mt-6 gap-8 px-5 lg:mt-40 lg:grid-cols-12 lg:items-center" aria-labelledby="how-h">
+        <div className="lg:col-span-6">
+          <h2 id="how-h" className="text-[clamp(34px,8vw,72px)] font-semibold leading-none tracking-[-0.035em]">איך זה עובד</h2>
+          <div className="mt-6 space-y-4 text-[clamp(22px,5.6vw,36px)] font-medium leading-snug">
+            <p className="max-w-[34ch]">מקלידים רחוב ומספר בית בנתניה.</p>
+            <p className="max-w-[34ch]">רואים את העסקאות שנמכרו בבניין, ברחוב ובסביבה, וטווח שווי לפיהן.</p>
+            <p className="max-w-[34ch]">ומחליטים אם לדבר עם מתווך מורשה. רק אם תרצו.</p>
+          </div>
         </div>
+        <Aerial
+          name="towers-sea"
+          alt="מגדלי מגורים מול הים בנתניה"
+          className="aspect-[4/5] w-full rounded-[28px] object-cover lg:col-span-5 lg:col-start-8"
+        />
       </section>
 
       {/* ═══════════ AGENT ═══════════ */}
@@ -189,22 +179,7 @@ export default async function Home() {
           <a href="/privacy" className="flex min-h-[44px] items-center px-3 first:ps-0 hover:text-ink">מדיניות פרטיות</a>
           <a href="/terms" className="flex min-h-[44px] items-center px-3 hover:text-ink">תנאי שימוש</a>
         </div>
-        <div className="mt-2">
-          <p>תמונות, דרך Wikimedia Commons:</p>
-          <ul className="mt-1 space-y-1">
-            {CREDITS.map((c) => (
-              <li key={c.page}>
-                <a href={c.page} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-ink">{c.title}</a>, {c.by},{" "}
-                {c.licenceUrl ? (
-                  <a href={c.licenceUrl} target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-ink">{c.licence}</a>
-                ) : (
-                  c.licence
-                )}
-                {c.changed ? `. ${c.changed}.` : "."}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p className="mt-2">צילומי האוויר באתר באדיבות הצלם ובאישורו.</p>
         <p className="mt-3">© 2026 · שוויות נתניה</p>
       </footer>
     </main>
