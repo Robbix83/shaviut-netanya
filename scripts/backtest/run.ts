@@ -102,6 +102,11 @@ async function main() {
   const sample = drawSample(deals, {
     lastDate, split, seed, size: sizeArg === "all" ? "all" : Number(sizeArg), yearsBack: Number(arg("years", "1")),
   });
+  // --type house: only searches of that property type (fast focused runs)
+  const onlyType = arg("type", "");
+  if (onlyType) sample.rows = sample.rows.filter((d) => (d.propertyType ?? "apartment") === onlyType);
+  // --offplan: only sales of homes built after the sale year (a developer sale before completion)
+  if (process.argv.includes("--offplan")) sample.rows = sample.rows.filter((d) => d.yearBuilt != null && d.yearBuilt > Number(d.dealDate.slice(0, 4)));
 
   const rows: BacktestRow[] = [];
   const t0 = Date.now();

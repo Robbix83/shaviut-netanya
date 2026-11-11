@@ -143,6 +143,8 @@ export const APPRAISAL = {
   rangeDispersion: 0.75,
   rangeSample: 0.05,
   rangeMin: 0.12,
+  // בבנייה: מציגים מספר רק כשיש לפרויקט עסקאות משלו (0 אף פעם, 1 תמיד, 2 רק במאגר "בניין")
+  offPlanNumber: 2,
 };
 
 // סף מינימום ₪/מ"ר לפי סוג נכס — מסנן עסקאות חלקיות/זכויות שנדל"ן מפרסם ביחד
@@ -474,8 +476,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     trendAnnual = annualTrend(pool4yr, minPpsqm);
     const ref = asOf ?? new Date().toISOString().slice(0, 10);
     // דירות: מדד שוק חודשי של נתניה, גם בשנים של עלייה חדה (בדיקה לאחור 30.10.2026: 5,000 מכירות).
-    // בלי מדד, ובבתים: מגמת השכונה עם התקרה השנתית.
-    const market: Record<string, number> | null = ptype === "apartment" ? marketIndex : null;
+    // בתים: אותו מדד (בלעדיו ההטיה הייתה ‎−15%: מגמת השכונה עם תקרת 5% לשנה פספסה את 2021–2022).
+    const market: Record<string, number> | null = ptype === "apartment" || ptype === "house" ? marketIndex : null;
     const adjust = (d: Deal) => adjustToMarket(d, market, ref) ?? adjustToDate(d, trendAnnual, ref);
     deals = deals.map(adjust);
     geoPool = geoPool.map(adjust);
@@ -542,7 +544,9 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   let mid = percentile(ppsqm, 50);
   let hi  = percentile(ppsqm, scopePct.hi);
   // דירה: עסקאות מותאמות ומשוקללות במקום חציון גולמי; הטווח משקף כמה הן מסכימות ביניהן
-  const appraisal = ptype === "apartment" && input.areaSqm
+  // בית: אותה גישת השוואה על השטח הבנוי (במאגר V2 אין שטח מגרש לבתים, כך שמודל בנוי+מגרש היה ₪/מ"ר גולמי).
+  // בדיקה לאחור 12.11.2026, 181 בתים: סטייה חציונית 23.7% → 14.4%, הטיה ‎−15% → ‎−6.6%.
+  const appraisal = (ptype === "apartment" || ptype === "house") && input.areaSqm
     ? appraiseApartment(deals, input, asOf ?? new Date().toISOString().slice(0, 10), minPpsqm)
     : null;
   if (appraisal) {
@@ -571,7 +575,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   };
   const subjComposite = composite(input.areaSqm ?? null, input.plotSqm ?? null);
 
-  const useCompositeModel = (ptype === "house" || isLand) && subjComposite != null;
+  const useCompositeModel = isLand && subjComposite != null;
   let compositeUsed = false;
   if (useCompositeModel) {
     // ₪ למ"ר משוקלל מכל עסקה (מחיר כולל ÷ גודל משוקלל) — מנרמל בנוי+מגרש לכלל הגדלים
@@ -672,7 +676,10 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // (מחירי קבלן לא דומים לעסקאות יד-שנייה) — גם כאן בדיקה אישית במקום מספר.
   const valuationYear = Number((asOf ?? new Date().toISOString()).slice(0, 4));
   const isOffPlan = !isLand && input.yearBuilt != null && input.yearBuilt > valuationYear;
-  const manualReview = isLand || isOffPlan;
+  // בבנייה עם עסקאות קודמות באותו פרויקט (מאגר "בניין"): האומדן מדויק כמו ביד שנייה (סטייה חציונית 7.5%).
+  // פרויקט בלי עסקאות משלו מושווה לבניינים ישנים ברחוב ויוצא נמוך ב-17% — שם נשארת בדיקה אישית.
+  const offPlanNumber = APPRAISAL.offPlanNumber === 1 || (APPRAISAL.offPlanNumber === 2 && compSearchScope === "building");
+  const manualReview = isLand || (isOffPlan && !offPlanNumber);
   if (manualReview) {
     estLow = estMid = estHigh = 0;
     ppsLow = ppsMid = ppsHigh = 0;
