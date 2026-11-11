@@ -195,7 +195,13 @@ input[type="checkbox"]:focus-visible {
 /* ── תפריט נגישות (components/AccessibilityMenu.tsx) — class על <html> ── */
 .a11y-text-1 main { zoom: 1.15; }
 .a11y-text-2 main { zoom: 1.3; }
+.a11y-lh-1 main :where(p, li, a, span, label, dd, dt, td, th, h1, h2, h3, h4) { line-height: 1.8 !important; }
+.a11y-lh-2 main :where(p, li, a, span, label, dd, dt, td, th, h1, h2, h3, h4) { line-height: 2.1 !important; }
+.a11y-spacing main { letter-spacing: 0.05em; word-spacing: 0.15em; }
+.a11y-font main, .a11y-font main * { font-family: Arial, "Helvetica Neue", sans-serif !important; }
 .a11y-contrast main { filter: contrast(1.35); }
+.a11y-gray main { filter: grayscale(1); }
+.a11y-contrast.a11y-gray main { filter: contrast(1.35) grayscale(1); }
 .a11y-contrast main [class*="text-slate-"] { color: #000 !important; }
 .a11y-links a { text-decoration: underline !important; text-underline-offset: 3px; text-decoration-thickness: 2px; }
 .a11y-no-motion *, .a11y-no-motion *::before, .a11y-no-motion *::after {
