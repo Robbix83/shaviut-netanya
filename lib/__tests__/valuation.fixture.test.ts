@@ -11,6 +11,8 @@ import { describe, it, expect, vi, beforeAll, afterAll } from "vitest";
 // apartment range floor is ±20% (house ±25%); land returns no number (manual review).
 // Re-pinned 30.10.2026 (rc7): apartments use the adjusted, weighted comparison (appraiseApartment),
 // with a range capped at ±10% and a ₪1M gap; deals move to the valuation date by the market index; apartments are lowered 3%.
+// Re-pinned 11.11.2026 (night tuning): no hard ±2-floor filter (every deal is floor-adjusted instead), so fixture B
+// rests on 10 deals instead of 6 (confidence medium) — same numbers.
 process.env.DATA_SOURCE = "local";
 
 import { valuate, appraiseApartment, uniqueDeals } from "@/lib/valuation";
@@ -104,8 +106,8 @@ describe("valuation math is unchanged (characterization)", () => {
     expect(v!.estimateLow).toBe(1908000);
     expect(v!.estimateMid).toBe(2120000);
     expect(v!.estimateHigh).toBe(2333000);
-    expect(v!.basedOnDeals).toBe(6);
-    expect(v!.confidence).toBe("low");
+    expect(v!.basedOnDeals).toBe(10);
+    expect(v!.confidence).toBe("medium");
     expect(v!.pricePerSqmMid).toBe(26504);
   });
 

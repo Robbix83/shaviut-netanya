@@ -23,6 +23,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { MemoryStore, setStoreForTesting } from "../../lib/store";
 import { resolveAndValuate } from "../../lib/valuationService";
+import { APPRAISAL } from "../../lib/valuation";
 import { withNeighborhoodName, withNeighborhoodTitle } from "../../lib/neighborhoodNames";
 import type { Deal, Neighborhood } from "../../lib/types";
 import {
@@ -48,6 +49,17 @@ const outDir = path.resolve(ROOT, arg("out", `audit/backtest/runs/${label}`));
 // What a real visitor may leave out or type differently: --drop year,floor  --area-scale 1.15
 const dropInputs = new Set(arg("drop", "").split(",").filter(Boolean));
 const areaScale = Number(arg("area-scale", "1"));
+// experiments: --set sizeWeightScale=0.4,groundPremium=0  (numeric keys of APPRAISAL in lib/valuation.ts)
+const overrides: Record<string, number> = {};
+for (const kv of arg("set", "").split(",").filter(Boolean)) {
+  const [k, v] = kv.split("=");
+  if (!(k in APPRAISAL)) throw new Error(`unknown APPRAISAL key: ${k}`);
+  overrides[k] = Number(v);
+}
+Object.assign(APPRAISAL, overrides);
+// stability: re-run each apartment with floor ±1 (floors 1+, the ground-floor premium is a real step) and area +5%,
+// and record how far the estimate moves
+const perturb = process.argv.includes("--perturb");
 
 const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח')\s*/i;
 const norm = (s: string) => s.replace(STREET_PREFIX, "").trim();
@@ -120,7 +132,7 @@ async function main() {
     const callsBefore = allDealsCalls;
     const started = Date.now();
     try {
-      const out = await resolveAndValuate({
+      const req = {
         neighborhoodId,
         propertyType: type as "apartment" | "house" | "land",
         rooms: type === "land" ? null : d.rooms ?? null,
@@ -133,7 +145,8 @@ async function main() {
         streetX,
         streetY,
         asOf: asOfMode === "sale" ? d.dealDate : null,
-      }, { geocode: false });
+      };
+      const out = await resolveAndValuate(req, { geocode: false });
       const ms = Date.now() - started;
       const calls = allDealsCalls - callsBefore;
       if (!out.ok) {
@@ -141,7 +154,22 @@ async function main() {
         continue;
       }
       const v = out.valuation;
+      let swing: number | undefined;
+      if (perturb && type === "apartment" && v.estimateMid > 0) {
+        const variants: Partial<typeof req>[] = [{ areaSqm: req.areaSqm ? Math.round(req.areaSqm * 1.05) : null }];
+        if (req.floor != null && req.floor >= 1) variants.push({ floor: req.floor + 1 }, ...(req.floor >= 2 ? [{ floor: req.floor - 1 }] : []));
+        swing = 0;
+        for (const ch of variants) {
+          const o2 = await resolveAndValuate({ ...req, ...ch }, { geocode: false });
+          if (!o2.ok || !(o2.valuation.estimateMid > 0)) continue;
+          // area +5%: compare ₪/m² (the total is expected to grow), floor: compare totals
+          const a = ch.areaSqm != null ? o2.valuation.estimateMid / ch.areaSqm : o2.valuation.estimateMid;
+          const b = ch.areaSqm != null ? v.estimateMid / req.areaSqm! : v.estimateMid;
+          swing = Math.max(swing, Math.abs(a / b - 1));
+        }
+      }
       rows.push({
+        swing,
         ...base, ms, getAllDealsCalls: calls,
         low: v.estimateLow, mid: v.estimateMid, high: v.estimateHigh,
         errPct: v.estimateMid > 0 ? (v.estimateMid - d.price) / d.price : undefined,
@@ -156,7 +184,7 @@ async function main() {
   store.hide.clear();
 
   const meta = {
-    label, track, asOfMode, split, seed, size: sizeArg,
+    label, track, asOfMode, split, seed, size: sizeArg, overrides,
     dataset: path.relative(ROOT, dataPath).replace(/\\/g, "/"), sha256, manifestShaMatches: manifestSha ? manifestSha === sha256 : null,
     rows: deals.length, lastDate, evaluationFrom: sample.fromISO, splitAt: sample.splitISO,
     candidates: sample.candidates, eligible: sample.rows.length + 0, excluded: sample.excluded,

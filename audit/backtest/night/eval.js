@@ -1,0 +1,5 @@
+// node eval.js <label>... : each label = <label>-dev + <label>-test runs; prints all-period and since-2025 metrics
+const fs=require("fs");const L=r=>{const p=`C:/leads/audit/backtest/runs/${r}/results.json`;return fs.existsSync(p)?JSON.parse(fs.readFileSync(p,"utf8")).rows.filter(r=>r.status==="ok"&&r.mid>0&&!r.manualReview):[]};
+const med=a=>{const s=[...a].sort((x,y)=>x-y);return s[s.length>>1]};const p=a=>(a*100).toFixed(1).padStart(5);
+const show=(n,rows)=>{const ape=rows.map(r=>Math.abs(r.errPct));const sw=rows.filter(r=>r.swing!=null);console.log(n.padEnd(30),String(rows.length).padStart(5),"MdAPE",p(med(ape)),"bias",p(med(rows.map(r=>r.errPct))),">25%",p(ape.filter(x=>x>.25).length/ape.length),">1M",p(rows.filter(r=>Math.abs(r.mid-r.price)>1e6).length/rows.length),"swing>10%",p(sw.filter(r=>r.swing>.1).length/(sw.length||1)))};
+for(const lab of process.argv.slice(2)){const [d,t]=lab.split(":");const all=[...L(d),...L(t)];show(lab+" all",all);show(lab+" 2025+",all.filter(r=>r.date>="2025-01-01"))}

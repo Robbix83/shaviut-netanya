@@ -50,7 +50,8 @@ export interface Valuation {
   propertyType: PropertyType;
   basedOnDeals: number; // כמה עסקאות שימשו לחישוב
   windowMonths: number; // חלון הזמן בפועל (6/12/24 ח')
-  floorAdjusted?: boolean; // האם ההשוואות סוננו לקומה דומה (±2)
+  floorAdjusted?: boolean; // האומדן מותאם לקומת הנכס (כל עסקה מתוקנת לפי הפרש הקומות)
+  sameBuildingDeals?: number; // כמה מהעסקאות בבסיס האומדן מאותו בניין (כשהשאר מאותו רחוב)
   compRadiusMeters?: number | null; // רדיוס שבו נבחרו ההשוואות (null = שכונה מלאה)
   compSearchScope?: "building" | "street" | "radius" | "neighborhood"; // שלב ההיררכיה שנמצאו בו
   priceTrend?: PriceTrend | null; // מגמת ₪/מ"ר בשכונה לאורך זמן

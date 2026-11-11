@@ -36,6 +36,8 @@ export interface BacktestRow {
   basedOn?: number;
   windowMonths?: number;
   manualReview?: boolean;
+  /** --perturb: largest relative move of the estimate under floor ±1 / area +5% */
+  swing?: number;
   /** neighbourhood id the engine actually ran with (pipeline: after server resolution) */
   usedNeighborhoodId?: string | null;
   getAllDealsCalls: number;
@@ -146,6 +148,10 @@ export interface Metrics {
   within: Record<"5" | "10" | "15" | "20" | "30", number>;
   coverage: number;
   halfWidth: number;
+  over25: number;
+  over1M: number;
+  swingMedian: number;
+  swingOver10: number;
   getAllDealsShare: number;
   msMedian: number;
 }
@@ -169,6 +175,10 @@ export function metrics(rows: BacktestRow[]): Metrics {
     within: { "5": share(0.05), "10": share(0.1), "15": share(0.15), "20": share(0.2), "30": share(0.3) },
     coverage: num.length ? num.filter((r) => r.inRange).length / num.length : NaN,
     halfWidth: median(num.map((r) => (r.high! - r.low!) / r.mid! / 2)),
+    over25: num.length ? num.filter((r) => Math.abs(r.errPct!) > 0.25).length / num.length : NaN,
+    over1M: num.length ? num.filter((r) => Math.abs(r.mid! - r.price) > 1_000_000).length / num.length : NaN,
+    swingMedian: median(num.filter((r) => r.swing != null).map((r) => r.swing!)),
+    swingOver10: (() => { const s = num.filter((r) => r.swing != null); return s.length ? s.filter((r) => r.swing! > 0.1).length / s.length : NaN; })(),
     getAllDealsShare: rows.length ? rows.filter((r) => r.getAllDealsCalls > 0).length / rows.length : NaN,
     msMedian: median(rows.map((r) => r.ms)),
   };
@@ -191,10 +201,10 @@ export function breakdown(rows: BacktestRow[], key: (r: BacktestRow) => string):
 const pc = (x: number, d = 1) => (Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "—");
 
 export function formatMetricsTable(named: Record<string, Metrics>): string {
-  const head = "| group | searches | numeric | insuff. | MdAPE | MAPE | bias | ±5% | ±10% | ±15% | ±20% | ±30% | in range | half-width | getAllDeals |";
-  const sep = "|" + "---|".repeat(15);
+  const head = "| group | searches | numeric | insuff. | MdAPE | MAPE | bias | ±5% | ±10% | ±15% | ±20% | ±30% | in range | half-width | >25% | >₪1M | swing med | swing>10% |";
+  const sep = "|" + "---|".repeat(18);
   const lines = Object.entries(named).map(([k, m]) =>
-    `| ${k} | ${m.searches} | ${m.numeric} | ${m.insufficient + m.noMatch + m.notInIndex} | ${pc(m.mdape)} | ${pc(m.mape)} | ${pc(m.bias)} | ${pc(m.within["5"], 0)} | ${pc(m.within["10"], 0)} | ${pc(m.within["15"], 0)} | ${pc(m.within["20"], 0)} | ${pc(m.within["30"], 0)} | ${pc(m.coverage, 0)} | ±${pc(m.halfWidth, 0)} | ${pc(m.getAllDealsShare, 0)} |`,
+    `| ${k} | ${m.searches} | ${m.numeric} | ${m.insufficient + m.noMatch + m.notInIndex} | ${pc(m.mdape)} | ${pc(m.mape)} | ${pc(m.bias)} | ${pc(m.within["5"], 0)} | ${pc(m.within["10"], 0)} | ${pc(m.within["15"], 0)} | ${pc(m.within["20"], 0)} | ${pc(m.within["30"], 0)} | ${pc(m.coverage, 0)} | ±${pc(m.halfWidth, 0)} | ${pc(m.over25, 1)} | ${pc(m.over1M, 1)} | ${pc(m.swingMedian, 1)} | ${pc(m.swingOver10, 1)} |`,
   );
   return [head, sep, ...lines].join("\n");
 }

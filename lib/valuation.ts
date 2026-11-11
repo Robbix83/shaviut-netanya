@@ -93,20 +93,16 @@ const MIN_DEALS_FOR_ROOM_FILTER = 6;
 const HOME_NATURES = new Set(["דירה בבית קומות", "דירה", "דירת גן", "דירת גג", "מגורים", "דירת נופש", "דופלקס", "פנטהאוז"]);
 const SOLD_NEW_YEARS = 1; // עסקה עד שנה אחרי שנת הבנייה (או לפניה) = נמכרה מקבלן
 const NEW_SUBJECT_YEARS = 2;
-const CONSERVATIVE_FACTOR_APARTMENT = 0.97; // בעל הנכס ביקש הערכות שמרניות
 const MIN_DEALS_FOR_ESTIMATE = 3;
 const MIN_COMPOSITE_DEALS = 6; // מינימום עסקאות למודל composite של בית (בנוי+מגרש) — צריך יותר נתונים
-const MIN_DEALS_FOR_FLOOR_FILTER = 5; // סינון קומה מופעל רק אם נשארות מספיק עסקאות
-const AREA_TOLERANCE_RATIO = 0.5;    // ±50% שטח — מסנן דירות קטנות/גדולות מאד
+const MIN_DEALS_FOR_RADIUS = 5; // מינימום עסקאות לשלבי הרדיוס הגיאוגרפי
 const HOUSE_MAX_PPSQM_BUILT = 40_000; // sanity: ₪/מ"ר בנוי > ₪40K לבית = composite לא אמין → fallback
-const FLOOR_TOLERANCE = 2; // ±2 קומות
 
 // התאמת זמן: כל עסקת השוואה מוצמדת לתאריך ההערכה לפי מגמת ₪/מ"ר בשכונה (60 ח', אותו סוג נכס).
 // בלי זה עסקאות בנות 5 שנים מושכות את האומדן למטה (בדיקה לאחור: הטיה של ‎−9.6%).
 const TIME_ADJUST = true;
 const TREND_MIN_DEALS = 20;              // פחות עסקאות → בלי התאמה (מגמה לא יציבה)
 const TREND_MAX_ANNUAL = 0.05;           // תקרת שינוי שנתי ±5% (בדיקה לאחור: 15% תיקן יתר — הטיה +7.5%)
-const MARKET_INDEX_MAX_CHANGE = 0.3;     // תקרת התאמה לעסקה בודדת לפי מדד השוק (±30%)
 
 // רצפת רוחב לטווח המוצג, סביב האומדן האמצעי. בבתים הסטייה גדולה יותר.
 // קרקע: הסטייה החציונית הייתה 84% — לא מציגים מספר (manualReview).
@@ -124,14 +120,24 @@ const WIDE_SCATTER_HALF = 0.25;
 const MAX_RANGE_SPAN_APARTMENT = 1_000_000;
 
 // גישת ההשוואה בדירות: כל עסקה מותאמת לנכס הנבדק ומקבלת משקל לפי הדמיון אליו.
-// כויל בבדיקה לאחור ללא זליגה (30.10.2026, rc7); המקדמים מהשוק המקומי, לא נורמה שמאית.
-const APPRAISAL = {
+// כויל בבדיקה לאחור ללא זליגה (30.10.2026, rc7; 11.11.2026, n-סבב הלילה — audit/backtest/night/REPORT.md).
+// המקדמים מהשוק המקומי, לא נורמה שמאית. אובייקט אחד ומיוצא: הבדיקה לאחור משנה אותו (--set key=value).
+export const APPRAISAL = {
   sizeElasticity: 0.5,    // ₪/מ"ר יורד עם השטח: מקדם גודל = (שטח עסקה ÷ שטח נכס)^0.5
   floorStep: 0.006,       // 0.6% לקומה, עד ±5 קומות
   floorMaxDiff: 5,
+  groundPremium: 0.13,    // קומת קרקע (לרוב עם גינה) מול קומה 1+: ‎+13% למ"ר באותו בניין, בחציון
   recencyYears: 3,        // דעיכת משקל לפי גיל העסקה
-  sameBuildingWeight: 2,  // עסקה באותו בניין שווה פי 2
-  sizeWeightScale: 0.1,   // דעיכת משקל לפי פער שטח יחסי
+  sameBuildingWeight: 4,  // עסקה באותו בניין (אותו רחוב ומספר) שווה פי 4 — הבניין מוביל גם כשהרחוב משלים
+  sizeWeightScale: 0.25,  // דעיכת משקל לפי פער שטח יחסי (0.1 נתן לעסקה אחת להכריע — יהושע טהון 13)
+  maxWeightShare: 0.3,    // שום עסקה לא מקבלת יותר מ-30% מהמשקל
+  buildingMinDeals: 5,    // מתחת לזה הבניין לבדו אינו בסיס; גם מעליו עסקאות הרחוב הסמוכות מצטרפות
+  areaTolerance: 0.5,     // ±50% שטח — מסנן דירות קטנות/גדולות מאוד
+  marketIndexMaxChange: 0.3, // תקרת התאמה לעסקה בודדת לפי מדד השוק (±30%)
+  // המדד (חלון 6 ח') מפגר כ-3 חודשים. המשכתו בקצב האחרון עזרה בעלייה של 2022 אבל הזיקה ב-2025–2026
+  // ובנקודות מפנה (בדיקה לאחור 11.11.2026), ומעלה את האומדן נגד המדיניות השמרנית — כבוי.
+  indexLeadMonths: 0,
+  conservative: 0.97,     // בעל הנכס ביקש הערכות שמרניות: כל הטווח יורד ב-3%
   // חצי-רוחב הטווח = בסיס + מקדם×פיזור + תיקון למדגם קטן, עם רצפה
   rangeBase: 0.08,
   rangeDispersion: 0.75,
@@ -276,8 +282,11 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // של בניינים שכנים (כגון ויצמן 97 כ"אותו בניין" של ויצמן 98).
   if (inputStreetNorm) {
     const exactBuilding = ageFilter(byExactBuilding(geoPool), AGE_TOLERANCES.building);
-    if (exactBuilding.length >= MIN_DEALS_FOR_ESTIMATE) {
-      deals = exactBuilding;
+    if (exactBuilding.length >= Math.max(MIN_DEALS_FOR_ESTIMATE, APPRAISAL.buildingMinDeals)) {
+      // עסקאות הבניין מובילות (משקל כפול), מספרי הבית הסמוכים ברחוב משלימים — בניין עם 5 עסקאות
+      // לבדו נותן אומדן רועש; ההשלמה עדיפה גם בבניין עם הרבה עסקאות (בדיקה לאחור 11.11.2026)
+      const ids = new Set(exactBuilding.map((d) => d.id));
+      deals = exactBuilding.concat(ageFilter(byBuildingNumber(geoPool), AGE_TOLERANCES.street).filter((d) => !ids.has(d.id)));
       compSearchScope = "building";
       compRadiusMeters = null;
       windowMonths = GEO_MONTHS;
@@ -286,7 +295,9 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
       const nearStreet = ageFilter(byBuildingNumber(geoPool), AGE_TOLERANCES.street);
       if (nearStreet.length >= MIN_DEALS_FOR_ESTIMATE) {
         deals = nearStreet;
-        compSearchScope = "street";
+        // בניין עם 3–4 עסקאות ובלי שכנים ברחוב: המאגר הוא הבניין עצמו, והתווית אומרת זאת
+        const hnInput = parseInt(input.houseNumber ?? "");
+        compSearchScope = !isNaN(hnInput) && nearStreet.every((d) => parseInt(d.houseNumber ?? "") === hnInput) ? "building" : "street";
         compRadiusMeters = null;
         windowMonths = GEO_MONTHS;
       } else {
@@ -385,7 +396,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     // מכוון: לא מסמן "street" כי לא ידוע שהעסקאות הן מאותו רחוב — רק בקרבת מקום גיאוגרפית
     if (compSearchScope !== "building" && compSearchScope !== "street") {
       const onStreet = ageFilter(filterByRadius(STREET_RADIUS), AGE_TOLERANCES.street);
-      if (onStreet.length >= MIN_DEALS_FOR_FLOOR_FILTER) {
+      if (onStreet.length >= MIN_DEALS_FOR_RADIUS) {
         deals = onStreet;
         compRadiusMeters = STREET_RADIUS;
         compSearchScope = "radius";
@@ -397,7 +408,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     if (compSearchScope === "neighborhood") {
       for (const R of COMP_RADIUS_LADDER) {
         const within = ageFilter(filterByRadius(R), AGE_TOLERANCES.radius);
-        if (within.length >= MIN_DEALS_FOR_FLOOR_FILTER) {
+        if (within.length >= MIN_DEALS_FOR_RADIUS) {
           deals = within;
           compRadiusMeters = R;
           compSearchScope = "radius";
@@ -436,32 +447,21 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     }
   }
 
-  // עידון לפי קומה (±2) — מניע הדיוק הגדול ביותר; רק אם נשארות מספיק עסקאות.
-  // קומה משפיעה דרמטית על המחיר למ"ר בדירות (קרקע/גן מול גבוהה).
-  // לבית צמוד קרקע — קומה אינה רלוונטית: רוב עסקאות הבתים ב-nadlan מגיעות עם floor=null,
-  // ופילטר קומה מרוקן את המדגם וגורם לכשלון האומדן.
   // דירה מקבלן נמכרת בתנאים אחרים מיד שנייה: לדירה שאינה חדשה משווים ליד שנייה, כשיש מספיק כאלה
   const subjectIsNew = input.yearBuilt != null && input.yearBuilt >= new Date(asOf ?? Date.now()).getFullYear() - NEW_SUBJECT_YEARS;
   if (ptype === "apartment" && !subjectIsNew) {
     const resale = deals.filter((d) => !(d.yearBuilt != null && d.yearBuilt >= parseInt(d.dealDate) - SOLD_NEW_YEARS));
     if (resale.length >= MIN_DEALS_FOR_ESTIMATE) deals = resale;
   }
-  let floorFiltered = false;
-  if (ptype === "apartment" && input.floor != null) {
-    const fs = deals.filter(
-      (d) => d.floor != null && Math.abs(d.floor - input.floor!) <= FLOOR_TOLERANCE,
-    );
-    if (fs.length >= MIN_DEALS_FOR_FLOOR_FILTER) {
-      deals = fs;
-      floorFiltered = true;
-    }
-  }
+  // אין סינון קומה: כל עסקה מתוקנת לקומת הנכס ב-appraiseApartment. הסינון הקשיח (±2 קומות) החליף
+  // את מאגר ההשוואה בקומה אחת הבדל — יהושע טהון 13: קומה 4 → ‎3.2 מיליון, קומה 3 → ‎2.3 מיליון.
+  // בדיקה לאחור (11.11.2026): בלי הסינון הדיוק השתפר, ותזוזה של מעל 10% בשינוי קומה ירדה מ-6.2% ל-2.5%.
 
   // סינון גודל: ±50% מהשטח הנבדק — מונע השפעת דירות גדולות/קטנות מאד על מחיר/מ"ר
   // (דירות גדולות בד"כ זולות יותר למ"ר, קטנות — יקרות יותר)
   if (sizeInput != null && sizeInput > 0 && ptype !== "land") {
-    const areaMin = sizeInput * (1 - AREA_TOLERANCE_RATIO);
-    const areaMax = sizeInput * (1 + AREA_TOLERANCE_RATIO);
+    const areaMin = sizeInput * (1 - APPRAISAL.areaTolerance);
+    const areaMax = sizeInput * (1 + APPRAISAL.areaTolerance);
     const areaFiltered = deals.filter(
       (d) => d.areaSqm != null && d.areaSqm >= areaMin && d.areaSqm <= areaMax,
     );
@@ -488,6 +488,13 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     .filter((v): v is number => v != null && v >= minPpsqm && isFinite(v));
 
   if (ppsqm.length < MIN_DEALS_FOR_ESTIMATE) return null;
+  // בבניין עם מעט עסקאות משלו, עסקאות הרחוב הסמוכות מצטרפות — סופרים כמה מהבניין עצמו, לתצוגה כנה
+  const subjectHn = parseInt(input.houseNumber ?? "");
+  const sameBuildingCount = deals.filter((d) =>
+    d.pricePerSqm != null && d.pricePerSqm >= minPpsqm && isFinite(d.pricePerSqm) &&
+    !isNaN(subjectHn) && parseInt(d.houseNumber ?? "") === subjectHn && !!d.street && !!inputStreetNorm &&
+    (normalizeStreet(d.street) === inputStreetNorm || inputStreetNorm.includes(normalizeStreet(d.street))),
+  ).length;
 
   // ─── city-wide exact-building augmentation for display ───
   // אם pool הסופי (אחרי כל ה-filtering) לא מכיל עסקאות ממספר הבית המדויק,
@@ -652,12 +659,12 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // דירה: הערכה שמרנית — כל הטווח יורד ב-3%. בבדיקה על מכירות מ-2025 ואילך: הערכות גבוהות
   // ביותר מ-10% מהמכירה ירדו מ-23.6% ל-19.2%, והמחיר בתוך הטווח ירד מ-57.0% ל-55.0%
   if (ptype === "apartment" && estMid! > 0) {
-    estLow = round(estLow! * CONSERVATIVE_FACTOR_APARTMENT);
-    estMid = round(estMid! * CONSERVATIVE_FACTOR_APARTMENT);
-    estHigh = round(estHigh! * CONSERVATIVE_FACTOR_APARTMENT);
-    ppsLow = Math.round(ppsLow * CONSERVATIVE_FACTOR_APARTMENT);
-    ppsMid = Math.round(ppsMid * CONSERVATIVE_FACTOR_APARTMENT);
-    ppsHigh = Math.round(ppsHigh * CONSERVATIVE_FACTOR_APARTMENT);
+    estLow = round(estLow! * APPRAISAL.conservative);
+    estMid = round(estMid! * APPRAISAL.conservative);
+    estHigh = round(estHigh! * APPRAISAL.conservative);
+    ppsLow = Math.round(ppsLow * APPRAISAL.conservative);
+    ppsMid = Math.round(ppsMid * APPRAISAL.conservative);
+    ppsHigh = Math.round(ppsHigh * APPRAISAL.conservative);
   }
 
   // קרקע: האומדן לא אמין מספיק כדי להציג — לא חושפים מספר (גם לא ב-WhatsApp/גיליון), רק עסקאות השוואה.
@@ -684,11 +691,12 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     estimateHigh: estHigh!,
     basedOnDeals: basedOn,
     windowMonths,
-    floorAdjusted: floorFiltered,
+    floorAdjusted: appraisal != null && input.floor != null,
+    sameBuildingDeals: compSearchScope === "building" ? sameBuildingCount : undefined,
     compRadiusMeters,
     compSearchScope,
     // 24 החודשים האחרונים מתוך ה-pool שכבר נטען (60 ח', אותו סוג) — בלי שאילתה נוספת
-    priceTrend: computeTrend(pool4yr.filter((d) => d.dealDate >= cutoffDate(24, asOf))),
+    priceTrend: (() => { const c24 = cutoffDate(24, asOf); return computeTrend(pool4yr.filter((d) => d.dealDate >= c24)); })(),
     neighborhood: input.neighborhood ?? null,
     // עסקאות השוואה: displayDeals כולל עסקאות בניין מדויקות גם ממקורות מחוץ לשכונה
     comparableDeals: buildComparableDeals(displayDeals, input, ptype, compRadiusMeters),
@@ -945,12 +953,12 @@ function buildComparableDeals(
       const hn = hnProximity(d);
       return { d, tier: t, hnProx: hn, relevance: rDiff * 3 + sDiff, recency: d.dealDate };
     })
-    // מיון: tier → קרבת מספר בית → רלוונטיות → עדכניות
-    // (בתוך אותו tier, כתובת מדויקת קודמת לפני match מושלם של חדרים)
+    // מיון: tier → דמיון (חדרים, שטח; בית סמוך מקבל יתרון קטן) → עדכניות.
+    // קודם קרבת מספר בית גברה על הדמיון: דירת 51 מ"ר בבית הסמוך הוצגה לפני דירה של 100 מ"ר
+    // באותו רחוב, אף שהאומדן לנכס של 90 מ"ר נשען על השנייה (יהושע טהון 13, נובמבר 2026).
     .sort((a, b) =>
       a.tier - b.tier ||
-      a.hnProx - b.hnProx ||
-      a.relevance - b.relevance ||
+      (a.relevance + 0.5 * a.hnProx) - (b.relevance + 0.5 * b.hnProx) ||
       (a.recency < b.recency ? 1 : -1)
     )
     .slice(0, 12)
@@ -1046,13 +1054,15 @@ function weightedPercentile(pairs: [number, number][], p: number): number {
  */
 export function appraiseApartment(
   deals: Deal[],
-  input: Pick<PropertyInput, "areaSqm" | "floor" | "houseNumber">,
+  input: Pick<PropertyInput, "areaSqm" | "floor" | "houseNumber"> & { streetName?: string | null },
   refISO: string,
   minPpsqm: number,
 ): { ppsqm: number; half: number } | null {
   const area = input.areaSqm;
   if (!area) return null;
   const hn = parseInt(input.houseNumber ?? "");
+  const streetKey = (x: string) => x.replace(/^(שד'?|שדרות|רחוב|רח')\s*/i, "").trim();
+  const subjectStreet = input.streetName ? streetKey(input.streetName) : null;
   const pairs: [number, number][] = [];
   for (const d of deals) {
     if (d.pricePerSqm == null || !isFinite(d.pricePerSqm) || d.pricePerSqm < minPpsqm || !d.areaSqm) continue;
@@ -1060,9 +1070,14 @@ export function appraiseApartment(
     if (input.floor != null && d.floor != null) {
       const diff = Math.max(-APPRAISAL.floorMaxDiff, Math.min(APPRAISAL.floorMaxDiff, input.floor - d.floor));
       value *= 1 + APPRAISAL.floorStep * diff;
+      if (input.floor === 0 && d.floor >= 1) value *= 1 + APPRAISAL.groundPremium;
+      else if (input.floor >= 1 && d.floor === 0) value /= 1 + APPRAISAL.groundPremium;
     }
     const years = Math.max(0, (Date.parse(refISO) - Date.parse(d.dealDate)) / (365.25 * 864e5));
-    const sameBuilding = !isNaN(hn) && parseInt(d.houseNumber ?? "") === hn;
+    // אותו מספר ברחוב אחר (שלב הרדיוס) אינו אותו בניין
+    const ds = d.street ? streetKey(d.street) : null;
+    const onStreet = !subjectStreet || (!!ds && (ds === subjectStreet || subjectStreet.includes(ds)));
+    const sameBuilding = !isNaN(hn) && parseInt(d.houseNumber ?? "") === hn && onStreet;
     const weight =
       Math.exp(-years / APPRAISAL.recencyYears) *
       (sameBuilding ? APPRAISAL.sameBuildingWeight : 1) *
@@ -1070,6 +1085,12 @@ export function appraiseApartment(
     pairs.push([value, weight]);
   }
   if (pairs.length < MIN_DEALS_FOR_ESTIMATE) return null;
+  // תקרת משקל לעסקה בודדת: כשרוב העסקאות שונות בגודל, אחת דומה לא מכריעה לבד
+  for (let k = 0; k < 5; k++) {
+    const cap = pairs.reduce((s, x) => s + x[1], 0) * APPRAISAL.maxWeightShare;
+    if (!pairs.some((x) => x[1] > cap * 1.0001)) break;
+    for (const x of pairs) x[1] = Math.min(x[1], cap);
+  }
   const total = pairs.reduce((s, x) => s + x[1], 0);
   if (!(total > 0)) return null;
   const ppsqm = weightedPercentile(pairs, 50);
@@ -1102,16 +1123,23 @@ const ORIGINAL = new WeakMap<Deal, Deal>();
 const original = (d: Deal): Deal => ORIGINAL.get(d) ?? d;
 
 /** ערך המדד האחרון שנסגר עד החודש הנתון (חלון של 6 חודשים שמסתיים בו) */
+const INDEX_LOOKUP = new WeakMap<Record<string, number>, Map<string, number | null>>();
 function indexAt(index: Record<string, number>, month: string): number | null {
+  let memo = INDEX_LOOKUP.get(index);
+  if (!memo) INDEX_LOOKUP.set(index, (memo = new Map()));
+  const hit = memo.get(month);
+  if (hit !== undefined) return hit;
   let last: string | null = null;
   for (const m of Object.keys(index)) if (m <= month && (!last || m > last)) last = m;
-  return last ? index[last] : null;
+  const v = last ? index[last] : null;
+  memo.set(month, v);
+  return v;
 }
 
 function shiftMonth(month: string, by: number): string {
-  const d = new Date(`${month}-01T00:00:00Z`);
-  d.setUTCMonth(d.getUTCMonth() + by);
-  return d.toISOString().slice(0, 7);
+  const t = Number(month.slice(0, 4)) * 12 + Number(month.slice(5, 7)) - 1 + by;
+  const y = Math.floor(t / 12), m = t - y * 12 + 1;
+  return `${String(y).padStart(4, "0")}-${m < 10 ? "0" : ""}${m}`;
 }
 
 /** מצמיד עסקה למחירי השוק בתאריך היעד; null כשאין מדד לתקופה (לא מעבר לחודש שלפני היעד) */
@@ -1120,10 +1148,14 @@ function adjustToMarket(d: Deal, index: Record<string, number> | null, refISO: s
   const lastMonth = shiftMonth(refISO.slice(0, 7), -1);
   // המדד נגרר 3 חודשים (חלון 6 ח') — נקודת ההשוואה לעסקה היא 3 חודשים אחריה
   const dealMonth = shiftMonth(d.dealDate.slice(0, 7), 3);
-  const now = indexAt(index, lastMonth);
+  let now = indexAt(index, lastMonth);
   const then = indexAt(index, dealMonth < lastMonth ? dealMonth : lastMonth);
   if (!now || !then) return null;
-  const f = Math.max(1 - MARKET_INDEX_MAX_CHANGE, Math.min(1 + MARKET_INDEX_MAX_CHANGE, now / then));
+  if (APPRAISAL.indexLeadMonths > 0) {
+    const before = indexAt(index, shiftMonth(lastMonth, -6));
+    if (before) now *= Math.pow(now / before, APPRAISAL.indexLeadMonths / 6);
+  }
+  const f = Math.max(1 - APPRAISAL.marketIndexMaxChange, Math.min(1 + APPRAISAL.marketIndexMaxChange, now / then));
   const adj = { ...d, price: Math.round(d.price * f), pricePerSqm: d.pricePerSqm != null ? Math.round(d.pricePerSqm * f) : d.pricePerSqm };
   ORIGINAL.set(adj, original(d));
   return adj;

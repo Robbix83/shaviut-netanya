@@ -60,6 +60,7 @@ interface Valuation {
   neighborhood: string | null;
   comparableDeals: Comparable[];
   floorAdjusted?: boolean;
+  sameBuildingDeals?: number;
   compRadiusMeters?: number | null;
   compSearchScope?: "building" | "street" | "radius" | "neighborhood";
   renewal?: RenewalInfo | null;
@@ -178,6 +179,19 @@ function ManualReviewNote({ reason }: { reason?: "land" | "off_plan" }) {
 }
 /** כותרת קטנה מעל הטווח / ההודעה */
 /** דירה: הטווח צר (±10%) ולא מכסה כל מכירה — אומרים זאת ישר */
+/** "מבוסס על 14 עסקאות · 5 מאותו בניין, השאר מאותו רחוב · מותאם לקומה" */
+function basisText(v: Pick<Valuation, "basedOnDeals" | "compSearchScope" | "compRadiusMeters" | "sameBuildingDeals" | "floorAdjusted">): string {
+  const where =
+    v.compSearchScope === "building"
+      ? v.sameBuildingDeals != null && v.sameBuildingDeals < v.basedOnDeals
+        ? `${v.sameBuildingDeals} מאותו בניין, השאר מאותו רחוב`
+        : "אותו בניין"
+      : v.compSearchScope === "street" ? "אותו רחוב"
+      : v.compSearchScope === "radius" ? `רדיוס ${v.compRadiusMeters} מ'`
+      : "שכונה";
+  return `מבוסס על ${v.basedOnDeals} עסקאות · ${where}${v.floorAdjusted ? " · מותאם לקומה" : ""}`;
+}
+
 const ESTIMATE_NOTE = "הערכה ראשונית לפי עסקאות באזור. המחיר הסופי תלוי במצב הדירה.";
 
 function resultLabel(v: { manualReview?: boolean; manualReviewReason?: "land" | "off_plan" }) {
@@ -1093,12 +1107,7 @@ export default function ValuationWizard() {
               )}
 
               <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
-                מבוסס על {valuation.basedOnDeals} עסקאות ·{" "}
-                {valuation.compSearchScope === "building" ? "אותו בניין" :
-                 valuation.compSearchScope === "street"   ? "אותו רחוב" :
-                 valuation.compSearchScope === "radius"   ? `רדיוס ${valuation.compRadiusMeters} מ'` :
-                 "שכונה"}
-                {valuation.floorAdjusted ? " · קומה דומה" : ""}
+                {basisText(valuation)}
               </div>
             </div>
           </div>
@@ -1426,12 +1435,7 @@ export default function ValuationWizard() {
               )}
               {valuation.preliminary && <PreliminaryNote />}
               <p className="mt-2 text-xs opacity-70">
-                מבוסס על {valuation.basedOnDeals} עסקאות ·{" "}
-                {valuation.compSearchScope === "building" ? "אותו בניין" :
-                 valuation.compSearchScope === "street" ? "אותו רחוב" :
-                 valuation.compSearchScope === "radius" ? `רדיוס ${valuation.compRadiusMeters}מ'` :
-                 "שכונה"}
-                {valuation.floorAdjusted ? " · קומה דומה" : ""}
+                {basisText(valuation)}
               </p>
             </div>
           </div>

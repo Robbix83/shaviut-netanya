@@ -505,7 +505,28 @@ export function getStore(): Store {
  */
 export class MemoryStore implements Store {
   readonly hide = new Set<string>();
-  constructor(private readonly deals: Deal[], private readonly neighborhoods: Neighborhood[]) {}
+  // indexes (the backtest replays thousands of searches over the same rows)
+  private readonly byNeighborhood = new Map<string, Deal[]>();
+  private readonly byStreetKey = new Map<string, Deal[]>();
+  private readonly pos = new Map<Deal, number>();
+  private readonly newestFirst: Deal[];
+  constructor(private readonly deals: Deal[], private readonly neighborhoods: Neighborhood[]) {
+    deals.forEach((d, i) => {
+      this.pos.set(d, i);
+      if (d.neighborhoodId) {
+        const list = this.byNeighborhood.get(d.neighborhoodId) ?? [];
+        list.push(d);
+        this.byNeighborhood.set(d.neighborhoodId, list);
+      }
+      const key = d.street ? normalizeStreetName(d.street) : "";
+      if (key) {
+        const list = this.byStreetKey.get(key) ?? [];
+        list.push(d);
+        this.byStreetKey.set(key, list);
+      }
+    });
+    this.newestFirst = [...deals].sort((a, b) => (a.dealDate < b.dealDate ? 1 : a.dealDate > b.dealDate ? -1 : 0));
+  }
 
   private visible(): Deal[] {
     return this.hide.size ? this.deals.filter((d) => !this.hide.has(d.id)) : this.deals;
@@ -521,8 +542,8 @@ export class MemoryStore implements Store {
 
   async getDealsByNeighborhood(neighborhoodId: string, q: DealsQuery = {}): Promise<Deal[]> {
     const cutoff = q.monthsBack ? monthsAgoISO(q.monthsBack, q.asOf) : null;
-    return this.visible().filter((d) => {
-      if (d.neighborhoodId !== neighborhoodId) return false;
+    return (this.byNeighborhood.get(neighborhoodId) ?? []).filter((d) => {
+      if (this.hide.has(d.id)) return false;
       if (cutoff && d.dealDate < cutoff) return false;
       if (q.asOf && d.dealDate >= q.asOf) return false;
       if (q.roomsMin != null && (d.rooms ?? 0) < q.roomsMin) return false;
@@ -540,7 +561,15 @@ export class MemoryStore implements Store {
   }
 
   async getDealsByStreet(street: string, q: DealsQuery = {}): Promise<Deal[]> {
-    return filterByStreet(this.visible(), street, q);
+    const want = normalizeStreetName(street);
+    if (!want) return [];
+    const out: Deal[] = [];
+    for (const [ds, list] of this.byStreetKey) {
+      if (ds !== want && !want.includes(ds)) continue;
+      for (const d of list) if (!this.hide.has(d.id) && !(q.asOf && d.dealDate >= q.asOf)) out.push(d);
+    }
+    // table order, so the result matches a full scan (filterByStreet) exactly
+    return out.length > 1 ? out.sort((a, b) => this.pos.get(a)! - this.pos.get(b)!) : out;
   }
 
   async getStats(): Promise<{ dealCount: number; neighborhoodCount: number }> {
@@ -549,9 +578,8 @@ export class MemoryStore implements Store {
   }
 
   async dataAsOf(): Promise<string> {
-    const all = this.visible();
-    if (!all.length) return new Date().toISOString().slice(0, 10);
-    return all.reduce((max, d) => (d.dealDate > max ? d.dealDate : max), all[0].dealDate);
+    const top = this.newestFirst.find((d) => !this.hide.has(d.id));
+    return top ? top.dealDate : new Date().toISOString().slice(0, 10);
   }
 
   private readOnly(): never {
