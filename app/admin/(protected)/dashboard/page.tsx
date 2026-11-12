@@ -29,10 +29,13 @@ export default async function Dashboard() {
   const monthAgo = isoMonthAgo();
   const twoMonthsAgo = isoTwoMonthsAgo();
 
-  const todayCount   = leads.filter((l) => (l.createdAt || "").slice(0, 10) === today).length;
-  const weekCount    = leads.filter((l) => (l.createdAt || "") >= weekAgo + "T").length;
-  const monthCount   = leads.filter((l) => (l.createdAt || "") >= monthAgo + "T").length;
-  const prevMonthCount = leads.filter((l) => {
+  // counts skip leads marked "not relevant" (tests, spam); the table and status breakdown still show them
+  const real = leads.filter((l) => l.status !== "not_relevant");
+
+  const todayCount   = real.filter((l) => (l.createdAt || "").slice(0, 10) === today).length;
+  const weekCount    = real.filter((l) => (l.createdAt || "") >= weekAgo + "T").length;
+  const monthCount   = real.filter((l) => (l.createdAt || "") >= monthAgo + "T").length;
+  const prevMonthCount = real.filter((l) => {
     const d = l.createdAt || "";
     return d >= twoMonthsAgo + "T" && d < monthAgo + "T";
   }).length;
@@ -44,13 +47,13 @@ export default async function Dashboard() {
 
   // breakdown
   const byType: Record<string, number> = {};
-  leads.forEach((l) => { const t = (l as any).propertyType || "apartment"; byType[t] = (byType[t] || 0) + 1; });
+  real.forEach((l) => { const t = (l as any).propertyType || "apartment"; byType[t] = (byType[t] || 0) + 1; });
   const byStatus: Record<string, number> = {};
   leads.forEach((l) => { const s = l.status || "new"; byStatus[s] = (byStatus[s] || 0) + 1; });
 
   // conversion: closed / total
-  const convRate = leads.length > 0
-    ? Math.round(((byStatus["closed"] || 0) / leads.length) * 100)
+  const convRate = real.length > 0
+    ? Math.round(((byStatus["closed"] || 0) / real.length) * 100)
     : 0;
 
   return (
@@ -60,7 +63,7 @@ export default async function Dashboard() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-800">לוח בקרה</h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {leads.length} לידים סה״כ · המרה {convRate}%
+            {real.length} לידים סה״כ · המרה {convRate}%
           </p>
         </div>
         <span className="text-xs text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
@@ -73,7 +76,7 @@ export default async function Dashboard() {
         <StatCard label="היום" value={todayCount} icon="📅" gradient="from-sky-50 to-blue-100" text="text-blue-700" />
         <StatCard label="השבוע" value={weekCount} icon="📆" gradient="from-indigo-50 to-indigo-100" text="text-indigo-700" />
         <StatCard label="החודש" value={monthCount} trend={trend} icon="🗓️" gradient="from-violet-50 to-violet-100" text="text-violet-700" />
-        <StatCard label="סה״כ" value={leads.length} icon="📋" gradient="from-slate-50 to-slate-100" text="text-slate-700" />
+        <StatCard label="סה״כ" value={real.length} icon="📋" gradient="from-slate-50 to-slate-100" text="text-slate-700" />
       </div>
 
       {/* Breakdown row */}
@@ -87,7 +90,7 @@ export default async function Dashboard() {
                 label={PT_LABEL[type]?.label || type}
                 barColor={PT_LABEL[type]?.color || "bg-brand"}
                 value={count}
-                total={leads.length}
+                total={real.length}
               />
             ))}
             {Object.keys(byType).length === 0 && (
