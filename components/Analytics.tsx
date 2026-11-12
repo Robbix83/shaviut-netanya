@@ -22,7 +22,9 @@ export default function Analytics() {
         </>
       )}
       {fbId && (
+        // לא נטען בבדיקות מקומיות, כדי שבדיקות לא ייספרו בקמפיין
         <Script id="fb-pixel" strategy="afterInteractive">{`
+          if(!/^(localhost|127\\.0\\.0\\.1|\\[::1\\])$/.test(location.hostname)){
           !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){
             n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)
           };if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
@@ -31,6 +33,7 @@ export default function Analytics() {
           }(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
           fbq('init','${fbId}');
           fbq('track','PageView');
+          }
         `}</Script>
       )}
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { trackEvent } from "@/lib/analytics";
 import AddressSearch, { StreetSuggestion } from "./AddressSearch";
 import CbsPanel from "./CbsPanel";
@@ -535,7 +536,7 @@ export default function ValuationWizard() {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [consentReport, setConsentReport] = useState(true); // חובה: דוח + פרטיות — מסומן מראש כי המשתמש ביקש את הדוח
+  const [consentReport, setConsentReport] = useState(false); // חובה: הגולש מסמן בעצמו (תיקון 13 — הסכמה אקטיבית)
   const [consentMarketing, setConsentMarketing] = useState(false); // רשות: שיווק
   const [alertOptIn, setAlertOptIn] = useState(false); // רשות: התראות על עסקאות דומות
   const [sellTiming, setSellTiming] = useState<string>(""); // מתי שוקלים למכור
@@ -804,6 +805,29 @@ export default function ValuationWizard() {
     }
   }
 
+  // פס דביק בנייד (שלב 3): מופיע רק כשהטופס מחוץ למסך
+  const [formInView, setFormInView] = useState(true);
+  useEffect(() => {
+    const el = leadFormRef.current;
+    if (step !== 3 || !el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setFormInView(e.isIntersecting), { threshold: 0.15 });
+    io.observe(el);
+    return () => { io.disconnect(); setFormInView(true); };
+  }, [step, valuation]);
+
+  const directWaHref = buildWaLink(
+    process.env.NEXT_PUBLIC_AGENT_PHONE,
+    reportRequestText({
+      propertyType,
+      street: selectedStreet?.label ?? (address.trim() || null),
+      houseNumber: houseNumber.trim() || null,
+      rooms: isLand ? null : rooms,
+      areaSqm: needsArea && area ? Number(area) : null,
+      plotSqm: needsPlot && plot ? Number(plot) : null,
+      ref: null,
+    }),
+  );
+
   // שורת מחיר-למ"ר + גודל, מותאמת לסוג הנכס
   const sizeSummary = (v: Valuation) => {
     const per = v.pricePerSqmBasis === "plot" ? 'למ"ר מגרש' : 'למ"ר בנוי';
@@ -1063,7 +1087,7 @@ export default function ValuationWizard() {
 
       {/* שלב 3 — תוצאה + שער ליד */}
       {step === 3 && valuation && (
-        <div className="gh-step space-y-4">
+        <div className="gh-step space-y-4 pb-20 sm:pb-0">
           <h2 data-step-heading tabIndex={-1} className="sr-only">תוצאת ההערכה</h2>
           {/* ── כרטיס שווי ראשי ── */}
           <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
@@ -1110,6 +1134,133 @@ export default function ValuationWizard() {
               <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
                 {basisText(valuation)}
               </div>
+            </div>
+          </div>
+
+          {/* הצעה מיד מתחת למספר — לפני כל התוכן הנוסף. בפיילוט 12.11 הטופס היה בתחתית: 17 צפיות בשווי, 0 פרטים */}
+          <div ref={leadFormRef} data-lead-form className="rounded-3xl bg-butter-deep p-5">
+            <h3 className="text-lg font-extrabold text-slate-900">
+              {valuation.manualReview ? "רוצים הערכה אישית לנכס?" : "רוצים מחיר מדויק יותר לנכס שלכם?"}
+            </h3>
+            <p className="mb-4 text-sm text-slate-700">
+              המתווך יחזור אליכם עם הערכה שמותאמת לנכס עצמו, ותקבלו כאן מיד את כל העסקאות באזור. בלי התחייבות.
+            </p>
+
+            {/* שם + טלפון → הדוח נפתח מיד (שלב קוד ה-SMS הוסר; app/api/otp נשאר לשימוש עתידי) */}
+            <div className="space-y-3">
+              {/* שכבת אמון — מתווך מורשה (חובה חוקית) */}
+              <div className="flex items-center gap-3 rounded-2xl bg-white p-3">
+                {AGENT.photo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={AGENT.photo} alt={AGENT.name} className="h-10 w-10 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sun text-base font-bold text-ink" aria-hidden="true">{AGENT.name.slice(0, 1)}</div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
+                  <p className="text-xs text-slate-600">מתווך מורשה{AGENT.licensed ? ` · רישיון ${AGENT.license}` : ""}</p>
+                </div>
+                {AGENT.licensed && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
+                )}
+              </div>
+              {AGENT.testimonial && <p className="text-xs italic text-slate-600">"{AGENT.testimonial}"</p>}
+
+              <label className="sr-only" htmlFor="lead-name">שם מלא</label>
+              <input
+                id="lead-name"
+                className="field-input"
+                placeholder="שם מלא"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+              <label className="sr-only" htmlFor="lead-phone">טלפון נייד</label>
+              <input
+                id="lead-phone"
+                className="field-input"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                placeholder="טלפון נייד"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              {/* מלכודת בוטים — מוסתרת מאנשים ומקוראי מסך */}
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+
+              {/* 2 הסכמות נפרדות — נדרש בתיקון 13 לחוק הגנת הפרטיות */}
+              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
+                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentReport}
+                  onChange={(e) => setConsentReport(e.target.checked)} />
+                <span>אני מאשר/ת שהמתווך יחזור אליי בנוגע לנכס, ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות<span className="sr-only"> (נפתח בחלון חדש)</span></a>.</span>
+              </label>
+
+              {/* שדות רשות — מקופלים כדי שהטופס ייראה קצר. ההסכמות נשארות נפרדות (תיקון 13) */}
+              <details className="group rounded-2xl bg-white/60 px-3 py-2 text-xs text-slate-700">
+                <summary className="flex min-h-[44px] cursor-pointer select-none items-center font-semibold text-slate-700">עוד אפשרויות (לא חובה)</summary>
+                <div className="mt-2 space-y-3 pb-1">
+                  <div>
+                    <p id="lbl-timing" className="mb-1.5 font-semibold">מתי אתם שוקלים למכור?</p>
+                    <div role="group" aria-labelledby="lbl-timing" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      {SELL_TIMING.map((t) => (
+                        <button
+                          key={t.value}
+                          type="button"
+                          onClick={() => setSellTiming(t.value)}
+                          aria-pressed={sellTiming === t.value}
+                          className={`gh-press rounded-full px-2 py-2.5 text-[13px] min-h-[44px] ${
+                            sellTiming === t.value ? "bg-ink font-bold text-white" : "bg-white font-medium text-slate-700"
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentMarketing}
+                      onChange={(e) => setConsentMarketing(e.target.checked)} />
+                    <span>אני מאשר/ת קבלת עדכונים ודיוור שיווקי (ניתן להסיר בכל עת).</span>
+                  </label>
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={alertOptIn}
+                      onChange={(e) => setAlertOptIn(e.target.checked)} />
+                    <span>עדכנו אותי כשיימכר נכס דומה באזורי (התראת שוק חינמית).</span>
+                  </label>
+                </div>
+              </details>
+
+              {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
+              <button
+                className="btn-primary w-full"
+                disabled={loading}
+                onClick={submitLead}
+              >
+                {loading ? "שולח..." : "שלחו לי הערכה מדויקת"}
+              </button>
+
+              {/* חלופה בלי טופס: וואטסאפ ישיר למתווך, עם פרטי הנכס בהודעה */}
+              {directWaHref && (
+                <a
+                  href={directWaHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => trackEvent("whatsapp_direct_click")}
+                  className="gh-press flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border-2 border-[#25D366] bg-white px-4 py-2.5 text-sm font-bold text-[#128C7E]"
+                >
+                  או כתבו למתווך בוואטסאפ
+                </a>
+              )}
             </div>
           </div>
 
@@ -1248,113 +1399,18 @@ export default function ValuationWizard() {
             </div>
           )}
 
-          <div ref={leadFormRef} data-lead-form className="rounded-3xl bg-butter-deep p-5">
-            <h3 className="text-lg font-extrabold text-slate-900">רוצים את הדוח המלא?</h3>
-            <p className="mb-4 text-sm text-slate-700">
-              דוח עסקאות מלא + הערכה מותאמת אישית, נפתח כאן מיד.
-            </p>
-
-            {/* שם + טלפון → הדוח נפתח מיד (שלב קוד ה-SMS הוסר; app/api/otp נשאר לשימוש עתידי) */}
-            <div className="space-y-3">
-              {/* שכבת אמון — מתווך מורשה (חובה חוקית) */}
-              <div className="flex items-center gap-3 rounded-2xl bg-white p-3">
-                {AGENT.photo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={AGENT.photo} alt={AGENT.name} className="h-10 w-10 rounded-full object-cover" />
-                ) : (
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sun text-base font-bold text-ink" aria-hidden="true">{AGENT.name.slice(0, 1)}</div>
-                )}
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-slate-800">{AGENT.name}</p>
-                  <p className="text-xs text-slate-600">מתווך מורשה{AGENT.licensed ? ` · רישיון ${AGENT.license}` : ""}</p>
-                </div>
-                {AGENT.licensed && (
-                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800">רישיון בתוקף</span>
-                )}
-              </div>
-              {AGENT.testimonial && <p className="text-xs italic text-slate-600">"{AGENT.testimonial}"</p>}
-
-              {/* שאלת תזמון — מסנן לידים חמים */}
-              <div>
-                <p id="lbl-timing" className="field-label">מתי אתם שוקלים למכור?</p>
-                <div role="group" aria-labelledby="lbl-timing" className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                  {SELL_TIMING.map((t) => (
-                    <button
-                      key={t.value}
-                      type="button"
-                      onClick={() => setSellTiming(t.value)}
-                      aria-pressed={sellTiming === t.value}
-                      className={`gh-press rounded-full px-2 py-2.5 text-[13px] min-h-[44px] ${
-                        sellTiming === t.value
-                          ? "bg-ink font-bold text-white"
-                          : "bg-white font-medium text-slate-700"
-                      }`}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <label className="sr-only" htmlFor="lead-name">שם מלא</label>
-              <input
-                id="lead-name"
-                className="field-input"
-                placeholder="שם מלא"
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              <label className="sr-only" htmlFor="lead-phone">טלפון נייד</label>
-              <input
-                id="lead-phone"
-                className="field-input"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="טלפון נייד"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              {/* מלכודת בוטים — מוסתרת מאנשים ומקוראי מסך */}
-              <input
-                type="text"
-                name="website"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                className="hidden"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-              />
-
-              {/* 2 הסכמות נפרדות — נדרש בתיקון 13 לחוק הגנת הפרטיות */}
-              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
-                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentReport}
-                  onChange={(e) => setConsentReport(e.target.checked)} />
-                <span>אני מאשר/ת שהמתווך יחזור אליי בנוגע לנכס, ואת <a href="/privacy" target="_blank" className="underline">מדיניות הפרטיות<span className="sr-only"> (נפתח בחלון חדש)</span></a>.</span>
-              </label>
-              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
-                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={consentMarketing}
-                  onChange={(e) => setConsentMarketing(e.target.checked)} />
-                <span>אני מאשר/ת קבלת עדכונים ודיוור שיווקי (לא חובה · ניתן להסיר בכל עת).</span>
-              </label>
-              <label className="flex items-start gap-3 text-xs text-slate-700 cursor-pointer">
-                <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-brand" checked={alertOptIn}
-                  onChange={(e) => setAlertOptIn(e.target.checked)} />
-                <span>עדכנו אותי כשיימכר נכס דומה באזורי (התראת שוק חינמית).</span>
-              </label>
-
-              {error && <p role="alert" className="text-sm font-medium text-red-600">{error}</p>}
-              <button
-                className="btn-primary w-full"
-                disabled={loading}
-                onClick={submitLead}
-              >
-                {loading ? "פותח..." : "פתחו לי את הדוח"}
-              </button>
-            </div>
-          </div>
+          {/* פס דביק בנייד — בין כפתור הוואטסאפ הצף (שמאל) לכפתור הנגישות (ימין) */}
+          {/* portal ל-body: מסנני הנגישות (filter על main) הופכים את main ל-containing block של fixed */}
+          {!formInView && typeof document !== "undefined" && createPortal(
+            <button
+              type="button"
+              onClick={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
+              className="gh-press fixed bottom-[calc(1.75rem+env(safe-area-inset-bottom))] left-[calc(5.25rem+env(safe-area-inset-left))] right-[calc(4.75rem+env(safe-area-inset-right))] z-40 min-h-[48px] rounded-full bg-brand px-4 text-sm font-bold text-white shadow-[0_8px_24px_-6px_rgba(18,19,43,0.35)] sm:hidden"
+            >
+              {valuation.manualReview ? "להערכה אישית" : "למחיר מדויק"}
+            </button>,
+            document.body,
+          )}
         </div>
       )}
 
