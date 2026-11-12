@@ -1,11 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
 import { isValidHouseNumber, HOUSE_NUMBER_REQUIRED_MESSAGE } from "@/lib/houseNumberRule";
+import { buildSearchRow, logSearch, type SearchRow } from "@/lib/searchLog";
+
+/** שומר את החיפוש אחרי שהתשובה נשלחה. מחוץ לבקשה אמיתית (בדיקות) — שומר ברקע בלי לחכות. */
+function record(row: SearchRow) {
+  try {
+    after(() => logSearch(row));
+  } catch {
+    void logSearch(row);
+  }
+}
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  let body: ValuationInput;
+  let body: ValuationInput & { source?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -14,6 +24,7 @@ export async function POST(req: NextRequest) {
 
   // אכיפת שרת עצמאית — לא סומכים על ולידציית ה-UI בלבד.
   if (!isValidHouseNumber(body.propertyType, body.houseNumber)) {
+    record(buildSearchRow(body, "house_number_required", null));
     return NextResponse.json(
       { error: "house_number_required", message: HOUSE_NUMBER_REQUIRED_MESSAGE },
       { status: 422 },
@@ -22,6 +33,13 @@ export async function POST(req: NextRequest) {
 
   // asOf הוא כלי לבדיקה לאחור בלבד — לקוח לא קובע את תאריך ההערכה
   const outcome = await resolveAndValuate({ ...body, asOf: null });
+
+  // כל חיפוש נשמר (גם בלי השארת פרטים), אחרי שהתשובה כבר נשלחה
+  record(
+    outcome.ok
+      ? buildSearchRow(body, "ok", outcome.valuation, outcome.neighborhoodName)
+      : buildSearchRow(body, outcome.error, null),
+  );
 
   if (!outcome.ok) {
     if (outcome.error === "no_match") {

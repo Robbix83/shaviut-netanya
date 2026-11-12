@@ -720,6 +720,7 @@ export default function ValuationWizard() {
           streetName: selectedStreet?.label ?? null,
           streetX: selectedStreet?.x ?? null,
           streetY: selectedStreet?.y ?? null,
+          source: source.current,
         }),
       });
       const j = await r.json();
