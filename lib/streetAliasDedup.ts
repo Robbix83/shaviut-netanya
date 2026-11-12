@@ -30,7 +30,7 @@ export interface StreetAliasGroup {
 // deliberately (not imported from lib/valuation.ts, to avoid this route pulling
 // in any part of the valuation module; the pattern is a fixed constant, not
 // business logic that could drift).
-const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח')\s*/i;
+const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
 
 export function normalizeStreetForAlias(s: string): string {
   return s.replace(STREET_PREFIX, "").trim();
@@ -43,6 +43,10 @@ export function normalizeStreetForAlias(s: string): string {
  * identifier — two distinct streets can share a neighborhood). */
 function samePhysicalStreet(a: StreetIndexEntry, b: StreetIndexEntry): boolean {
   if (a.code != null && b.code != null) return a.code === b.code;
+  // One official registry row + one deals-only row (street-index-extra, no code) with the same
+  // normalized name (callers bucket by name first) in the same neighbourhood: the deals-only row is
+  // the registry street under its short name ("דרך דגניה" / "דגניה", "שד ירושלים" / "ירושלים").
+  if ((a.code == null) !== (b.code == null) && a.neighborhoodId && a.neighborhoodId === b.neighborhoodId) return true;
   const aHasCoords = a.x != null && a.y != null;
   const bHasCoords = b.x != null && b.y != null;
   if (aHasCoords && bHasCoords) return a.x === b.x && a.y === b.y;

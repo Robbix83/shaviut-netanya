@@ -80,6 +80,27 @@ describe("groupStreetAliases — TEST E: same neighborhoodId is not enough evide
   });
 });
 
+describe("groupStreetAliases — registry row + deals-only row in the same neighbourhood", () => {
+  it("'דרך דגניה' (coded) and 'דגניה' (no code) in one neighbourhood -> one suggestion, the coded one", () => {
+    const a = entry({ street: "דרך דגניה", code: 847, neighborhoodId: "66239241", x: 188332, y: 689991 });
+    const b = entry({ street: "דגניה", code: null, neighborhoodId: "66239241", x: 188327.719, y: 690017.718 });
+    const groups = groupStreetAliases([a, b]);
+    expect(groups.length).toBe(1);
+    expect(groups[0].canonical.street).toBe("דרך דגניה");
+  });
+
+  it("same names but different neighbourhoods -> NOT merged", () => {
+    const a = entry({ street: "שד ירושלים", code: 5, neighborhoodId: "N1", x: 1, y: 1 });
+    const b = entry({ street: "ירושלים", code: null, neighborhoodId: "N2", x: 2, y: 2 });
+    expect(groupStreetAliases([a, b]).length).toBe(2);
+  });
+
+  it("'דרך' is only stripped as a separate word", () => {
+    expect(normalizeStreetForAlias("דרך הים")).toBe("הים");
+    expect(normalizeStreetForAlias("דרכי נועם")).toBe("דרכי נועם");
+  });
+});
+
 describe("groupStreetAliases — entries with equal codes merge even without coordinates", () => {
   it("same code, both present -> same group, regardless of coordinates", () => {
     const a = entry({ street: "שד הנשיא ווייצמן", code: 900, x: 1, y: 1 });

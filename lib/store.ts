@@ -454,7 +454,7 @@ class SupabaseStore implements Store {
 
 // ---------- helpers ----------
 
-const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח')\s*/i;
+const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
 /** אותה נורמליזציה כמו ב-lib/valuation.ts: בלי שד'/שדרות/רחוב/רח' */
 export function normalizeStreetName(s: string): string {
   return s.replace(STREET_PREFIX, "").trim();

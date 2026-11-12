@@ -37,7 +37,7 @@ const MIN_DEALS = 3;
 const WINDOWS = [6, 12, 24, 48];
 const MAX_RECENT = 8;
 
-const STREET_PREFIX_RE = /^(שד'?|שדרות|רחוב|רח')\s*/i;
+const STREET_PREFIX_RE = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
 const normStreet = (s: string) => s.replace(STREET_PREFIX_RE, "").trim();
 
 export async function analyzeLeadMarket(

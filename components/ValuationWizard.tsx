@@ -993,7 +993,7 @@ export default function ValuationWizard() {
                   type="number"
                   inputMode="numeric"
                   className="field-input"
-                  placeholder={isHouse ? "180" : "100"}
+                  placeholder={isHouse ? "לדוגמה: 180" : "לדוגמה: 100"}
                   autoComplete="off"
                   value={area}
                   onChange={(e) => setArea(e.target.value)}
@@ -1008,7 +1008,7 @@ export default function ValuationWizard() {
                   type="number"
                   inputMode="numeric"
                   className="field-input"
-                  placeholder="350"
+                  placeholder="לדוגמה: 350"
                   autoComplete="off"
                   value={plot}
                   onChange={(e) => setPlot(e.target.value)}
@@ -1023,7 +1023,7 @@ export default function ValuationWizard() {
                   type="number"
                   inputMode="numeric"
                   className="field-input"
-                  placeholder={isHouse ? "2" : "3"}
+                  placeholder={isHouse ? "לדוגמה: 2" : "לדוגמה: 3"}
                   autoComplete="off"
                   value={floor}
                   onChange={(e) => setFloor(e.target.value)}
