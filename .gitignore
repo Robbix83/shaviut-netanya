@@ -69,3 +69,6 @@ playwright-report/
 
 # Backtest per-row output (regenerate with scripts/backtest/run.ts)
 audit/backtest/runs/*/results.json
+
+# safe data refresh output (scripts/harvest-compare.ts) — large, regenerable
+/data/harvest/

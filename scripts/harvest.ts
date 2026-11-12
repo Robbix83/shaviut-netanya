@@ -270,6 +270,9 @@ async function harvestNeighborhood(browser: any, n: Neighborhood): Promise<Deal[
 }
 
 async function main() {
+  if (process.env.HARVEST_OUT && (process.env.DATA_SOURCE === "supabase" || process.env.HARVEST_STREET)) {
+    throw new Error("HARVEST_OUT is the file-only safe mode: don't combine it with DATA_SOURCE=supabase or HARVEST_STREET.");
+  }
   await loadStreetCoords();
   console.log("🔎 מגלה שכונות נתניה...");
   const neighborhoods = await discoverNeighborhoods();
@@ -420,6 +423,18 @@ async function main() {
     await sleep(POLITE_DELAY_MS);
   }
   await browser.close();
+
+  // HARVEST_OUT=<קובץ>: מצב בטוח — שומר רק את מה שנאסף לקובץ ויוצא. לא נוגע ב-Supabase
+  // ולא ב-data/deals.json. השלב הבא: scripts/harvest-compare.ts (ראו docs/HARVEST.md)
+  const outFile = process.env.HARVEST_OUT;
+  if (outFile) {
+    const outPath = path.resolve(process.cwd(), outFile);
+    await fs.mkdir(path.dirname(outPath), { recursive: true });
+    await fs.writeFile(outPath, JSON.stringify(allDeals));
+    console.log(`✅ נשמרו ${allDeals.length} עסקאות שנאספו ל-${outFile}. שום מאגר לא שונה.`);
+    if (allDeals.length === 0) console.warn("⚠️  לא נאספו עסקאות. ייתכן שהאתר חסם את הדפדפן — הריצו שוב.");
+    return;
+  }
 
   // הסרת כפילויות — מיזוג מודע-לפורמט-מזהה עם הקיים (Wave 0G-L1E/L1F —
   // existingDealsForMerge/sb כבר נטענו לפני השאיבה למעלה — ראו תיעוד
