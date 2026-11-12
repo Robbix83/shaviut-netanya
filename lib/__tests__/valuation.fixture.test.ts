@@ -107,7 +107,7 @@ describe("valuation math is unchanged (characterization)", () => {
     expect(v!.estimateMid).toBe(2120000);
     expect(v!.estimateHigh).toBe(2333000);
     expect(v!.basedOnDeals).toBe(10);
-    expect(v!.confidence).toBe("medium");
+    expect(v!.confidence).toBe("high"); // 12.11.2026: ביטחון לפי רוחב הטווח (±10%), לא לפי 10 עסקאות
     expect(v!.pricePerSqmMid).toBe(26504);
   });
 

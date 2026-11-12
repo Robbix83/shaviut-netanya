@@ -32,6 +32,8 @@ export interface BacktestRow {
   errPct?: number;
   inRange?: boolean;
   confidence?: string;
+  effDeals?: number | null;
+  half?: number | null;
   scope?: string | null;
   basedOn?: number;
   windowMonths?: number;

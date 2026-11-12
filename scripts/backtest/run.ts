@@ -179,7 +179,7 @@ async function main() {
         low: v.estimateLow, mid: v.estimateMid, high: v.estimateHigh,
         errPct: v.estimateMid > 0 ? (v.estimateMid - d.price) / d.price : undefined,
         inRange: v.estimateMid > 0 ? d.price >= v.estimateLow && d.price <= v.estimateHigh : undefined,
-        confidence: v.confidence, scope: v.compSearchScope ?? null, basedOn: v.basedOnDeals,
+        confidence: v.confidence, scope: v.compSearchScope ?? null, basedOn: v.basedOnDeals, effDeals: v.effectiveDeals ?? null, half: v.rangeHalf ?? null,
         windowMonths: v.windowMonths, manualReview: !!v.manualReview, usedNeighborhoodId: out.neighborhoodId,
       });
     } catch (e) {

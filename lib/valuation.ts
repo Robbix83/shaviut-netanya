@@ -678,14 +678,24 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   const isOffPlan = !isLand && input.yearBuilt != null && input.yearBuilt > valuationYear;
   // בבנייה עם עסקאות קודמות באותו פרויקט (מאגר "בניין"): האומדן מדויק כמו ביד שנייה (סטייה חציונית 7.5%).
   // פרויקט בלי עסקאות משלו מושווה לבניינים ישנים ברחוב ויוצא נמוך ב-17% — שם נשארת בדיקה אישית.
-  const offPlanNumber = APPRAISAL.offPlanNumber === 1 || (APPRAISAL.offPlanNumber === 2 && compSearchScope === "building");
+  // "בניין" נחשב כאן רק עם מספר בית תקין: בלי מספר, 60מ' סביב נקודת הרחוב יכולים להיות בניינים ישנים
+  // אחרים ברחוב — ופרויקט בבנייה יקבל מספר נמוך ב-17%–39% (סקירת ECC 12.11.2026)
+  const hasHouseNumber = !isNaN(parseInt(input.houseNumber ?? ""));
+  const offPlanNumber =
+    APPRAISAL.offPlanNumber === 1 || (APPRAISAL.offPlanNumber === 2 && compSearchScope === "building" && hasHouseNumber);
   const manualReview = isLand || (isOffPlan && !offPlanNumber);
   if (manualReview) {
     estLow = estMid = estHigh = 0;
     ppsLow = ppsMid = ppsHigh = 0;
   }
 
-  const confidence = ptype === "apartment" && !rangeCapped ? confidenceFromCount(basedOn) : "low";
+  // ביטחון לפי רוחב הטווח המחושב (פיזור + מספר עסקאות אפקטיבי), לא לפי ספירה גולמית.
+  // בדיקה לאחור על חלק ה-dev (12.11.2026, 817 דירות): ספירה גולמית — "גבוה" 8.0% סטייה חציונית מול
+  // "בינוני" 7.5% (לא מבחין). לפי הטווח: גבוה 6.8%, בינוני 10.9%, נמוך 16.4%.
+  const confidence: Valuation["confidence"] =
+    ptype !== "apartment" || rangeCapped ? "low"
+    : appraisal ? confidenceFromRange(appraisal.half, appraisal.effectiveDeals)
+    : confidenceFromCount(basedOn);
 
   const valuation: Valuation = {
     pricePerSqmLow: ppsLow,
@@ -697,6 +707,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
     estimateMid: estMid!,
     estimateHigh: estHigh!,
     basedOnDeals: basedOn,
+    effectiveDeals: appraisal ? Math.round(appraisal.effectiveDeals * 10) / 10 : undefined,
+    rangeHalf: appraisal ? Math.round(appraisal.half * 1000) / 1000 : undefined,
     windowMonths,
     floorAdjusted: appraisal != null && input.floor != null,
     sameBuildingDeals: compSearchScope === "building" ? sameBuildingCount : undefined,
@@ -1014,6 +1026,11 @@ function computeTrend(neighborhoodDeals: Deal[]): import("./types").PriceTrend |
   return { points, changePct, months: points.length * 3 };
 }
 
+export function confidenceFromRange(half: number, effectiveDeals: number): "high" | "medium" | "low" {
+  if (effectiveDeals < 4 || half >= 0.2) return "low";
+  return half < 0.15 ? "high" : "medium";
+}
+
 function confidenceFromCount(n: number): "high" | "medium" | "low" {
   if (n >= 25) return "high";
   if (n >= 10) return "medium";
@@ -1064,7 +1081,7 @@ export function appraiseApartment(
   input: Pick<PropertyInput, "areaSqm" | "floor" | "houseNumber"> & { streetName?: string | null },
   refISO: string,
   minPpsqm: number,
-): { ppsqm: number; half: number } | null {
+): { ppsqm: number; half: number; effectiveDeals: number } | null {
   const area = input.areaSqm;
   if (!area) return null;
   const hn = parseInt(input.houseNumber ?? "");
@@ -1107,7 +1124,7 @@ export function appraiseApartment(
     APPRAISAL.rangeMin,
     APPRAISAL.rangeBase + APPRAISAL.rangeDispersion * dispersion + APPRAISAL.rangeSample / Math.sqrt(effectiveDeals),
   );
-  return { ppsqm, half };
+  return { ppsqm, half, effectiveDeals };
 }
 
 /** קצב שינוי שנתי של ₪/מ"ר (שיפוע לוג-ליניארי), או 0 כשאין מספיק עסקאות. */
