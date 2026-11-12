@@ -13,7 +13,7 @@ const TYPE: Record<string, string> = { apartment: "דירה", house: "בית", l
 function sourceLabel(s: string | null): string {
   const v = (s || "").toLowerCase();
   if (!v || v === "direct") return "ישיר";
-  if (/facebook|fb|instagram|meta/.test(v)) return "פייסבוק/אינסטגרם";
+  if (/facebook|fb|instagram|meta|^ig$|^an$/.test(v)) return "פייסבוק/אינסטגרם";
   if (/google/.test(v)) return "גוגל";
   try {
     return new URL(v).hostname.replace(/^www\./, "");
