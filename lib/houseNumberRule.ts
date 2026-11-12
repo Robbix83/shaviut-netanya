@@ -39,7 +39,7 @@ export function formatEvaluatedAddress(
   return `הערכת שווי — ${street}${hn ? ` ${hn}` : ""}, ${city}`;
 }
 
-export const STREET_REQUIRED_MESSAGE = "כתבו את שם הרחוב, או בחרו אותו מהרשימה.";
+export const STREET_REQUIRED_MESSAGE = "בחרו את הרחוב מהרשימה שנפתחת בזמן ההקלדה. לא מופיע? לחצו \"בחרו שכונה ידנית\" וכתבו את שם הרחוב.";
 
 /** A street name has at least two letters (Hebrew or Latin); digits or symbols alone ("11", "--") are
  * not an address. Apartment/house valuations need one (server-enforced in /api/valuation). */
