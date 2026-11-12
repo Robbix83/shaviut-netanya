@@ -63,7 +63,8 @@ export function buildSearchRow(
 
 /** שומר חיפוש. אף פעם לא זורק: שמירה שנכשלה לא פוגעת בבדיקת השווי. */
 export async function logSearch(row: SearchRow): Promise<void> {
-  if (!enabled()) return;
+  // כתיבה רק בבילד פרודקשן: בדיקות ב-next dev מהמחשב המקומי (גם מול Supabase) לא נספרות
+  if (!enabled() || process.env.NODE_ENV !== "production") return;
   try {
     const sb = await client();
     const { error } = await sb.from("searches").insert(row);
