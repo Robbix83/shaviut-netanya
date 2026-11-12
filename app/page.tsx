@@ -190,7 +190,15 @@ export default async function Home() {
           <a href="/accessibility" className="flex min-h-[44px] items-center px-3 hover:text-ink">הצהרת נגישות</a>
         </div>
         <p className="mt-2">צילומי האוויר באתר באדיבות הצלם ובאישורו.</p>
-        <p className="mt-3">© 2026 · שוויות נתניה</p>
+        <p className="mt-3 max-w-[70ch]">
+          © 2026 שוויות נתניה. כל הזכויות שמורות. אין להעתיק, לשכפל או להפיץ את התוכן, העיצוב, הנתונים או הקוד של האתר, כולם או חלקם, בלי אישור מראש ובכתב.
+        </p>
+        <p className="mt-1">
+          האתר הוקם על ידי{" "}
+          <a href="mailto:robxsys@gmail.com" className="font-semibold underline underline-offset-2 hover:text-ink">
+            רוביקס מערכות אוטומציה
+          </a>
+        </p>
       </footer>
     </main>
   );

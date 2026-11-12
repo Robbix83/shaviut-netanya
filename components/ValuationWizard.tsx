@@ -1246,7 +1246,7 @@ export default function ValuationWizard() {
                 disabled={loading}
                 onClick={submitLead}
               >
-                {loading ? "שולח..." : "שלחו לי הערכה מדויקת"}
+                {loading ? "שולח..." : "שלחו לי את הדוח המלא"}
               </button>
 
               {/* חלופה בלי טופס: וואטסאפ ישיר למתווך, עם פרטי הנכס בהודעה */}

@@ -14,6 +14,7 @@ export default async function ProtectedAdminLayout({ children }: { children: Rea
           <span className="font-bold text-slate-800">שאיוות נתניה</span>
           <span className="text-slate-300 mx-2">|</span>
           <nav className="flex items-center gap-1 text-sm">
+            <a href="/admin/overview" className="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100">סקירה</a>
             <a href="/admin/dashboard" className="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100">לידים</a>
             <a href="/admin/searches" className="rounded-lg px-3 py-1.5 text-slate-600 hover:bg-slate-100">חיפושים</a>
           </nav>
