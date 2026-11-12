@@ -70,3 +70,39 @@ describe("POST /api/valuation — server-side house number enforcement", () => {
     expect(resolveAndValuate).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("POST /api/valuation — no valuation without a street name", () => {
+  it("apartment with a house number but no street -> 422 street_required, no valuation", async () => {
+    resolveAndValuate.mockClear();
+    const res = await POST(makeReq({ neighborhoodId: "N1", propertyType: "apartment", houseNumber: "11" }));
+    expect(res.status).toBe(422);
+    expect((await res.json()).error).toBe("street_required");
+    expect(resolveAndValuate).not.toHaveBeenCalled();
+  });
+
+  it("digits or one letter are not a street", async () => {
+    for (const streetName of ["11", "--", "א 5"]) {
+      resolveAndValuate.mockClear();
+      const res = await POST(makeReq({ neighborhoodId: "N1", propertyType: "house", houseNumber: "3", streetName }));
+      expect(res.status).toBe(422);
+      expect(resolveAndValuate).not.toHaveBeenCalled();
+    }
+  });
+
+  it("land needs no street", async () => {
+    resolveAndValuate.mockClear();
+    const res = await POST(makeReq({ neighborhoodId: "N1", propertyType: "land" }));
+    expect(res.status).toBe(200);
+  });
+
+  it("a neighbourhood-level estimate is never labelled high confidence", async () => {
+    resolveAndValuate.mockResolvedValueOnce({
+      ok: true,
+      valuation: { estimateLow: 1, estimateHigh: 2, comparableDeals: [], confidence: "high", compSearchScope: "neighborhood" },
+      neighborhoodId: "N1",
+      neighborhoodName: "test",
+    });
+    const res = await POST(makeReq({ neighborhoodId: "N1", propertyType: "apartment", houseNumber: "11", streetName: "רחוב לא קיים" }));
+    expect((await res.json()).valuation.confidence).toBe("medium");
+  });
+});

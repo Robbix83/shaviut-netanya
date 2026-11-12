@@ -38,3 +38,11 @@ export function formatEvaluatedAddress(
   const hn = (houseNumber ?? "").trim();
   return `הערכת שווי — ${street}${hn ? ` ${hn}` : ""}, ${city}`;
 }
+
+export const STREET_REQUIRED_MESSAGE = "כתבו את שם הרחוב, או בחרו אותו מהרשימה.";
+
+/** A street name has at least two letters (Hebrew or Latin); digits or symbols alone ("11", "--") are
+ * not an address. Apartment/house valuations need one (server-enforced in /api/valuation). */
+export function hasStreetName(s: string | null | undefined): boolean {
+  return ((s ?? "").match(/[א-תa-zA-Z]/g) ?? []).length >= 2;
+}

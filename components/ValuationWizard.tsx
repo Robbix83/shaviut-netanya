@@ -12,6 +12,7 @@ import {
   isValidHouseNumber,
   formatEvaluatedAddress,
   HOUSE_NUMBER_REQUIRED_MESSAGE,
+  hasStreetName,
 } from "@/lib/houseNumberRule";
 import { formatComparableAddress } from "@/lib/comparableAddress";
 import { buildWaLink, reportRequestText } from "@/lib/whatsapp";
@@ -522,6 +523,7 @@ export default function ValuationWizard() {
   const [selectedStreet, setSelectedStreet] = useState<StreetSuggestion | null>(null);
   const [houseNumber, setHouseNumber] = useState("");
   const [showNeighFallback, setShowNeighFallback] = useState(false);
+  const [manualStreet, setManualStreet] = useState(""); // רחוב שהוקלד ידנית כשלא נמצא ברשימה
   const [houseNumberNotFound, setHouseNumberNotFound] = useState(false);
 
   const [rooms, setRooms] = useState<number | null>(null);
@@ -718,7 +720,7 @@ export default function ValuationWizard() {
           floor: !isLand && floor ? Number(floor) : null,
           yearBuilt: yearBuilt ? Number(yearBuilt) : null,
           houseNumber: houseNumber.trim() || null,
-          streetName: selectedStreet?.label ?? null,
+          streetName: selectedStreet?.label ?? (manualStreet.trim() || null),
           streetX: selectedStreet?.x ?? null,
           streetY: selectedStreet?.y ?? null,
           source: source.current,
@@ -783,7 +785,7 @@ export default function ValuationWizard() {
             floor: !isLand && floor ? Number(floor) : null,
             yearBuilt: yearBuilt ? Number(yearBuilt) : null,
             houseNumber: houseNumber.trim() || null,
-            streetName: selectedStreet?.label ?? null,
+            streetName: selectedStreet?.label ?? (manualStreet.trim() || null),
             streetX: selectedStreet?.x ?? null,
             streetY: selectedStreet?.y ?? null,
           },
@@ -819,7 +821,7 @@ export default function ValuationWizard() {
     process.env.NEXT_PUBLIC_AGENT_PHONE,
     reportRequestText({
       propertyType,
-      street: selectedStreet?.label ?? (address.trim() || null),
+      street: selectedStreet?.label ?? (manualStreet.trim() || address.trim() || null),
       houseNumber: houseNumber.trim() || null,
       rooms: isLand ? null : rooms,
       areaSqm: needsArea && area ? Number(area) : null,
@@ -920,7 +922,21 @@ export default function ValuationWizard() {
                 </select>
                 {houseNumberRequired && (
                   <div className="mt-2 space-y-1">
-                    <div className="flex items-center gap-2">
+                    <label htmlFor="addr-street-fallback" className="text-xs font-medium text-slate-600">
+                      שם הרחוב<span className="text-red-500"> *</span>
+                    </label>
+                    <input
+                      id="addr-street-fallback"
+                      type="text"
+                      className="field-input"
+                      placeholder="לדוגמה: הרצל"
+                      autoComplete="address-line1"
+                      aria-required
+                      maxLength={60}
+                      value={manualStreet}
+                      onChange={(e) => setManualStreet(e.target.value)}
+                    />
+                    <div className="flex items-center gap-2 pt-1">
                       <label htmlFor="addr-house-number-fallback" className="text-xs font-medium text-slate-600 shrink-0">
                         מספר בית<span className="text-red-500"> *</span>:
                       </label>
@@ -947,7 +963,11 @@ export default function ValuationWizard() {
           </div>
           <button
             className="btn-primary w-full"
-            disabled={!neighborhoodId || !isValidHouseNumber(propertyType, houseNumber)}
+            disabled={
+              !neighborhoodId ||
+              !isValidHouseNumber(propertyType, houseNumber) ||
+              (!selectedStreet && houseNumberRequired && !hasStreetName(manualStreet))
+            }
             onClick={() => { trackEvent("wizard_step1_complete", { propertyType, neighborhoodId }); setStep(2); }}
           >
             המשך →
@@ -1430,7 +1450,7 @@ export default function ValuationWizard() {
               process.env.NEXT_PUBLIC_AGENT_PHONE,
               reportRequestText({
                 propertyType,
-                street: selectedStreet?.label ?? (address.trim() || null),
+                street: selectedStreet?.label ?? (manualStreet.trim() || address.trim() || null),
                 houseNumber: houseNumber.trim() || null,
                 rooms: isLand ? null : rooms,
                 areaSqm: needsArea && area ? Number(area) : null,
