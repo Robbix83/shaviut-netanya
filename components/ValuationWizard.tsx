@@ -195,6 +195,7 @@ function basisText(v: Pick<Valuation, "basedOnDeals" | "compSearchScope" | "comp
 }
 
 const ESTIMATE_NOTE = "הערכה ראשונית לפי עסקאות באזור. המחיר הסופי תלוי במצב הדירה.";
+const APPRAISER_NOTE = "הערכה ממוחשבת לפי עסקאות בפועל. אינה מחליפה שומת שמאי מקרקעין.";
 
 function resultLabel(v: { manualReview?: boolean; manualReviewReason?: "land" | "off_plan" }) {
   if (!v.manualReview) return "טווח שווי משוער";
@@ -1154,6 +1155,7 @@ export default function ValuationWizard() {
               <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
                 {basisText(valuation)}
               </div>
+              <p className="mt-3 text-[11px] leading-snug text-slate-500">{APPRAISER_NOTE}</p>
             </div>
           </div>
 
@@ -1514,6 +1516,7 @@ export default function ValuationWizard() {
               <p className="mt-2 text-xs opacity-70">
                 {basisText(valuation)}
               </p>
+              <p className="mt-1 text-[11px] leading-snug opacity-60">{APPRAISER_NOTE}</p>
             </div>
           </div>
 
