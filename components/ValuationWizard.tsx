@@ -1155,7 +1155,7 @@ export default function ValuationWizard() {
               <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
                 {basisText(valuation)}
               </div>
-              <p className="mt-3 text-[11px] leading-snug text-slate-500">{APPRAISER_NOTE}</p>
+              <p className="mt-3 text-[11px] font-semibold leading-snug text-slate-600">{APPRAISER_NOTE}</p>
             </div>
           </div>
 
@@ -1516,7 +1516,7 @@ export default function ValuationWizard() {
               <p className="mt-2 text-xs opacity-70">
                 {basisText(valuation)}
               </p>
-              <p className="mt-1 text-[11px] leading-snug opacity-60">{APPRAISER_NOTE}</p>
+              <p className="mt-1 text-[11px] font-semibold leading-snug opacity-80">{APPRAISER_NOTE}</p>
             </div>
           </div>
 
