@@ -54,6 +54,16 @@ describe("which deals are compared", () => {
     expect(v.comparableDeals.every((c) => c.street !== "0")).toBe(true);
   });
 
+  it("a house number typed inside the street name does not pull in street-'0' deals", async () => {
+    setStoreForTesting(new MemoryStore(three({ street: "0", houseNumber: null as any }, 40_000).concat(three({}, 20_000)), []));
+    const v = (await valuate({
+      neighborhoodId: "A", neighborhood: null, propertyType: "apartment", rooms: 4, areaSqm: 100, plotSqm: null, floor: 3,
+      yearBuilt: null, houseNumber: "10", streetName: "רחוב שלא קיים 10", streetX: null, streetY: null, asOf: "2026-06-01",
+    } as any))!;
+    expect(v.compSearchScope).not.toBe("street");
+    expect(v.compSearchScope).not.toBe("building");
+  });
+
   it("falls back to new sales when nothing else exists", async () => {
     expect(await value(three({ yearBuilt: 2026 }, 30_000))).toBeGreaterThan(28_000);
   });

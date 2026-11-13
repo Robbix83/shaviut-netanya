@@ -1166,7 +1166,7 @@ export default function ValuationWizard() {
               המתווך יחזור אליכם עם הערכה שמותאמת לנכס עצמו, ותקבלו כאן מיד את כל העסקאות באזור. בלי התחייבות.
             </p>
 
-            {/* שם + טלפון → הדוח נפתח מיד (שלב קוד ה-SMS הוסר; app/api/otp נשאר לשימוש עתידי) */}
+            {/* שם + טלפון → הדוח נפתח מיד (בלי אימות SMS) */}
             <div className="space-y-3">
               {/* שכבת אמון — מתווך מורשה (חובה חוקית) */}
               <div className="flex items-center gap-3 rounded-2xl bg-white p-3">

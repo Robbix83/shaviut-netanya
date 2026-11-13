@@ -3,6 +3,7 @@ import path from "path";
 import type { Deal, Neighborhood, Lead, LeadStatus, TabuStatus } from "./types";
 import { resolveDataSource, resolveDataTables } from "./config";
 import { withNeighborhoodName, withNeighborhoodTitle } from "./neighborhoodNames";
+import { hasStreetName } from "./houseNumberRule";
 
 /**
  * שכבת גישה לנתונים עם שני מימושים:
@@ -462,10 +463,10 @@ export function normalizeStreetName(s: string): string {
 
 /** כלל ההתאמה של המנוע: שם זהה אחרי נורמליזציה, או שם ה-DB חלק מהשם שהוזן (לא להפך) */
 function filterByStreet(deals: Deal[], street: string, q: DealsQuery): Deal[] {
-  const want = normalizeStreetName(street);
+  const want = normalizeStreetName(street.replace(/\s+\d+\S*$/, ""));
   if (!want) return [];
   return deals.filter((d) => {
-    if (!d.street) return false;
+    if (!hasStreetName(d.street)) return false; // רחוב "0" / ספרות בלבד — לא רחוב
     if (q.asOf && d.dealDate >= q.asOf) return false;
     const ds = normalizeStreetName(d.street);
     return ds !== "" && (ds === want || want.includes(ds));

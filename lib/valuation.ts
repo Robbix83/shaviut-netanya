@@ -1,6 +1,7 @@
 import type { Deal, Valuation, ComparableDeal, PropertyInput, RenewalInfo, NearbyComplex } from "./types";
 import { getStore, type DealsQuery } from "./store";
 import { itmDistance } from "./govmap";
+import { hasStreetName } from "./houseNumberRule";
 import { promises as fs } from "fs";
 import path from "path";
 // מדד שוק חודשי: נבנה ב-scripts/build-market-index.ts, ארוז בקוד כדי שיגיע לכל פריסה
@@ -237,7 +238,8 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // מאפשר התאמה בין "שד ויצמן" (כפי שנשמר ב-DB) ל-"ויצמן" (כפי שהמשתמש הקליד).
   const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
   const normalizeStreet = (s: string) => s.replace(STREET_PREFIX, "").trim();
-  const inputStreetNorm = input.streetName ? normalizeStreet(input.streetName) : null;
+  // מספר בית שהוקלד בתוך שם הרחוב ("הרצל 10") יורד — אחרת "10" מכיל "0" ומתאים לעסקאות בלי רחוב
+  const inputStreetNorm = input.streetName ? normalizeStreet(input.streetName.replace(/\s+\d+\S*$/, "")) || null : null;
 
   /** מסנן geoPool לפי שם רחוב (text-match, בלתי-תלוי קואורדינטות).
    *  כלל ההתאמה: שמות זהים אחרי נורמליזציה — או שם הרחוב מה-DB הוא תת-מחרוזת של הקלט
@@ -246,7 +248,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   const byStreetName = (pool: Deal[]): Deal[] => {
     if (!inputStreetNorm) return [];
     return pool.filter((d) => {
-      if (!d.street) return false;
+      if (!hasStreetName(d.street)) return false; // רחוב "0" / ספרות בלבד — לא רחוב
       const ds = normalizeStreet(d.street);
       // התאמה מדויקת — או שם ה-DB הוא חלק מהשם שהמשתמש הזין (קיצור / ללא תחילית)
       // אסור: ds.includes(input) — מונע "אבא הלל סילבר" להתאים ל"אבא הלל"

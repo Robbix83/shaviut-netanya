@@ -8,7 +8,6 @@
     "dev:preview": "node scripts/dev-preview.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
     "harvest": "tsx scripts/harvest.ts",
     "harvest:missing": "tsx scripts/harvest-missing.ts",
     "remap": "tsx scripts/remap-streets.ts && tsx scripts/remap-deals.ts",

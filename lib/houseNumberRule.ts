@@ -43,6 +43,6 @@ export const STREET_REQUIRED_MESSAGE = "בחרו את הרחוב מהרשימה 
 
 /** A street name has at least two letters (Hebrew or Latin); digits or symbols alone ("11", "--") are
  * not an address. Apartment/house valuations need one (server-enforced in /api/valuation). */
-export function hasStreetName(s: string | null | undefined): boolean {
+export function hasStreetName(s: string | null | undefined): s is string {
   return ((s ?? "").match(/[א-תa-zA-Z]/g) ?? []).length >= 2;
 }
