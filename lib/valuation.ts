@@ -884,6 +884,13 @@ function buildComparableDeals(
   // סנן עסקאות חלקיות/זכויות לפני הצגה
   const minPps = MIN_PPSQM[ptype] ?? 5_000;
   pool = pool.filter((d) => d.pricePerSqm == null || d.pricePerSqm >= minPps);
+  // עסקה בפחות מ-55% מהמחיר החציוני למ"ר בסביבה היא כמעט תמיד מכירת חלק מהנכס או העברה בין קרובים
+  // (זמנהוף 31: 800 אלף ל-77 מ"ר ליד עסקאות של 1.9 מ') — הנתונים לא מסמנים זאת, אז לא מציגים אותה
+  const pps = pool.map((d) => d.pricePerSqm).filter((v): v is number => v != null);
+  if (pps.length >= 5) {
+    const floor = 0.55 * percentile(pps, 50);
+    pool = pool.filter((d) => d.pricePerSqm == null || d.pricePerSqm >= floor);
+  }
 
   // אין קואורדינטות → בחירה רגילה ללא עדיפות גיאוגרפית
   if (sx == null || sy == null) return pickComparables(pool, input, ptype);

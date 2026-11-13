@@ -35,9 +35,13 @@ export interface ValuationInput {
  * לתקנות האתיקה למתווכים. SHOW_ESTIMATE=1 מחזיר את האומדן. המנוע עצמו לא משתנה.
  */
 export function publicValuation(v: Valuation): Valuation {
-  if (process.env.SHOW_ESTIMATE === "1" || v.manualReview) return v;
+  if (process.env.SHOW_ESTIMATE === "1") return v;
+  // דרגת הביטחון מתארת את דיוק האומדן — בלי אומדן היא לא נשלחת (JSON משמיט undefined)
+  const hidden = { confidence: undefined as unknown as Valuation["confidence"] };
+  if (v.manualReview) return { ...v, ...hidden };
   return {
     ...v,
+    ...hidden,
     estimateLow: 0, estimateMid: 0, estimateHigh: 0,
     pricePerSqmLow: 0, pricePerSqmMid: 0, pricePerSqmHigh: 0,
     effectiveDeals: undefined, rangeHalf: undefined,
