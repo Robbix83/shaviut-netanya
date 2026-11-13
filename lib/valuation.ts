@@ -171,7 +171,7 @@ function cutoffDate(months: number, asOf?: string | null): string {
 export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   const v = await valuateOnce(input, true);
   // שנה שהוסקה מהבניין עלולה לצמצם את המאגר מתחת לסף (בניין חדש) — אז בלי ההסקה, כמו קודם
-  return v ?? (input.yearBuilt == null ? valuateOnce(input, false) : null);
+  return v ?? valuateOnce(input, false);
 }
 
 async function valuateOnce(input: PropertyInput, inferYear: boolean): Promise<Valuation | null> {
@@ -293,7 +293,8 @@ async function valuateOnce(input: PropertyInput, inferYear: boolean): Promise<Va
   // ─── שלב טקסטואלי: בניין מדויק → קרבת רחוב (±12) → רחוב שלם ───
   // "בניין" = אותו מספר בדיוק. ±12 מספרים = "רחוב" (לא "בניין") — מונע תיוג שגוי
   // של בניינים שכנים (כגון ויצמן 97 כ"אותו בניין" של ויצמן 98).
-  if (inferYear && inputStreetNorm && ageYear == null) {
+  // שנת הבניין מהעסקאות גוברת על מה שהמשתמש הזין (אנשים טועים בה — זמנהוף 20: 1997 מול 1977 בפועל)
+  if (inferYear && inputStreetNorm) {
     const years = byExactBuilding(pool4yr)
       .map((d) => d.yearBuilt)
       .filter((y): y is number => y != null && y > 1900)
