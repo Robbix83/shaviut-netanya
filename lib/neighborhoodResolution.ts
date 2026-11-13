@@ -21,7 +21,7 @@ export interface NeighborhoodHint {
   asOf?: string | null;
 }
 
-export type ResolutionSource = "client" | "building" | "street_nearest" | "street_majority" | "none";
+export type ResolutionSource = "client" | "building" | "street_nearest" | "street_majority" | "nearby" | "none";
 
 /** The most frequent neighbourhood among `deals` (ties: the one seen first). */
 function majority(deals: Deal[], known: Set<string>): string | null {
@@ -44,7 +44,12 @@ export async function resolveDatasetNeighborhood(
   if (!hint.streetName) return { id: null, source: "none" };
 
   const onStreet = (await store.getDealsByStreet(hint.streetName, { asOf: hint.asOf })).filter((d) => knownIds.has(d.neighborhoodId));
-  if (!onStreet.length) return { id: null, source: "none" };
+  if (!onStreet.length) {
+    // the list's name and the deals' name can differ ("ברמן בני" / "בני ברמן"): use the deals around the address
+    if (hint.streetX == null || hint.streetY == null) return { id: null, source: "none" };
+    const id = majority(await store.getDealsNear(hint.streetX, hint.streetY, 300, { asOf: hint.asOf ?? undefined }), knownIds);
+    return id ? { id, source: "nearby" } : { id: null, source: "none" };
+  }
 
   // 1) same building number on that street
   const hn = parseInt(hint.houseNumber ?? "");

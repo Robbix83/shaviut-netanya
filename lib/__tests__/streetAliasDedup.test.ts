@@ -23,10 +23,12 @@ describe("normalizeStreetForAlias", () => {
   it("strips the same prefix set as lib/valuation.ts's normalizeStreet", () => {
     expect(normalizeStreetForAlias("שד ויצמן")).toBe("ויצמן");
     expect(normalizeStreetForAlias("ויצמן")).toBe("ויצמן");
-    // Alternation order quirk shared with lib/valuation.ts's identical regex:
-    // "שד'?" matches before "שדרות" gets a chance, so only the "שד" prefix is
-    // stripped — intentionally preserved here for exact behavioral parity.
-    expect(normalizeStreetForAlias("שדרות בן גוריון")).toBe("רות בן גוריון");
+    expect(normalizeStreetForAlias("שדרות בן גוריון")).toBe("בן גוריון");
+    expect(normalizeStreetForAlias("שדרת האגמים")).toBe("האגמים");
+    expect(normalizeStreetForAlias("שד' ויצמן")).toBe("ויצמן");
+    expect(normalizeStreetForAlias("רחובות")).toBe("רחובות");
+    expect(normalizeStreetForAlias("שדה התעופה")).toBe("שדה התעופה");
+    expect(normalizeStreetForAlias("דרך הים")).toBe("הים");
     expect(normalizeStreetForAlias("רח' הרצל")).toBe("הרצל");
   });
 });

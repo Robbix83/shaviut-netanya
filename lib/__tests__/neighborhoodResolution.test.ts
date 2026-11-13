@@ -47,6 +47,17 @@ describe("resolveDatasetNeighborhood — V1 ids from street-index on a V2 datase
     expect((await resolveDatasetNeighborhood({ neighborhoodId: "x", streetName: "רחוב שלא קיים" }, known, store)).id).toBeNull();
   });
 
+  it("uses the deals around the address when the list's street name differs from the deals' name", async () => {
+    expect(await resolveDatasetNeighborhood(
+      { neighborhoodId: "66239260", streetName: "ברמן בני", houseNumber: "1", streetX: 185050, streetY: 693050 }, known, store,
+    )).toEqual({ id: "V2-B", source: "nearby" });
+  });
+
+  it("finds a 'שדרת X' street whose deals are filed as 'X'", async () => {
+    expect((await resolveDatasetNeighborhood({ neighborhoodId: "66239255", streetName: "שדרת ניצה", houseNumber: "20" }, known, store)).id)
+      .toBe("V2-B");
+  });
+
   it("never looks at deals on or after asOf", async () => {
     const r = await resolveDatasetNeighborhood({ neighborhoodId: "x", streetName: "ניצה", houseNumber: "20", asOf: "2024-01-01" }, known, store);
     expect(r.id).toBeNull();

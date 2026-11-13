@@ -4,6 +4,7 @@ import type { Deal, Neighborhood, Lead, LeadStatus, TabuStatus } from "./types";
 import { resolveDataSource, resolveDataTables } from "./config";
 import { withNeighborhoodName, withNeighborhoodTitle } from "./neighborhoodNames";
 import { hasStreetName } from "./houseNumberRule";
+import { normalizeStreetName } from "./streetName";
 
 /**
  * שכבת גישה לנתונים עם שני מימושים:
@@ -455,11 +456,7 @@ class SupabaseStore implements Store {
 
 // ---------- helpers ----------
 
-const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
-/** אותה נורמליזציה כמו ב-lib/valuation.ts: בלי שד'/שדרות/רחוב/רח' */
-export function normalizeStreetName(s: string): string {
-  return s.replace(STREET_PREFIX, "").trim();
-}
+export { normalizeStreetName };
 
 /** כלל ההתאמה של המנוע: שם זהה אחרי נורמליזציה, או שם ה-DB חלק מהשם שהוזן (לא להפך) */
 function filterByStreet(deals: Deal[], street: string, q: DealsQuery): Deal[] {

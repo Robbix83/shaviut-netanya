@@ -2,6 +2,7 @@ import type { Deal, Valuation, ComparableDeal, PropertyInput, RenewalInfo, Nearb
 import { getStore, type DealsQuery } from "./store";
 import { itmDistance } from "./govmap";
 import { hasStreetName } from "./houseNumberRule";
+import { normalizeStreetName } from "./streetName";
 import { promises as fs } from "fs";
 import path from "path";
 // מדד שוק חודשי: נבנה ב-scripts/build-market-index.ts, ארוז בקוד כדי שיגיע לכל פריסה
@@ -236,8 +237,7 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
 
   // ─── נורמליזציה של שם רחוב: הסרת "שד'" / "שדרות" / "רחוב" / "רח'" ───
   // מאפשר התאמה בין "שד ויצמן" (כפי שנשמר ב-DB) ל-"ויצמן" (כפי שהמשתמש הקליד).
-  const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
-  const normalizeStreet = (s: string) => s.replace(STREET_PREFIX, "").trim();
+  const normalizeStreet = normalizeStreetName;
   // מספר בית שהוקלד בתוך שם הרחוב ("הרצל 10") יורד — אחרת "10" מכיל "0" ומתאים לעסקאות בלי רחוב
   const inputStreetNorm = input.streetName ? normalizeStreet(input.streetName.replace(/\s+\d+\S*$/, "")) || null : null;
 
@@ -899,8 +899,7 @@ function buildComparableDeals(
   if (filtered.length < MIN_COMPARABLES) filtered = base;
 
   // tier: עדיפות לטקסט (שם רחוב + מספר בית) — אמין יותר כשכל עסקאות הרחוב שמורות עם קואורדינטה זהה
-  const STREET_PREFIX_RE = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
-  const normSt = (s: string) => s.replace(STREET_PREFIX_RE, "").trim();
+  const normSt = normalizeStreetName;
   const inStreetNorm = input.streetName ? normSt(input.streetName) : null;
 
   // תמיד כלול עסקאות מאותו מספר בית מדויק — גם אם נסננו ע"י גודל/חדרים.
@@ -1087,7 +1086,7 @@ export function appraiseApartment(
   const area = input.areaSqm;
   if (!area) return null;
   const hn = parseInt(input.houseNumber ?? "");
-  const streetKey = (x: string) => x.replace(/^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i, "").trim();
+  const streetKey = normalizeStreetName;
   const subjectStreet = input.streetName ? streetKey(input.streetName) : null;
   const pairs: [number, number][] = [];
   for (const d of deals) {

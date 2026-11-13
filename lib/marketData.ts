@@ -4,6 +4,7 @@
  * משתמש בנתוני ה-store הקיים (deals.json / Supabase) ולא מחייב API חיצוני.
  */
 import { getStore } from "./store";
+import { normalizeStreetName } from "./streetName";
 import { percentile } from "./valuation";
 import type { Deal, Lead, ComparableDeal, PriceTrend } from "./types";
 
@@ -37,8 +38,7 @@ const MIN_DEALS = 3;
 const WINDOWS = [6, 12, 24, 48];
 const MAX_RECENT = 8;
 
-const STREET_PREFIX_RE = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
-const normStreet = (s: string) => s.replace(STREET_PREFIX_RE, "").trim();
+const normStreet = normalizeStreetName;
 
 export async function analyzeLeadMarket(
   lead: Lead,

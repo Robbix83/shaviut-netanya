@@ -1,3 +1,4 @@
+import { normalizeStreetName } from "./streetName";
 /**
  * lib/streetAliasDedup.ts
  * Wave 0F-1: groups street-index entries that are proven aliases of the same
@@ -26,15 +27,7 @@ export interface StreetAliasGroup {
   members: StreetIndexEntry[];
 }
 
-// Same prefix set/regex as lib/valuation.ts's normalizeStreet() — kept in sync
-// deliberately (not imported from lib/valuation.ts, to avoid this route pulling
-// in any part of the valuation module; the pattern is a fixed constant, not
-// business logic that could drift).
-const STREET_PREFIX = /^(שד'?|שדרות|רחוב|רח'|דרך(?=\s))\s*/i;
-
-export function normalizeStreetForAlias(s: string): string {
-  return s.replace(STREET_PREFIX, "").trim();
-}
+export const normalizeStreetForAlias = normalizeStreetName;
 
 /** Two entries are the same physical street only when BOTH share a proven
  * identity: an exactly-equal municipal code, or (when a code is missing on
