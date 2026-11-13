@@ -83,10 +83,10 @@ describe("formatEvaluatedAddress — TEST F/G: result header", () => {
     expect(s).toContain("הרב שמואל הרטום 30");
   });
   it("uses the exact evaluated street/houseNumber, not a reconstructed/normalized value", () => {
-    expect(formatEvaluatedAddress("ויצמן", "92")).toBe("הערכת שווי — ויצמן 92, נתניה");
+    expect(formatEvaluatedAddress("ויצמן", "92")).toBe("עסקאות סביב ויצמן 92, נתניה");
   });
   it("omits a dangling house number when none was entered (land)", () => {
-    expect(formatEvaluatedAddress("שדרות בן גוריון", "")).toBe("הערכת שווי — שדרות בן גוריון, נתניה");
+    expect(formatEvaluatedAddress("שדרות בן גוריון", "")).toBe("עסקאות סביב שדרות בן גוריון, נתניה");
   });
   it("returns null when no street is known (neighborhood-only fallback) — never invents one", () => {
     expect(formatEvaluatedAddress(null, "92")).toBeNull();

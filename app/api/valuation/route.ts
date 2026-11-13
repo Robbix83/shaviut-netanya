@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse, after } from "next/server";
-import { resolveAndValuate, type ValuationInput } from "@/lib/valuationService";
+import { resolveAndValuate, publicValuation, type ValuationInput } from "@/lib/valuationService";
 import { isValidHouseNumber, isHouseNumberRequired, hasStreetName, HOUSE_NUMBER_REQUIRED_MESSAGE, STREET_REQUIRED_MESSAGE } from "@/lib/houseNumberRule";
 import { buildSearchRow, logSearch, type SearchRow } from "@/lib/searchLog";
 
@@ -67,10 +67,10 @@ export async function POST(req: NextRequest) {
       );
     }
     return NextResponse.json(
-      { error: "insufficient_data", message: "אין מספיק עסקאות באזור זה לחישוב אמין." },
+      { error: "insufficient_data", message: "אין מספיק עסקאות באזור זה." },
       { status: 422 },
     );
   }
 
-  return NextResponse.json({ valuation: outcome.valuation });
+  return NextResponse.json({ valuation: publicValuation(outcome.valuation) });
 }

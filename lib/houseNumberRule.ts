@@ -36,7 +36,7 @@ export function formatEvaluatedAddress(
 ): string | null {
   if (!street) return null;
   const hn = (houseNumber ?? "").trim();
-  return `הערכת שווי — ${street}${hn ? ` ${hn}` : ""}, ${city}`;
+  return `עסקאות סביב ${street}${hn ? ` ${hn}` : ""}, ${city}`;
 }
 
 export const STREET_REQUIRED_MESSAGE = "בחרו את הרחוב מהרשימה שנפתחת בזמן ההקלדה. לא מופיע? לחצו \"בחרו שכונה ידנית\" וכתבו את שם הרחוב.";

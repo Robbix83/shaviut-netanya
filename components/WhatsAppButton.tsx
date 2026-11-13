@@ -3,7 +3,7 @@
 import { buildWaLink } from "@/lib/whatsapp";
 
 export default function WhatsAppButton() {
-  const href = buildWaLink(process.env.NEXT_PUBLIC_AGENT_PHONE, "שלום, ראיתי את כלי הערכת הדירות שלכם ורציתי לשאול");
+  const href = buildWaLink(process.env.NEXT_PUBLIC_AGENT_PHONE, "שלום, ראיתי את סקר העסקאות באתר שלכם ורציתי לשאול");
   if (!href) return null;
   return (
     <a

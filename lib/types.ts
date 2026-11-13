@@ -73,8 +73,8 @@ export interface Valuation {
   plotNotValued?: boolean;
   /** true = לא מוצג אומדן (הסכומים 0); הנכס עובר לבדיקה אישית של המתווך. קרקע, או דירה/בית בבנייה */
   manualReview?: boolean;
-  /** למה עבר לבדיקה אישית: "land" = מגרש; "off_plan" = שנת בנייה עתידית (נמכר מקבלן לפני מסירה) */
-  manualReviewReason?: "land" | "off_plan";
+  /** למה אין אומדן: "land" = מגרש; "off_plan" = שנת בנייה עתידית; "survey" = מצב סקר עסקאות (האומדן לא מוצג לציבור) */
+  manualReviewReason?: "land" | "off_plan" | "survey";
 }
 
 /** עסקה לדוגמה שמוצגת למשתמש כ"הוכחה" */

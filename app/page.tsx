@@ -34,7 +34,7 @@ export default async function Home() {
   return (
     <main dir="rtl" className="overflow-x-clip bg-white text-ink">
       <a href="#check" className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-white focus:px-5 focus:py-3 focus:font-semibold focus:text-ink focus:shadow-lg">
-        דלג לבדיקת השווי
+        דלג לבדיקת העסקאות
       </a>
       {/* ═══════════ OPENING CARD ═══════════ */}
       <section className="px-3 pt-3 lg:px-4 lg:pt-4" aria-labelledby="home-h1">
@@ -55,7 +55,7 @@ export default async function Home() {
             <span className="text-[19px] font-semibold tracking-[-0.01em]">שוויות נתניה</span>
             <nav className="flex gap-1.5" aria-label="ניווט">
               <a href="#how" className="gh-pill hidden bg-white/15 text-white backdrop-blur-md sm:inline-flex">איך זה עובד</a>
-              <ScrollToWizard className="gh-pill hidden bg-white font-semibold text-ink lg:inline-flex">לבדיקת שווי</ScrollToWizard>
+              <ScrollToWizard className="gh-pill hidden bg-white font-semibold text-ink lg:inline-flex">לבדיקת עסקאות</ScrollToWizard>
             </nav>
           </header>
 
@@ -65,10 +65,10 @@ export default async function Home() {
                 id="home-h1"
                 className="max-w-[12ch] text-[clamp(42px,11.6vw,58px)] font-semibold leading-[1.02] tracking-[-0.035em] lg:max-w-none lg:text-[clamp(60px,5.8vw,92px)]"
               >
-                כמה שווה הנכס שלך?
+                באיזה מחיר נמכרו דירות לידך?
               </h1>
               <p className="mt-3 max-w-[46ch] text-[17px] leading-relaxed text-white/90 lg:text-[20px]">
-                מקלידים כתובת בנתניה ורואים עסקאות אמת שנמכרו בבניין, ברחוב ובסביבה, וטווח שווי לפיהן.
+                מקלידים כתובת בנתניה ורואים עסקאות אמת שנמכרו בבניין, ברחוב ובסביבה.
               </p>
               <ul className="mt-4 flex flex-wrap gap-2 text-[13px]">
                 {dealCount > 0 && (
@@ -80,7 +80,7 @@ export default async function Home() {
                 <li className="rounded-full border border-white/20 bg-white/15 px-3 py-1.5 backdrop-blur-md">חינם, בלי הרשמה</li>
               </ul>
               <ScrollToWizard className="gh-press mt-6 flex min-h-[56px] w-full items-center justify-center rounded-full bg-white text-[17px] font-semibold text-ink lg:hidden">
-                לבדיקת שווי חינם
+                לבדיקת עסקאות חינם
               </ScrollToWizard>
             </div>
 
@@ -103,7 +103,7 @@ export default async function Home() {
           className="aspect-[4/3] w-full rounded-[28px] object-cover lg:col-span-7 lg:row-start-2"
         />
         <p className="max-w-[30ch] text-[22px] leading-snug lg:col-span-4 lg:col-start-9 lg:row-start-2 lg:self-center lg:text-[26px]">
-          עיר שממשיכה להיבנות מול הים. בכל אחד מהבניינים האלה נמכרו דירות, וכל עסקה כזו מספרת משהו על המחיר של הנכס שלכם.
+          עיר שממשיכה להיבנות מול הים. בכל אחד מהבניינים האלה נמכרו דירות, וכל עסקה כזו מספרת משהו על המחירים בסביבה שלכם.
         </p>
         <Aerial
           name="cliff-coast"
@@ -131,10 +131,10 @@ export default async function Home() {
               {dealCount > 0 ? `${dealCount.toLocaleString("he-IL")} עסקאות אמת.` : "עסקאות אמת."}
             </h2>
             <p className="mt-3 max-w-[40ch] text-[17px] leading-relaxed text-white/90 lg:text-[20px]">
-              מכירות שדווחו לרשות המסים בנתניה. ההערכה לנכס שלכם נבנית מהעסקאות הקרובות אליו ביותר.
+              מכירות שדווחו לרשות המסים בנתניה. מוצגות קודם העסקאות הקרובות ביותר לנכס שלכם.
             </p>
             <ScrollToWizard className="gh-press mt-6 flex min-h-[56px] w-full items-center justify-center rounded-full bg-white text-[17px] font-semibold text-ink sm:w-auto sm:self-start sm:px-8">
-              לבדיקת שווי חינם
+              לבדיקת עסקאות חינם
             </ScrollToWizard>
           </div>
         </div>
@@ -146,7 +146,7 @@ export default async function Home() {
           <h2 id="how-h" className="text-[clamp(34px,8vw,72px)] font-semibold leading-none tracking-[-0.035em]">איך זה עובד</h2>
           <div className="mt-6 space-y-4 text-[clamp(22px,5.6vw,36px)] font-medium leading-snug">
             <p className="max-w-[34ch]">מקלידים רחוב ומספר בית בנתניה.</p>
-            <p className="max-w-[34ch]">רואים את העסקאות שנמכרו בבניין, ברחוב ובסביבה, וטווח שווי לפיהן.</p>
+            <p className="max-w-[34ch]">רואים את העסקאות שנמכרו בבניין, ברחוב ובסביבה.</p>
             <p className="max-w-[34ch]">ומחליטים אם לדבר עם מתווך מורשה. רק אם תרצו.</p>
           </div>
         </div>
@@ -169,20 +169,20 @@ export default async function Home() {
             </div>
           )}
           <div className="flex-1">
-            <h2 id="agent-h" className="text-[22px] font-semibold tracking-[-0.02em]">מי מאחורי ההערכה</h2>
+            <h2 id="agent-h" className="text-[22px] font-semibold tracking-[-0.02em]">מי מאחורי האתר</h2>
             <p className="mt-1 text-[15px] leading-relaxed text-slate-600">
               {agentName ? `${agentName}, ` : ""}מתווך מקרקעין מורשה{agentLicense ? ` · רישיון ${agentLicense}` : ""}.
               הדוח נשלח אליכם ישירות, ואם תרצו, אפשר לעבור עליו יחד.
             </p>
           </div>
-          <ScrollToWizard className="gh-pill min-h-[52px] justify-center bg-ink px-6 font-semibold text-white">לבדיקת שווי</ScrollToWizard>
+          <ScrollToWizard className="gh-pill min-h-[52px] justify-center bg-ink px-6 font-semibold text-white">לבדיקת עסקאות</ScrollToWizard>
         </div>
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
       <footer className="mx-auto max-w-6xl px-5 pb-[calc(40px+env(safe-area-inset-bottom))] pt-14 text-xs leading-relaxed text-slate-500">
         <p className="max-w-[70ch]">
-          ההערכה היא אינדיקציה המבוססת על נתוני עסקאות פומביים ואינה תחליף להערכת שמאי מוסמך.
+          המידע באתר הוא סקר מחירים לפי עסקאות שדווחו לרשות המסים. הוא אינו קובע את שווי הנכס, אינו שומת מקרקעין ואינו מחליף שמאי מקרקעין.
         </p>
         <div className="mt-3 flex gap-1">
           <a href="/privacy" className="flex min-h-[44px] items-center px-3 first:ps-0 hover:text-ink">מדיניות פרטיות</a>

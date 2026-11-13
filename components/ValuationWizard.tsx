@@ -74,7 +74,7 @@ interface Valuation {
   plotNotValued?: boolean;
   /** קרקע או נכס בבנייה: אין אומדן מספרי (הסכומים 0), המתווך בודק אישית */
   manualReview?: boolean;
-  manualReviewReason?: "land" | "off_plan";
+  manualReviewReason?: "land" | "off_plan" | "survey";
 }
 interface PriceTrend {
   points: { label: string; ppsqm: number }[];
@@ -132,7 +132,7 @@ const AGENT = {
 const SELL_TIMING = [
   { value: "now", label: "בקרוב (עד 3 ח׳)" },
   { value: "year", label: "בשנה הקרובה" },
-  { value: "curious", label: "רק בודק/ת שווי" },
+  { value: "curious", label: "רק בודק/ת מחירים" },
 ];
 
 // "מה משפיע על השווי" — תגיות אינטראקטיביות שמתאימות את ההערכה (כלי עזר משוער, לא נתון)
@@ -164,8 +164,18 @@ function PreliminaryNote({ onContact }: { onContact?: () => void }) {
 }
 
 /** קרקע / נכס בבנייה: במקום מספר — הסבר קצר שהמתווך בודק אישית */
-function ManualReviewNote({ reason }: { reason?: "land" | "off_plan" }) {
+function ManualReviewNote({ reason }: { reason?: "land" | "off_plan" | "survey" }) {
   const offPlan = reason === "off_plan";
+  if (reason === "survey") {
+    return (
+      <div className="my-3 space-y-1">
+        <p className="text-2xl font-black tracking-[-0.02em] text-brand sm:text-[1.7rem]">העסקאות שנמכרו סביב הנכס</p>
+        <p className="mx-auto max-w-sm text-sm text-slate-600">
+          אלה מחירי מכירה שדווחו לרשות המסים בבניין, ברחוב ובסביבה. הם מוצגים כמו שדווחו, בלי חישוב לנכס שלכם.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="my-3 space-y-1">
       <p className="text-2xl font-black tracking-[-0.02em] text-brand sm:text-[1.7rem]">
@@ -196,9 +206,12 @@ function basisText(v: Pick<Valuation, "basedOnDeals" | "compSearchScope" | "comp
 
 const ESTIMATE_NOTE = "הערכה ראשונית לפי עסקאות באזור. המחיר הסופי תלוי במצב הדירה.";
 const APPRAISER_NOTE = "הערכה ממוחשבת לפי עסקאות בפועל. אינה מחליפה שומת שמאי מקרקעין.";
+const SURVEY_NOTE = "סקר מחירים בלבד. אינו קובע את שווי הנכס, אינו שומת מקרקעין ואינו מחליף שמאי מקרקעין.";
+const isSurvey = (v: { manualReviewReason?: string }) => v.manualReviewReason === "survey";
 
-function resultLabel(v: { manualReview?: boolean; manualReviewReason?: "land" | "off_plan" }) {
+function resultLabel(v: { manualReview?: boolean; manualReviewReason?: "land" | "off_plan" | "survey" }) {
   if (!v.manualReview) return "טווח שווי משוער";
+  if (v.manualReviewReason === "survey") return "סקר עסקאות";
   return v.manualReviewReason === "off_plan" ? "נכס בבנייה" : "מגרש";
 }
 
@@ -298,7 +311,7 @@ function RenewalPanel({ r }: { r: RenewalInfo }) {
           {!r.neighborhoodOnly && hasNearby && (
             <>
               <p className="mt-1 text-xs text-amber-800">
-                ייתכן שלנכס שלך <strong>פוטנציאל שווי לא ממומש</strong>:
+                מתחמי התחדשות עירונית ליד הכתובת:
               </p>
               <div className="mt-2 space-y-1.5">
                 {r.nearby.slice(0, 4).map((c, i) => (
@@ -321,12 +334,12 @@ function RenewalPanel({ r }: { r: RenewalInfo }) {
           {r.neighborhoodOnly && (
             <p className="mt-1 text-xs leading-relaxed text-amber-800">
               בשכונה מקודמים <strong>{r.complexes} מתחמי התחדשות</strong> (תמ"א 38 / פינוי-בינוי).
-              לא ניתן לחשב מרחק מדויק לכתובת זו. ייתכן <strong>פוטנציאל שווי לא ממומש</strong>.
+              לא ניתן לחשב מרחק מדויק לכתובת זו.
             </p>
           )}
 
           <p className="mt-2 rounded-lg bg-amber-100 px-2 py-1 text-xs font-medium text-amber-900">
-            מכירה לפני בירור זכויות עלולה לעלות לך מאות אלפי ₪. שווה לבדוק לפני שמחליטים.
+            כדאי לברר את הזכויות לפני שמחליטים על מכירה.
           </p>
           {r.mapLink && (
             <a href={r.mapLink} target="_blank" rel="noreferrer"
@@ -381,6 +394,41 @@ const TIER_BADGE: Record<string, { label: string; cls: string }> = {
   radius:       { label: "בקרבת מקום",   cls: "bg-slate-100 text-slate-600 border-slate-200" },
   neighborhood: { label: "שכונה",         cls: "bg-slate-100 text-slate-600 border-slate-200" },
 };
+
+/** שלוש העסקאות הקרובות ביותר, עם הסבר מאיפה נלקחו */
+function CompsBlock({ valuation }: { valuation: Valuation }) {
+  if (valuation.comparableDeals.length === 0) return null;
+  return (
+            <div>
+              <p className="mb-2 text-[15px] font-bold text-ink">
+                עסקאות שנמכרו באזורך
+              </p>
+              <div className="space-y-2">
+                {valuation.comparableDeals.slice(0, 3).map((c, i) => (
+                  <CompDealCard key={i} c={c} />
+                ))}
+              </div>
+              {/* כותרת המסבירה מאיפה נלקחו העסקאות */}
+              {valuation.compSearchScope && valuation.compSearchScope !== "neighborhood" && (
+                <p className="mt-1.5 text-xs text-slate-600">
+                  {valuation.compSearchScope === "building"
+                    ? "מוצגות קודם עסקאות מאותו בניין (5 שנים אחרונות)"
+                    : valuation.compSearchScope === "street"
+                    ? "מוצגות קודם עסקאות מאותו רחוב (5 שנים אחרונות)"
+                    : `מוצגות קודם עסקאות ברדיוס ${valuation.compRadiusMeters}מ' (5 שנים אחרונות)`}
+                </p>
+              )}
+              {valuation.propertyType !== "apartment" && !valuation.manualReview && (
+                <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                  {valuation.propertyType === "house"
+                    ? "רשות המסים אינה מפרסמת שטח מגרש לבתים — לכן עסקאות ההשוואה אינן מסוננות לפי גודל אדמה. האומדן מחושב לפי בנוי בלבד ועשוי לסטות מהמציאות בבתים עם מגרשים גדולים."
+                    : `* המחיר הכולל מושפע משטח המגרש — ההערכה מנורמלת לנכסך (≈${nis(valuation.pricePerSqmMid)} למ"ר מגרש).`
+                  }
+                </p>
+              )}
+            </div>
+  );
+}
 
 function CompDealCard({ c }: { c: Comparable }) {
   const addr = formatComparableAddress(c.street, c.address, c.houseNumber, c.tier);
@@ -1100,7 +1148,7 @@ export default function ValuationWizard() {
                   </svg>
                   משווים לעסקאות באזור…
                 </>
-              ) : "חשב שווי לפי עסקאות אמיתיות"}
+              ) : "הצג עסקאות אמיתיות באזור"}
             </button>
           </div>
         </div>
@@ -1109,7 +1157,7 @@ export default function ValuationWizard() {
       {/* שלב 3 — תוצאה + שער ליד */}
       {step === 3 && valuation && (
         <div className="gh-step space-y-4 pb-20 sm:pb-0">
-          <h2 data-step-heading tabIndex={-1} className="sr-only">תוצאת ההערכה</h2>
+          <h2 data-step-heading tabIndex={-1} className="sr-only">תוצאת הבדיקה</h2>
           {/* ── כרטיס שווי ראשי ── */}
           <div className="relative overflow-hidden rounded-3xl bg-butter-soft p-5 text-center text-ink">
 
@@ -1123,7 +1171,7 @@ export default function ValuationWizard() {
               }`}>
                 {valuation.compSearchScope === "building" ? "מבוסס על אותו בניין"
                  : valuation.compSearchScope === "street" ? "מבוסס על אותו רחוב"
-                 : valuation.compSearchScope === "radius" ? "טווח מהשכונה הקרובה"
+                 : valuation.compSearchScope === "radius" ? "מבוסס על הסביבה הקרובה"
                  : "מבוסס על השכונה"}
               </span>
 
@@ -1155,17 +1203,22 @@ export default function ValuationWizard() {
               <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-butter-deep px-3 py-1 text-xs text-slate-700">
                 {basisText(valuation)}
               </div>
-              <p className="mt-3 text-[11px] font-semibold leading-snug text-slate-600">{APPRAISER_NOTE}</p>
+              <p className="mt-3 text-[11px] font-semibold leading-snug text-slate-600">{isSurvey(valuation) ? SURVEY_NOTE : APPRAISER_NOTE}</p>
             </div>
           </div>
+
+          {/* מצב סקר: העסקאות הן התוצאה עצמה, ולכן מעל הטופס */}
+          {isSurvey(valuation) && <CompsBlock valuation={valuation} />}
 
           {/* הצעה מיד מתחת למספר — לפני כל התוכן הנוסף. בפיילוט 12.11 הטופס היה בתחתית: 17 צפיות בשווי, 0 פרטים */}
           <div ref={leadFormRef} data-lead-form className="rounded-3xl bg-butter-deep p-5">
             <h3 className="text-lg font-extrabold text-slate-900">
-              {valuation.manualReview ? "רוצים הערכה אישית לנכס?" : "רוצים מחיר מדויק יותר לנכס שלכם?"}
+              {isSurvey(valuation) ? "רוצים את כל העסקאות באזור?" : valuation.manualReview ? "רוצים הערכה אישית לנכס?" : "רוצים מחיר מדויק יותר לנכס שלכם?"}
             </h3>
             <p className="mb-4 text-sm text-slate-700">
-              המתווך יחזור אליכם עם הערכה שמותאמת לנכס עצמו, ותקבלו כאן מיד את כל העסקאות באזור. בלי התחייבות.
+              {isSurvey(valuation)
+                ? "תקבלו כאן מיד את כל העסקאות באזור, והמתווך יחזור אליכם לעבור עליהן יחד. בלי התחייבות."
+                : "המתווך יחזור אליכם עם הערכה שמותאמת לנכס עצמו, ותקבלו כאן מיד את כל העסקאות באזור. בלי התחייבות."}
             </p>
 
             {/* שם + טלפון → הדוח נפתח מיד (בלי אימות SMS) */}
@@ -1309,36 +1362,7 @@ export default function ValuationWizard() {
             </div>
           )}
 
-          {valuation.comparableDeals.length > 0 && (
-            <div>
-              <p className="mb-2 text-[15px] font-bold text-ink">
-                עסקאות שנמכרו באזורך
-              </p>
-              <div className="space-y-2">
-                {valuation.comparableDeals.slice(0, 3).map((c, i) => (
-                  <CompDealCard key={i} c={c} />
-                ))}
-              </div>
-              {/* כותרת המסבירה מאיפה נלקחו העסקאות */}
-              {valuation.compSearchScope && valuation.compSearchScope !== "neighborhood" && (
-                <p className="mt-1.5 text-xs text-slate-600">
-                  {valuation.compSearchScope === "building"
-                    ? "מוצגות קודם עסקאות מאותו בניין (5 שנים אחרונות)"
-                    : valuation.compSearchScope === "street"
-                    ? "מוצגות קודם עסקאות מאותו רחוב (5 שנים אחרונות)"
-                    : `מוצגות קודם עסקאות ברדיוס ${valuation.compRadiusMeters}מ' (5 שנים אחרונות)`}
-                </p>
-              )}
-              {valuation.propertyType !== "apartment" && !valuation.manualReview && (
-                <p className="mt-2 text-xs leading-relaxed text-slate-600">
-                  {valuation.propertyType === "house"
-                    ? "רשות המסים אינה מפרסמת שטח מגרש לבתים — לכן עסקאות ההשוואה אינן מסוננות לפי גודל אדמה. האומדן מחושב לפי בנוי בלבד ועשוי לסטות מהמציאות בבתים עם מגרשים גדולים."
-                    : `* המחיר הכולל מושפע משטח המגרש — ההערכה מנורמלת לנכסך (≈${nis(valuation.pricePerSqmMid)} למ"ר מגרש).`
-                  }
-                </p>
-              )}
-            </div>
-          )}
+          {!isSurvey(valuation) && <CompsBlock valuation={valuation} />}
 
           {valuation.renewal && <RenewalPanel r={valuation.renewal} />}
 
@@ -1429,7 +1453,7 @@ export default function ValuationWizard() {
               onClick={() => leadFormRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: "center" })}
               className="gh-press fixed bottom-[calc(1.75rem+env(safe-area-inset-bottom))] left-[calc(5.25rem+env(safe-area-inset-left))] right-[calc(4.75rem+env(safe-area-inset-right))] z-40 min-h-[48px] rounded-full bg-brand px-4 text-sm font-bold text-white shadow-[0_8px_24px_-6px_rgba(18,19,43,0.35)] sm:hidden"
             >
-              {valuation.manualReview ? "להערכה אישית" : "למחיר מדויק"}
+              {isSurvey(valuation) ? "לכל העסקאות" : valuation.manualReview ? "להערכה אישית" : "למחיר מדויק"}
             </button>,
             document.body,
           )}
@@ -1490,7 +1514,7 @@ export default function ValuationWizard() {
               }`}>
                 {valuation.compSearchScope === "building" ? "מבוסס על אותו בניין"
                  : valuation.compSearchScope === "street" ? "מבוסס על אותו רחוב"
-                 : valuation.compSearchScope === "radius" ? "טווח מהשכונה הקרובה"
+                 : valuation.compSearchScope === "radius" ? "מבוסס על הסביבה הקרובה"
                  : "מבוסס על השכונה"}
               </span>
               {evaluatedAddress && (
@@ -1516,7 +1540,7 @@ export default function ValuationWizard() {
               <p className="mt-2 text-xs opacity-70">
                 {basisText(valuation)}
               </p>
-              <p className="mt-1 text-[11px] font-semibold leading-snug opacity-80">{APPRAISER_NOTE}</p>
+              <p className="mt-1 text-[11px] font-semibold leading-snug opacity-80">{isSurvey(valuation) ? SURVEY_NOTE : APPRAISER_NOTE}</p>
             </div>
           </div>
 
@@ -1584,8 +1608,8 @@ export default function ValuationWizard() {
       )}
 
       <p className="mt-5 text-center text-xs leading-relaxed text-slate-600">
-        ההערכה היא אינדיקציה המבוססת על עסקאות פומביות ממאגר רשות המסים ואינה תחליף
-        להערכת שמאי מוסמך.
+        המידע הוא סקר מחירים לפי עסקאות שדווחו לרשות המסים. הוא אינו קובע את שווי הנכס,
+        אינו שומת מקרקעין ואינו מחליף שמאי מקרקעין.
       </p>
     </div>
   );

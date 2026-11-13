@@ -105,4 +105,13 @@ describe("POST /api/valuation — no valuation without a street name", () => {
     const res = await POST(makeReq({ neighborhoodId: "N1", propertyType: "apartment", houseNumber: "11", streetName: "רחוב לא קיים" }));
     expect((await res.json()).valuation.confidence).toBe("medium");
   });
+  // מצב סקר עסקאות: הסכום שחושב לנכס לא יוצא מהשרת, אלא אם SHOW_ESTIMATE=1
+  it("does not send the computed estimate to the browser unless SHOW_ESTIMATE=1", async () => {
+    const req = () => POST(makeReq({ neighborhoodId: "N1", propertyType: "apartment", houseNumber: "11", streetName: "ויצמן" }));
+    const v = (await (await req()).json()).valuation;
+    expect(v).toMatchObject({ estimateLow: 0, estimateHigh: 0, manualReview: true, manualReviewReason: "survey", comparableDeals: [] });
+    vi.stubEnv("SHOW_ESTIMATE", "1");
+    expect((await (await req()).json()).valuation).toMatchObject({ estimateLow: 1, estimateHigh: 2 });
+    vi.unstubAllEnvs();
+  });
 });

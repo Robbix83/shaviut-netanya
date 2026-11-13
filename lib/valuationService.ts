@@ -29,6 +29,23 @@ export interface ValuationInput {
   asOf?: string | null;
 }
 
+/**
+ * מה שנשלח לדפדפן. ברירת המחדל היא "סקר עסקאות": העסקאות עצמן בלבד, בלי סכום שחושב לנכס
+ * (שווי, מחיר למ"ר, התאמת קומה, רוחב טווח) — עד חוות דעת משפטית על חוק שמאי מקרקעין / תקנה 24
+ * לתקנות האתיקה למתווכים. SHOW_ESTIMATE=1 מחזיר את האומדן. המנוע עצמו לא משתנה.
+ */
+export function publicValuation(v: Valuation): Valuation {
+  if (process.env.SHOW_ESTIMATE === "1" || v.manualReview) return v;
+  return {
+    ...v,
+    estimateLow: 0, estimateMid: 0, estimateHigh: 0,
+    pricePerSqmLow: 0, pricePerSqmMid: 0, pricePerSqmHigh: 0,
+    effectiveDeals: undefined, rangeHalf: undefined,
+    floorAdjusted: false, preliminary: false,
+    manualReview: true, manualReviewReason: "survey",
+  };
+}
+
 export type ValuationOutcome =
   | { ok: true; valuation: Valuation; neighborhoodId: string; neighborhoodName: string | null }
   | { ok: false; error: "no_match" | "insufficient_data" };
