@@ -1,5 +1,5 @@
 import { getStore } from "@/lib/store";
-import { listSearches, type SearchRow } from "@/lib/searchLog";
+import { listSearches, isInternalSearch, type SearchRow } from "@/lib/searchLog";
 import { getMetaInsights, type MetaDay } from "@/lib/metaAds";
 import { isTestLead } from "@/lib/leadQuality";
 import type { Lead } from "@/lib/types";
@@ -48,7 +48,7 @@ export default async function Overview({ searchParams }: { searchParams: Promise
     store.dataAsOf().catch(() => null),
   ]);
 
-  const searches = searchRes.rows.filter((r) => ilDay(r.createdAt) >= from);
+  const searches = searchRes.rows.filter((r) => ilDay(r.createdAt) >= from && !isInternalSearch(r.source));
   const leads = allLeads.filter((l) => ilDay(l.createdAt) >= from);
   const realLeads = leads.filter((l) => !isTestLead(l));
   const valuations = searches.filter((r) => r.outcome === "ok");

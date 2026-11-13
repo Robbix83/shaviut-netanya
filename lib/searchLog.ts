@@ -22,6 +22,9 @@ export interface SearchRow {
   basedOnDeals: number | null;
 }
 
+/** בדיקה פנימית: חיפוש של מנהל מחובר ("internal") או קריאה שלא הגיעה מהאשף (בלי source) — לא נספר בסטטיסטיקה */
+export const isInternalSearch = (source: string | null): boolean => !source || source === "internal";
+
 function enabled(): boolean {
   return process.env.DATA_SOURCE === "supabase" && !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY;
 }

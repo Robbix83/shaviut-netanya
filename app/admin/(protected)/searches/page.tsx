@@ -1,4 +1,4 @@
-import { listSearches, type SearchRow } from "@/lib/searchLog";
+import { listSearches, isInternalSearch, type SearchRow } from "@/lib/searchLog";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +11,9 @@ const OUTCOME: Record<SearchRow["outcome"], { label: string; cls: string }> = {
 const TYPE: Record<string, string> = { apartment: "דירה", house: "בית", land: "מגרש" };
 
 function sourceLabel(s: string | null): string {
+  if (isInternalSearch(s)) return "בדיקה פנימית";
   const v = (s || "").toLowerCase();
-  if (!v || v === "direct") return "ישיר";
+  if (v === "direct") return "ישיר";
   if (/facebook|fb|instagram|meta|^ig$|^an$/.test(v)) return "פייסבוק/אינסטגרם";
   if (/google/.test(v)) return "גוגל";
   try {
@@ -43,7 +44,9 @@ function propertyText(r: SearchRow): string {
 }
 
 export default async function Searches() {
-  const { rows, error } = await listSearches(500);
+  const { rows: all, error } = await listSearches(500);
+  const rows = all.filter((r) => !isInternalSearch(r.source)); // הסטטיסטיקה בלי בדיקות פנימיות; הטבלה מציגה הכול
+  const internalCount = all.length - rows.length;
   const today = ilDay(new Date().toISOString());
   const todayCount = rows.filter((r) => ilDay(r.createdAt) === today).length;
   const okCount = rows.filter((r) => r.outcome === "ok").length;
@@ -55,7 +58,8 @@ export default async function Searches() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-800">חיפושים</h1>
-        <p className="text-sm text-slate-500 mt-0.5">כל בדיקת שווי באתר, גם של מי שלא השאיר פרטים. בלי שם, טלפון או IP.</p>
+        <p className="text-sm text-slate-500 mt-0.5">כל בדיקת שווי באתר, גם של מי שלא השאיר פרטים. בלי שם, טלפון או IP.
+          {internalCount > 0 && ` המספרים לא כוללים ${internalCount} בדיקות פנימיות (מנהל מחובר או בדיקות מערכת).`}</p>
       </div>
 
       {error && <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">{error}</div>}
@@ -75,7 +79,7 @@ export default async function Searches() {
       <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <h2 className="font-bold text-slate-800">כל החיפושים</h2>
-          <span className="text-xs text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">{rows.length} רשומות</span>
+          <span className="text-xs text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full border border-slate-200">{all.length} רשומות</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -89,7 +93,7 @@ export default async function Searches() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
+              {all.map((r) => (
                 <tr key={r.id} className="border-t border-slate-100">
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap tabular-nums">{ilTime(r.createdAt)}</td>
                   <td className="px-4 py-3 text-slate-800">{[r.street, r.houseNumber].filter(Boolean).join(" ") || "—"}</td>
@@ -106,7 +110,7 @@ export default async function Searches() {
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{sourceLabel(r.source)}</td>
                 </tr>
               ))}
-              {rows.length === 0 && !error && (
+              {all.length === 0 && !error && (
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
                     עוד אין חיפושים. כל בדיקת שווי באתר תופיע כאן.

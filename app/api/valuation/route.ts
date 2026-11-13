@@ -21,6 +21,11 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "bad request" }, { status: 400 });
   }
+  // מנהל מחובר שבודק את האתר — החיפוש נשמר כבדיקה פנימית ולא נספר
+  try {
+    const { auth } = await import("@/auth"); // טעינה עצלה: next-auth לא נטען בבדיקות היחידה
+    if (await auth()) body.source = "internal";
+  } catch {}
 
   // אכיפת שרת עצמאית — לא סומכים על ולידציית ה-UI בלבד.
   if (!isValidHouseNumber(body.propertyType, body.houseNumber)) {
