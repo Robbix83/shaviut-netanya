@@ -169,6 +169,12 @@ function cutoffDate(months: number, asOf?: string | null): string {
  * שיש בו מספיק נתונים (6 ח' כברירת מחדל), מעדיפים מספר חדרים דומה, ומתאימים לשטח.
  */
 export async function valuate(input: PropertyInput): Promise<Valuation | null> {
+  const v = await valuateOnce(input, true);
+  // שנה שהוסקה מהבניין עלולה לצמצם את המאגר מתחת לסף (בניין חדש) — אז בלי ההסקה, כמו קודם
+  return v ?? (input.yearBuilt == null ? valuateOnce(input, false) : null);
+}
+
+async function valuateOnce(input: PropertyInput, inferYear: boolean): Promise<Valuation | null> {
   const store = getStore();
   const dataAsOf = await store.dataAsOf();
   // בדיקה לאחור: מעריכים "נכון לתאריך" — רק עסקאות שלפניו, וכל חלונות הזמן נספרים ממנו
@@ -229,9 +235,12 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   let compRadiusMeters: number | null = null;
   let compSearchScope: import("./types").Valuation["compSearchScope"] = "neighborhood";
 
+  // שנת הבנייה לסינון גיל: מה שהמשתמש הזין, ואם לא — חציון השנים בעסקאות אותו בניין (בכל גודל).
+  // בלי זה רחוב מעורב (ניצה: בניין מ-1980 ליד מגדלים מ-2020) מערבב דירות ישנות וחדשות.
+  let ageYear: number | null = input.yearBuilt ?? null;
   const ageFilter = (ds: Deal[], toleranceYrs: number): Deal[] => {
-    if (input.yearBuilt == null) return ds;
-    const withAge = ds.filter((d) => d.yearBuilt != null && Math.abs(d.yearBuilt - input.yearBuilt!) <= toleranceYrs);
+    if (ageYear == null) return ds;
+    const withAge = ds.filter((d) => d.yearBuilt != null && Math.abs(d.yearBuilt - ageYear!) <= toleranceYrs);
     return withAge.length >= MIN_DEALS_FOR_ESTIMATE ? withAge : ds;
   };
 
@@ -284,6 +293,13 @@ export async function valuate(input: PropertyInput): Promise<Valuation | null> {
   // ─── שלב טקסטואלי: בניין מדויק → קרבת רחוב (±12) → רחוב שלם ───
   // "בניין" = אותו מספר בדיוק. ±12 מספרים = "רחוב" (לא "בניין") — מונע תיוג שגוי
   // של בניינים שכנים (כגון ויצמן 97 כ"אותו בניין" של ויצמן 98).
+  if (inferYear && inputStreetNorm && ageYear == null) {
+    const years = byExactBuilding(pool4yr)
+      .map((d) => d.yearBuilt)
+      .filter((y): y is number => y != null && y > 1900)
+      .sort((a, b) => a - b);
+    if (years.length >= 2) ageYear = years[Math.floor(years.length / 2)];
+  }
   if (inputStreetNorm) {
     const exactBuilding = ageFilter(byExactBuilding(geoPool), AGE_TOLERANCES.building);
     if (exactBuilding.length >= Math.max(MIN_DEALS_FOR_ESTIMATE, APPRAISAL.buildingMinDeals)) {
